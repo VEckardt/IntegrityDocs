@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/project.pj" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/Integrity/IntegrityClient10/lib/mksapi.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/Integrity/IntegrityClient10/lib/mksclient.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

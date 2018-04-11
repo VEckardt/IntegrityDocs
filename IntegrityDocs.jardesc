@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="IM_IntegrityDocs/IntegrityDocs.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/IM_IntegrityDocs/IntegrityDocs.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{IntegrityDocs.java[IntegrityDocs" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Chart.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipModel.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{IntegrityField.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{IterableNodeList.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{ViewsetFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoNode.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{TemplateExtractor.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{XMLWriter.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{PathMapping.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Action.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{XMLUtils.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{DeployDocWriter.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{IntegrityAdminObject.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{ChartFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{FieldRelationships.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Target.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{APISession.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{IntegrityDocs.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoModel.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Integrity.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{CmdExecutor.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoLink.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoView.java"/>
+        <file path="/IM_IntegrityDocs/src/com/mks/services/utilities/docgen/resources.zip"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Execute.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Trigger.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{VisibleFields.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{HyperLinkFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{QueryFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoNode.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{TriggerFactory.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowModel.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoLink.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{DeployType.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{StateTransitions.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Query.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoSelfLoop.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Stage.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Type.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{XMLErrorHandler.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{ExceptionHandler.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{DocWriter.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{TypeProperties.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{DeployDocs.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{XMLPrettyPrinter.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{IntegrityState.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoModel.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{StagingSystem.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{Viewset.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{DefaultNodeNameComparator.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoView.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities{CmdException.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoPort.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.workflow{WorkflowJGoSelfLoop.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen.models.relationship{RelationshipJGoPort.java"/>
+        <javaElement handleIdentifier="=IM_IntegrityDocs/src&lt;com.mks.services.utilities.docgen{MandatoryFields.java"/>
+    </selectedElements>
+</jardesc>
