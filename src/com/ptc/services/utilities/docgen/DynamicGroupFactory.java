@@ -7,15 +7,15 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 
-public class DynGroupFactory {
+public class DynamicGroupFactory {
 
-    public static List<DynGroup> parseDynGroups(WorkItemIterator wii, boolean doXML) throws APIException {
-        List<DynGroup> queryList = new ArrayList<>();
+    public static List<DynamicGroup> parseDynGroups(WorkItemIterator wii, boolean doXML) throws APIException {
+        List<DynamicGroup> queryList = new ArrayList<>();
         if (null != wii && wii.hasNext()) {
             while (wii.hasNext()) {
                 WorkItem wi = wii.next();
                 // Only process admin queries
-                    DynGroup q = new DynGroup();
+                    DynamicGroup q = new DynamicGroup();
                     q.setName(Integrity.getStringFieldValue(wi.getField("name")));
                     System.out.println("Processing Dynamic Group: " + q.getName());
                     q.setID(Integrity.getStringFieldValue(wi.getField("id")));

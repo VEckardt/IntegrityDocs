@@ -17,7 +17,7 @@ import com.mks.api.im.IMModelTypeName;
  * Note: We're only interested in admin queries either for reporting purposes or
  * xml export!
  */
-public class DynGroup extends IntegrityAdminObject {
+public class DynamicGroup extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "DYNGROUP_";
@@ -25,7 +25,7 @@ public class DynGroup extends IntegrityAdminObject {
     private Date lastModified;
     private String createdBy;
     
-    public DynGroup() {
+    public DynamicGroup() {
         modelType = IMModelTypeName.DYNAMIC_GROUP;
         id = "";
         name = "";
@@ -33,7 +33,7 @@ public class DynGroup extends IntegrityAdminObject {
         lastModified = new Date();
         description = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        directory = "DynGroups";
+        directory = "DynamicGroups";
     }
 
     // All setter functions

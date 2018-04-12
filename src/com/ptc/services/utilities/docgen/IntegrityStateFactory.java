@@ -26,6 +26,7 @@ public class IntegrityStateFactory {
                 // Only process admin queries
                 IntegrityState q = new IntegrityState(null, wi);
                 q.setName(Integrity.getStringFieldValue(wi.getField("name")));
+                q.setDisplayName(Integrity.getStringFieldValue(wi.getField("displayName")));
                 System.out.println("Processing State: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 // q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));

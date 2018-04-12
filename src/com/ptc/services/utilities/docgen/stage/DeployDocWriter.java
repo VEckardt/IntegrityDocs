@@ -1,6 +1,7 @@
 package com.ptc.services.utilities.docgen.stage;
 
 import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.copyright;
 import com.ptc.services.utilities.docgen.stage.StagingSystem;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +119,7 @@ public class DeployDocWriter {
         writeLine("</thead>");
         writeLine("<tfoot>");
         writeLine(" <tr><td colspan='5'><hr class='hr_default'></td></tr>");
-        writeLine(" <tr><td colspan='5' class='footer'>Copyright &copy; 2010, 2018 PTC Inc.  All rights reserved</td></tr>");
+        writeLine(" <tr><td colspan='5' class='footer'>" + copyright + "</td></tr>");
         writeLine("</tfoot>");
         writeLine("<tbody>");
 

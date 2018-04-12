@@ -61,7 +61,7 @@ public class Integrity {
         "max", "maxLength", "min", "name", "pairedField", "paramSubstitution", "phases", "picks",
         "position", "query", "ranges", /*"references",*/ "relevanceRule", "richContent", "showDateTime",
         "staticComputation", "storeToHistoryFrequency", "suggestions", "textindex", "trace", "type"};
-    public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position" /*,references*/};
+    public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position" , "displayName"/*,references*/};
     public static final String[] queryAttributes = new String[]{"createdBy", "description", "fields", "id", "isAdmin", "lastModified", "name",
         "queryDefinition", /*"references",*/ "shareWith", "sortDirection", "sortField"};
     public static final String[] groupAttributes = new String[]{"description", "email", "id", "image", "isActive", "isInRealm", "name", "notificationRule", "queryTimeout", /* "references", */ "sessionLimit"};
@@ -71,7 +71,8 @@ public class Integrity {
         "query", /*"references",*/ "shareWith"};
     // testAttributes
     public static final String[] testVerdictAttributes = new String[]{"description","displayName","id","isActive","name","position","verdictType"};
-    
+    // resultFieldsAttributes
+    public static final String[] resultFieldsAttributes = new String[]{"description","displayName","id","name","position","type"};
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
 
@@ -733,6 +734,17 @@ public class Integrity {
         imQueries.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(imQueries).getWorkItems();
     }
+    
+    public WorkItemIterator getTestResultFields() throws APIException {
+        Command imQueries = new Command(Command.TM, "resultfields");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.resultFieldsAttributes) {
+            mv.add(queryAttribute);
+        }
+        imQueries.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(imQueries).getWorkItems();
+    }    
 
     public WorkItemIterator viewQueries(List<String> queryList) throws APIException {
         Command imViewQuery = new Command(Command.IM, "viewquery");

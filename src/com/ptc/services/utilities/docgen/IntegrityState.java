@@ -21,6 +21,7 @@ public class IntegrityState extends IntegrityAdminObject {
     public static final String XML_PREFIX = "STATE_";
     private String capabilities;
     private String globalDescription;
+    private String displayName;
     private String id;
     private String position;
     private String iTypeName;
@@ -37,6 +38,7 @@ public class IntegrityState extends IntegrityAdminObject {
         position = "";
         iTypeName = typeName;
         directory = "States";
+        displayName = "";
 
         // Now set them to the correct values
         setCapabilities(wi.getField("capabilities"));
@@ -63,6 +65,9 @@ public class IntegrityState extends IntegrityAdminObject {
     public void setDescription(String description) {
         this.description = description;
     }    
+    public void setDisplayName(String DisplayName) {
+        this.displayName = DisplayName;
+    }      
 
     private void setCapabilities(Field c) {
         if (null != c && null != c.getList()) {
@@ -104,9 +109,13 @@ public class IntegrityState extends IntegrityAdminObject {
         return capabilities;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
+    public String getDisplayName() {
+        return displayName;
+    }    
 
     public String getGlobalDescription() {
         return globalDescription;

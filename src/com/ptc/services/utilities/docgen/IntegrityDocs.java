@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 public class IntegrityDocs {
 
     public static final String iDOCS_REV = "$Revision: 11.0.1 $";
+    public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
     private static final String os = System.getProperty("os.name");
     public static final String nl = System.getProperty("line.separator");
     public static final String fs = System.getProperty("file.separator");
@@ -44,6 +45,7 @@ public class IntegrityDocs {
     private boolean doViewsets = true;
     private boolean doFields = true;
     private boolean doTestVerdicts = true;
+    private boolean doTestResultFields = true;
     private boolean doXML = false;
 
     /**
@@ -55,16 +57,17 @@ public class IntegrityDocs {
         out.println("API Version: " + APISession.VERSION);
         out.println("Usage:");
         out.println("--xml: Generates an XML represenation of the Integrity data (not well maintained)");
-        out.println("--noQueries:      disable Queries scan and output");
-        out.println("--noTriggers:     disable Triggers scan and output");
-        out.println("--noCharts:       disable Charts scan and output");
-        out.println("--noViewsets:     disable Viewsets scan and output");
-        out.println("--noGroups:       disable Groups scan and output");
-        out.println("--noDynGroups:    disable DynGroups scan and output");
-        out.println("--noStates:       disable States scan and output");
-        out.println("--noReports:      disable Reports scan and output");
-        out.println("--noFields:       disable Fields scan and output");
-        out.println("--noTestVerdicts: disable TestVerdict scan and output");
+        out.println("--noQueries:          disable Queries scan and output");
+        out.println("--noTriggers:         disable Triggers scan and output");
+        out.println("--noCharts:           disable Charts scan and output");
+        out.println("--noViewsets:         disable Viewsets scan and output");
+        out.println("--noGroups:           disable Groups scan and output");
+        out.println("--noDynGroups:        disable DynGroups scan and output");
+        out.println("--noStates:           disable States scan and output");
+        out.println("--noReports:          disable Reports scan and output");
+        out.println("--noFields:           disable Fields scan and output");
+        out.println("--noTestVerdicts:     disable TestVerdict scan and output");
+        out.println("--noTestResultFields: disable TestResultFields scan and output");
 
         try {
             IntegrityDocs iDocs = new IntegrityDocs();
@@ -88,12 +91,13 @@ public class IntegrityDocs {
         List<Chart> iCharts = new ArrayList<>();
         List<Viewset> iViewsets = new ArrayList<>();
         List<Group> iGroups = new ArrayList<>();
-        List<DynGroup> iDynGroups = new ArrayList<>();
+        List<DynamicGroup> iDynGroups = new ArrayList<>();
         List<IntegrityState> iStates = new ArrayList<>();
         List<Report> iReports = new ArrayList<>();
         List<IntegrityField> iFields = new ArrayList<>();
-        // TestVerdict
+        // TestVerdict TestResultFields
         List<TestVerdict> iTestVerdicts = new ArrayList<>();
+        List<TestResultField> iTestResultFields = new ArrayList<>();
 
         try {
 
@@ -125,7 +129,9 @@ public class IntegrityDocs {
                     } else if (arg.compareToIgnoreCase("--noFields") == 0) {
                         doFields = false;
                     } else if (arg.compareToIgnoreCase("--noTestVerdicts") == 0) {
-                        doTestVerdicts = false;                        
+                        doTestVerdicts = false;
+                    } else if (arg.compareToIgnoreCase("--noTestResultFields") == 0) {
+                        doTestResultFields = false;
                     } else {
                         typeList.add(arg);
                     }
@@ -160,7 +166,7 @@ public class IntegrityDocs {
 
             // Get a list of queries, if asked for
             if (doDynGroups) {
-                iDynGroups = DynGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
+                iDynGroups = DynamicGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
             }
 
             // Get a list of triggers, if asked for
@@ -187,13 +193,17 @@ public class IntegrityDocs {
                 System.out.println("Reading Reports ...");
                 iReports = ReportFactory.parseReports(i.getReports(), doXML);
             }
-            
+
             if (doTestVerdicts) {
                 System.out.println("Reading Test Verdicts ...");
                 iTestVerdicts = TestVerdictFactory.parseTestVerdicts(i.getTestVerdicts(), doXML);
-            }            
+            }
+            if (doTestResultFields) {
+                System.out.println("Reading TestResultFields ...");
+                iTestResultFields = TestResultFieldFactory.parseTestResultFields(i.getTestResultFields(), doXML);
+            }
 
-            // Get a list of viewsets, if asked for
+            // Get a list of Fields, if asked for
             if (doFields) {
                 LinkedHashMap<String, IntegrityField> fields = i.getFields();
                 // For each type, abstract all relevant information
@@ -214,7 +224,7 @@ public class IntegrityDocs {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts);
+                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts, iTestResultFields);
                 // Generate the report resources
                 generateResources();
 

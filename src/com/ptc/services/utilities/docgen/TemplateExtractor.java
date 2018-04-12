@@ -98,12 +98,13 @@ public class TemplateExtractor {
         List<Trigger> iTriggers = new ArrayList<>();
         List<Chart> iCharts = new ArrayList<>();
         List<Group> iGroups = new ArrayList<>();
-        List<DynGroup> iDynGroups = new ArrayList<>();
+        List<DynamicGroup> iDynGroups = new ArrayList<>();
         List<Viewset> iViewsets = new ArrayList<>();
         List<IntegrityState> iStates = new ArrayList<>();
         List<Report> iReports = new ArrayList<>();
         List<IntegrityField> iFields = new ArrayList<>();
         List<TestVerdict> iTestVerdicts = new ArrayList<>();
+        List<TestResultField> iTestResultFields = new ArrayList<>();
 
         
         try {
@@ -176,7 +177,7 @@ public class TemplateExtractor {
                 // Pass the abstraction to the DocWriter
                 DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), 
                         iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
-                        iStates, iReports, iFields, iTestVerdicts
+                        iStates, iReports, iFields, iTestVerdicts, iTestResultFields
                 );
                 // Generate the report resources
                 generateResources();
