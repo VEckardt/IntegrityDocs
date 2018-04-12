@@ -10,6 +10,7 @@ import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
+import static com.ptc.services.utilities.docgen.Group.XML_PREFIX;
 
 /**
  * Object represents an Integrity State The following attributes are supported:
@@ -35,6 +36,7 @@ public class IntegrityState extends IntegrityAdminObject {
         name = "";
         position = "";
         iTypeName = typeName;
+        directory = "States";
 
         // Now set them to the correct values
         setCapabilities(wi.getField("capabilities"));
@@ -47,6 +49,20 @@ public class IntegrityState extends IntegrityAdminObject {
         xmlTypeName = XMLWriter.padXMLParamName(IntegrityType.XML_PREFIX + XMLWriter.getXMLParamName(iTypeName));
         position = wi.getField("position").getValueAsString();
     }
+    
+    // All setter functions
+    public void setID(String id) {
+        this.id = id;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+        this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }    
 
     private void setCapabilities(Field c) {
         if (null != c && null != c.getList()) {
@@ -169,5 +185,8 @@ public class IntegrityState extends IntegrityAdminObject {
 
     public String getModelType() {
         return modelType;
+    }
+    public String getDirectory() {
+        return directory;
     }
 }

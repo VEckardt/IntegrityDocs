@@ -9,8 +9,11 @@ public abstract class IntegrityAdminObject {
     protected String name;
     protected String xmlParamName;
     protected String description;
+    protected String directory;
 
     protected abstract String getName();
+    
+    protected abstract String getDirectory();
 
     protected abstract String getDescription();
 
@@ -19,6 +22,8 @@ public abstract class IntegrityAdminObject {
     protected abstract Element getXML(Document job, Element command);
 
     protected abstract String getModelType();
+    
+    protected abstract String getPosition();
 
     public String getAdminObjectType() {
         if (null != modelType && modelType.indexOf('.') > 0) {

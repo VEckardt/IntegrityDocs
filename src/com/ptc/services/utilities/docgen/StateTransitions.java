@@ -19,9 +19,9 @@ public class StateTransitions {
 
     public StateTransitions(String typeName, Integrity i, Field stateTransitions) {
         transitions = stateTransitions;
-        statesList = new ArrayList<String>();
+        statesList = new ArrayList<>();
         strTransitions = new String();
-        statesHash = new Hashtable<String, IntegrityState>();
+        statesHash = new Hashtable<>();
         setUniqueStatesAndTransitions();
 
         try {
@@ -73,11 +73,11 @@ public class StateTransitions {
 
                     // Add the from state to our string builder representation of the state transitions
                     String xmlFromState = IntegrityState.XML_PREFIX + XMLWriter.getXMLParamName(stateTransition.getId());
-                    sb.append(XMLWriter.padXMLParamName(xmlFromState) + ":");
+                    sb.append(XMLWriter.padXMLParamName(xmlFromState)).append(":");
 
                     // Add the target state to our string builder representation of the state transitions
                     String xmlToState = IntegrityState.XML_PREFIX + XMLWriter.getXMLParamName(targetState.getId());
-                    sb.append(XMLWriter.padXMLParamName(xmlToState) + ":");
+                    sb.append(XMLWriter.padXMLParamName(xmlToState)).append(":");
 
                     // Add the permitted groups for this state transition
                     sb.append(Integrity.getXMLParamFieldValue(targetState.getField("permittedGroups"), Integrity.GROUP_XML_PREFIX, ","));
@@ -105,21 +105,19 @@ public class StateTransitions {
 
     @SuppressWarnings("unchecked")
     public String getFormattedReport() throws ItemNotFoundException {
-        StringBuffer report = new StringBuffer();
+        StringBuilder report = new StringBuilder();
         // Construct the open table and heading line
-        report.append("<table class='list'>" + IntegrityDocs.nl);
-        report.append("  <tr>" + IntegrityDocs.nl);
-        report.append("    <th>From State</th>" + IntegrityDocs.nl);
-        report.append("    <th>To State</th>" + IntegrityDocs.nl);
-        report.append("    <th>Permitted Groups</th>" + IntegrityDocs.nl);
-        report.append("  </tr>" + IntegrityDocs.nl);
+        report.append("<table class='list'>").append(IntegrityDocs.nl);
+        report.append("  <tr>").append(IntegrityDocs.nl);
+        report.append("    <th>From State</th>").append(IntegrityDocs.nl);
+        report.append("    <th>To State</th>").append(IntegrityDocs.nl);
+        report.append("    <th>Permitted Groups</th>").append(IntegrityDocs.nl);
+        report.append("  </tr>").append(IntegrityDocs.nl);
         // Ensure we're dealing with some valid data
         if (null != transitions && null != transitions.getList()) {
             List<Item> stateTransitionsList = transitions.getList();
             // Loop thru all the state transitions
-            for (Iterator<Item> lit = stateTransitionsList.iterator(); lit.hasNext();) {
-                // Get the "From State" value
-                Item stateTransition = lit.next();
+            for (Item stateTransition : stateTransitionsList) {
                 // Get the list of "To State" values
                 Field targetStates = stateTransition.getField("targetStates");
                 List<Item> targetStatesList = targetStates.getList();

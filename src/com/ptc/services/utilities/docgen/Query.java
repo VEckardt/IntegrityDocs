@@ -45,6 +45,7 @@ public class Query extends IntegrityAdminObject {
         shareWith = "";
         sortDirection = "";
         sortField = "";
+        directory = "Queries";
     }
 
     // All setter functions
@@ -202,4 +203,6 @@ public class Query extends IntegrityAdminObject {
     public String getSortField() {
         return sortField;
     }
-}
+    public String getDirectory() {
+        return directory;
+    }}

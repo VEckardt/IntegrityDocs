@@ -15,6 +15,7 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
+import java.util.LinkedHashMap;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -23,12 +24,12 @@ public class ViewsetFactory {
 
     private static final File tmpExportDir = new File(IntegrityDocs.XML_VIEWSETS_DIR.getAbsolutePath() + ".tmp");
 
-    public static List<Viewset> parseViewsets(Integrity i, WorkItemIterator wii, Hashtable<String, IntegrityField> fieldsHash, boolean doXML)
+    public static List<Viewset> parseViewsets(Integrity i, WorkItemIterator wii, LinkedHashMap<String, IntegrityField> fieldsHash, boolean doXML)
             throws APIException, ParserConfigurationException, SAXException, IOException, XPathExpressionException, CmdException {
-        List<Viewset> vsList = new ArrayList<Viewset>();
-        Hashtable<String, String> typeIDs = new Hashtable<String, String>();
-        Hashtable<String, String> queryIDs = new Hashtable<String, String>();
-        Hashtable<String, String> chartIDs = new Hashtable<String, String>();
+        List<Viewset> vsList = new ArrayList<>();
+        Hashtable<String, String> typeIDs = new Hashtable<>();
+        Hashtable<String, String> queryIDs = new Hashtable<>();
+        Hashtable<String, String> chartIDs = new Hashtable<>();
 
         if (null != wii && wii.hasNext()) {
             // Get a list of all Type, Query, and Chart Admin IDs which is required to scrub the viewset layout xml

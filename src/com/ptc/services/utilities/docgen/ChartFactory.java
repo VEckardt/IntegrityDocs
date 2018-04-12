@@ -28,6 +28,7 @@ public class ChartFactory {
                     c.setGraphStyle(attributes.nextToken().trim());
                     c.setQuery(attributes.nextToken().trim());
                     c.setShareWith(attributes.nextToken().trim());
+                    // c.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
                     chartList.add(c);
                 }
             } else {

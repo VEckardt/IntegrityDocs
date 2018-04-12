@@ -89,6 +89,11 @@ public class IntegrityField extends IntegrityAdminObject {
     private String iTypeName;
     private String xmlTypeName;
 
+    @Override
+    protected String getPosition() {
+        return id;
+    }
+
     public enum FieldType {
 
         ID {
@@ -241,6 +246,7 @@ public class IntegrityField extends IntegrityAdminObject {
         globalDescription = wi.getField("description").getValueAsString();
         allowedTypes = parseAllowedTypes(wi.getField("allowedTypes"));
         visibleGroups = new ArrayList<String>();
+        directory = "Fields";
 
         // Initialize the fieldDetailsHash with the information from the Work Item
         for (@SuppressWarnings("unchecked") Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
@@ -313,7 +319,7 @@ public class IntegrityField extends IntegrityAdminObject {
             List<String> picks = parsePickValues(getAttribute("picks"));
             return "<b>Pick List Values:</b><br>" + Integrity.convertListToString(picks, "<br/>" + IntegrityDocs.nl);
         } else if (null != computation && computation.length() > 0) {
-            String computationSummary = new String();
+            String computationSummary;
             String staticComputation = getAttributeAsString("staticComputation");
             String storeToHistoryFrequency = getAttributeAsString("storeToHistoryFrequency");
 
@@ -331,7 +337,7 @@ public class IntegrityField extends IntegrityAdminObject {
         } else if (FieldType.RELATIONSHIP.equals(type) && getDefaultColumns().size() > 0) {
             return "<b>Columns:</b><br>" + IntegrityDocs.nl + Integrity.convertListToString(getDefaultColumns(), "<br/>" + IntegrityDocs.nl);
         } else {
-            return new String("&nbsp;");
+            return "&nbsp;";
         }
     }
 
@@ -580,10 +586,12 @@ public class IntegrityField extends IntegrityAdminObject {
         return stringToEnum(type);
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
@@ -610,6 +618,7 @@ public class IntegrityField extends IntegrityAdminObject {
     }
 
     // Possible overridden values
+    @Override
     public String getDescription() {
         return getAttributeAsString("description");
     }
@@ -629,7 +638,7 @@ public class IntegrityField extends IntegrityAdminObject {
     // Special handling for the default columns field
     @SuppressWarnings("unchecked")
     public List<String> getDefaultColumns() {
-        List<String> defaultColumnsList = new ArrayList<String>();
+        List<String> defaultColumnsList = new ArrayList<>();
         Field defaultColumns = fieldDetailsHash.get("defaultColumns");
         if (null != defaultColumns && null != defaultColumns.getList()) {
             return defaultColumns.getList();
@@ -637,7 +646,13 @@ public class IntegrityField extends IntegrityAdminObject {
         return defaultColumnsList;
     }
 
+    @Override
     public String getModelType() {
         return modelType;
+    }
+
+    @Override
+    public String getDirectory() {
+        return directory;
     }
 }

@@ -41,6 +41,7 @@ public class Trigger extends IntegrityAdminObject {
         script = "";
         scriptParams = "";
         scriptTiming = "";
+        directory = "Triggers";
     }
 
     // All setter functions
@@ -223,4 +224,6 @@ public class Trigger extends IntegrityAdminObject {
     public String getScriptTiming() {
         return scriptTiming;
     }
-}
+    public String getDirectory() {
+        return directory;
+    }}

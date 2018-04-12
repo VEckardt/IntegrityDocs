@@ -10,10 +10,11 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import java.util.LinkedHashMap;
 
 public class TriggerFactory {
 
-    public static final String summarizeItemList(Hashtable<String, IntegrityField> fieldsHash, Field itemList, String delim, boolean forXML) {
+    public static final String summarizeItemList(LinkedHashMap<String, IntegrityField> fieldsHash, Field itemList, String delim, boolean forXML) {
         StringBuilder sb = new StringBuilder();
         if (null != itemList && null != itemList.getList()) {
             String fieldName = itemList.getName();
@@ -42,7 +43,7 @@ public class TriggerFactory {
         return sb.toString();
     }
 
-    public static List<Trigger> parseTriggers(Hashtable<String, IntegrityField> fieldsHash, WorkItemIterator wii, boolean forXML) throws APIException {
+    public static List<Trigger> parseTriggers(LinkedHashMap<String, IntegrityField> fieldsHash, WorkItemIterator wii, boolean forXML) throws APIException {
         List<Trigger> iTriggersList = new ArrayList<Trigger>();
         // Ensure we have a list of triggers to work with...
         if (null != wii && wii.hasNext()) {

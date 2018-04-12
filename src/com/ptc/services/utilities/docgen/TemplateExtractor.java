@@ -3,7 +3,6 @@ package com.ptc.services.utilities.docgen;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
@@ -12,6 +11,7 @@ import java.util.zip.ZipEntry;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
+import java.util.LinkedHashMap;
 
 public class TemplateExtractor {
 
@@ -91,45 +91,51 @@ public class TemplateExtractor {
 
     public void generateDocs(String[] args) {
         Integrity i = null;
-        List<IntegrityType> iTypes = new ArrayList<IntegrityType>();
-        List<Query> iQueries = new ArrayList<Query>();
-        List<Trigger> iTriggers = new ArrayList<Trigger>();
-        List<Chart> iCharts = new ArrayList<Chart>();
-        List<Viewset> iViewsets = new ArrayList<Viewset>();
+        List<IntegrityType> iTypes = new ArrayList<>();
+        List<Query> iQueries = new ArrayList<>();
+        List<Trigger> iTriggers = new ArrayList<>();
+        List<Chart> iCharts = new ArrayList<>();
+        List<Group> iGroups = new ArrayList<>();
+        List<DynGroup> iDynGroups = new ArrayList<>();
+        List<Viewset> iViewsets = new ArrayList<>();
+        List<IntegrityState> iStates = new ArrayList<>();
+        List<Report> iReports = new ArrayList<>();
+        List<IntegrityField> iFields = new ArrayList<>();
+        List<TestVerdict> iTestVerdicts = new ArrayList<>();
 
+        
         try {
             // Construct the Integrity Application
             i = new Integrity();
 
             // Get a string list of types
-            List<String> typeList = new ArrayList<String>();
+            List<String> typeList = new ArrayList<>();
             if (null != args && args.length > 0) {
-                for (int j = 0; j < args.length; j++) {
-                    if (args[j].compareToIgnoreCase("--noQueries") == 0) {
+                for (String arg : args) {
+                    if (arg.compareToIgnoreCase("--noQueries") == 0) {
                         doQueries = false;
-                    } else if (args[j].compareToIgnoreCase("--noTriggers") == 0) {
+                    } else if (arg.compareToIgnoreCase("--noTriggers") == 0) {
                         doTriggers = false;
-                    } else if (args[j].compareToIgnoreCase("--noCharts") == 0) {
+                    } else if (arg.compareToIgnoreCase("--noCharts") == 0) {
                         doCharts = false;
-                    } else if (args[j].compareToIgnoreCase("--noViewsets") == 0) {
+                    } else if (arg.compareToIgnoreCase("--noViewsets") == 0) {
                         doViewsets = false;
                     } else {
-                        typeList.add(args[j]);
+                        typeList.add(arg);
                     }
                 }
             }
 
             // Fetch the list of fields without the type context
-            Hashtable<String, IntegrityField> sysFieldsHash = i.getFields();
+            LinkedHashMap<String, IntegrityField> sysFieldsHash = i.getFields();
 
             // In case no types are specified, then run the report for all types
-            if (typeList.size() == 0) {
+            if (typeList.isEmpty()) {
                 typeList = i.getAdminList("types");
             }
 
             // For each type, abstract all relevant information
-            for (Iterator<String> it = typeList.iterator(); it.hasNext();) {
-                String typeName = it.next();
+            for (String typeName : typeList) {
                 System.out.println("Processing Type: " + typeName);
                 IntegrityType t = new IntegrityType(i, i.viewType(typeName), doXML);
                 iTypes.add(t);
@@ -166,7 +172,10 @@ public class TemplateExtractor {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts);
+                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), 
+                        iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
+                        iStates, iReports, iFields, iTestVerdicts
+                );
                 // Generate the report resources
                 generateResources();
                 // Publish the report content

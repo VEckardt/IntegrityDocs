@@ -5,20 +5,22 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
-import java.io.FileOutputStream;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipEntry;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.CmdException;
+import java.io.FileOutputStream;
+import static java.lang.System.out;
+import java.util.LinkedHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
 public class IntegrityDocs {
 
-    public static final String iDOCS_REV = "$Revision: 2.1 $";
+    public static final String iDOCS_REV = "$Revision: 11.0.1 $";
     private static final String os = System.getProperty("os.name");
     public static final String nl = System.getProperty("line.separator");
     public static final String fs = System.getProperty("file.separator");
@@ -26,20 +28,20 @@ public class IntegrityDocs {
     public static final File REPORT_FILE = new File(REPORT_DIR.getAbsolutePath() + fs + "index.htm");
     public static final File CONTENT_DIR = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs");
 
-    public static final File TYPES_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Types");
-    public static final File TRIGGERS_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Triggers");
-    public static final File QUERIES_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Queries");
-    public static final File VIEWSETS_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "ViewSets");
-    public static final File CHARTS_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Charts");
-
     public static final File XML_CONTENT_DIR = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs-XML");
     public static final File XML_VIEWSETS_DIR = new File(XML_CONTENT_DIR.getAbsolutePath() + fs + "viewsets");
 
     // VE: to enable the first 4
     private boolean doQueries = true;
     private boolean doTriggers = true;
+    private boolean doGroups = true;
+    private boolean doStates = true;
+    private boolean doDynGroups = true;
     private boolean doCharts = true;
+    private boolean doReports = true;
     private boolean doViewsets = true;
+    private boolean doFields = true;
+    private boolean doTestVerdicts = true;
     private boolean doXML = false;
 
     /**
@@ -47,54 +49,32 @@ public class IntegrityDocs {
      */
     public static void main(String[] args) {
         // Only supporting Integrity 10 and newer releases
-        System.out.println("API Version: " + APISession.VERSION);
-        System.out.println("Integrity Docs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        out.println("Integrity Docs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        out.println("API Version: " + APISession.VERSION);
+        out.println("Usage:");
+        out.println("--xml: Generates an XML represenation of the Integrity data (not well maintained)");
+        out.println("--noQueries:      disable Queries scan and output");
+        out.println("--noTriggers:     disable Triggers scan and output");
+        out.println("--noCharts:       disable Charts scan and output");
+        out.println("--noViewsets:     disable Viewsets scan and output");
+        out.println("--noGroups:       disable Groups scan and output");
+        out.println("--noDynGroups:    disable DynGroups scan and output");
+        out.println("--noStates:       disable States scan and output");
+        out.println("--noReports:      disable Reports scan and output");
+        out.println("--noFields:       disable Fields scan and output");
+        out.println("--noTestVerdicts: disable TestVerdict scan and output");
 
         try {
             IntegrityDocs iDocs = new IntegrityDocs();
             iDocs.generateDocs(args);
             System.exit(0);
         } catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + e.getMessage(),
-                    "Integrity Workflow Report - Error",
+                    "Integrity Docs - Generation Error",
                     JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             System.exit(128);
-        }
-    }
-
-    public IntegrityDocs() {
-    }
-
-    private void generateResources() throws IOException {
-        byte[] buf = new byte[1024];
-        ZipInputStream zis = null;
-        ZipEntry entry = null;
-        if (!REPORT_DIR.isDirectory()) {
-            REPORT_DIR.mkdirs();
-        }
-        try {
-            zis = new ZipInputStream(getClass().getResourceAsStream("resources.zip"));
-            while (null != (entry = zis.getNextEntry())) {
-                // Extract each resource file
-                File resFile = new File(REPORT_DIR, entry.getName());
-                if (entry.isDirectory()) {
-                    resFile.mkdirs();
-                } else {
-                    FileOutputStream fos = new FileOutputStream(resFile);
-                    int len;
-                    while ((len = zis.read(buf, 0, 1024)) > -1) {
-                        fos.write(buf, 0, len);
-                    }
-                    fos.close();
-                    zis.closeEntry();
-                }
-            }
-        } finally {
-            if (null != zis) {
-                zis.close();
-            }
         }
     }
 
@@ -105,6 +85,13 @@ public class IntegrityDocs {
         List<Trigger> iTriggers = new ArrayList<>();
         List<Chart> iCharts = new ArrayList<>();
         List<Viewset> iViewsets = new ArrayList<>();
+        List<Group> iGroups = new ArrayList<>();
+        List<DynGroup> iDynGroups = new ArrayList<>();
+        List<IntegrityState> iStates = new ArrayList<>();
+        List<Report> iReports = new ArrayList<>();
+        List<IntegrityField> iFields = new ArrayList<>();
+        // TestVerdict
+        List<TestVerdict> iTestVerdicts = new ArrayList<>();
 
         try {
 
@@ -125,6 +112,18 @@ public class IntegrityDocs {
                         doCharts = false;
                     } else if (arg.compareToIgnoreCase("--noViewsets") == 0) {
                         doViewsets = false;
+                    } else if (arg.compareToIgnoreCase("--noGroups") == 0) {
+                        doGroups = false;
+                    } else if (arg.compareToIgnoreCase("--noDynGroups") == 0) {
+                        doDynGroups = false;
+                    } else if (arg.compareToIgnoreCase("--noStates") == 0) {
+                        doStates = false;
+                    } else if (arg.compareToIgnoreCase("--noReports") == 0) {
+                        doReports = false;
+                    } else if (arg.compareToIgnoreCase("--noFields") == 0) {
+                        doFields = false;
+                    } else if (arg.compareToIgnoreCase("--noTestVerdicts") == 0) {
+                        doTestVerdicts = false;                        
                     } else {
                         typeList.add(arg);
                     }
@@ -133,7 +132,7 @@ public class IntegrityDocs {
 
             // typeList.add("Defect");
             // Fetch the list of fields without the type context
-            Hashtable<String, IntegrityField> sysFieldsHash = i.getFields();
+            LinkedHashMap<String, IntegrityField> sysFieldsHash = i.getFields();
 
             // In case no types are specified, then run the report for all types
             if (typeList.isEmpty()) {
@@ -152,6 +151,16 @@ public class IntegrityDocs {
                 iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
             }
 
+            // Get a list of queries, if asked for
+            if (doGroups) {
+                iGroups = GroupFactory.parseGroups(i.getGroups(), doXML);
+            }
+
+            // Get a list of queries, if asked for
+            if (doDynGroups) {
+                iDynGroups = DynGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
+            }
+
             // Get a list of triggers, if asked for
             if (doTriggers) {
                 iTriggers = TriggerFactory.parseTriggers(sysFieldsHash, i.viewTriggers(i.getAdminList("triggers")), doXML);
@@ -162,9 +171,34 @@ public class IntegrityDocs {
                 iCharts = ChartFactory.parseCharts(i.getCharts());
             }
 
+            // Get a list of charts, if asked for
+            if (doStates) {
+                iStates = IntegrityStateFactory.parseStates(i.getStates(), doXML);
+            }
+
             // Get a list of viewsets, if asked for
             if (doViewsets) {
                 iViewsets = ViewsetFactory.parseViewsets(i, i.viewViewSets(), sysFieldsHash, doXML);
+            }
+
+            if (doReports) {
+                System.out.println("Reading Reports ...");
+                iReports = ReportFactory.parseReports(i.getReports(), doXML);
+            }
+            
+            if (doTestVerdicts) {
+                System.out.println("Reading Test Verdicts ...");
+                iTestVerdicts = TestVerdictFactory.parseTestVerdicts(i.getTestVerdicts(), doXML);
+            }            
+
+            // Get a list of viewsets, if asked for
+            if (doFields) {
+                LinkedHashMap<String, IntegrityField> fields = i.getFields();
+                // For each type, abstract all relevant information
+                for (String fieldName : fields.keySet()) {
+                    System.out.println("Processing Field: " + fieldName);
+                    iFields.add(fields.get(fieldName));
+                }
             }
 
             // Generate Transaction XML files for the Load Test Harness
@@ -178,9 +212,10 @@ public class IntegrityDocs {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts);
+                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts);
                 // Generate the report resources
                 generateResources();
+
                 // Publish the report content
                 doc.publish();
                 // Clean up the temporary files
@@ -210,6 +245,37 @@ public class IntegrityDocs {
         } finally {
             if (null != i) {
                 i.exit();
+            }
+        }
+    }
+
+    public void generateResources() throws IOException {
+        byte[] buf = new byte[1024];
+        ZipInputStream zis = null;
+        ZipEntry entry = null;
+        if (!REPORT_DIR.isDirectory()) {
+            REPORT_DIR.mkdirs();
+        }
+        try {
+            zis = new ZipInputStream(getClass().getResourceAsStream("resources.zip"));
+            while (null != (entry = zis.getNextEntry())) {
+                // Extract each resource file
+                File resFile = new File(REPORT_DIR, entry.getName());
+                if (entry.isDirectory()) {
+                    resFile.mkdirs();
+                } else {
+                    FileOutputStream fos = new FileOutputStream(resFile);
+                    int len;
+                    while ((len = zis.read(buf, 0, 1024)) > -1) {
+                        fos.write(buf, 0, len);
+                    }
+                    fos.close();
+                    zis.closeEntry();
+                }
+            }
+        } finally {
+            if (null != zis) {
+                zis.close();
             }
         }
     }

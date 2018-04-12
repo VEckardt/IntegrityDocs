@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.XMLPrettyPrinter;
+import java.util.LinkedHashMap;
 
 public class XMLWriter {
 
@@ -104,7 +105,7 @@ public class XMLWriter {
         return instruction;
     }
 
-    public void generate(Hashtable<String, IntegrityField> sysFieldsHash) throws ParserConfigurationException, APIException, SAXException, IOException {
+    public void generate(LinkedHashMap<String, IntegrityField> sysFieldsHash) throws ParserConfigurationException, APIException, SAXException, IOException {
         // First process the types
         Iterator<IntegrityType> it = iTypes.iterator();
         while (it.hasNext()) {

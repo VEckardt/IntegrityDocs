@@ -37,6 +37,7 @@ public class Chart extends IntegrityAdminObject {
         query = "";
         shareWith = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
+        directory = "Charts";
     }
 
     // All setter functions
@@ -80,6 +81,10 @@ public class Chart extends IntegrityAdminObject {
     // All getter/access functions...
     public String getModelType() {
         return modelType;
+    }
+
+    public String getDirectory() {
+        return directory;
     }
 
     public Element getXML(Document job, Element command) {

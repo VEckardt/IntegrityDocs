@@ -30,6 +30,7 @@ import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
 import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
+import java.util.LinkedHashMap;
 
 public class IntegrityType extends IntegrityAdminObject {
 
@@ -46,7 +47,7 @@ public class IntegrityType extends IntegrityAdminObject {
     private String typeProperties;
     private Hashtable<String, List<String>> relationshipFields;
     private Hashtable<String, IntegrityField> fieldsHash;
-    private Hashtable<String, IntegrityField> allFieldsHash;
+    private LinkedHashMap<String, IntegrityField> allFieldsHash;
     private Hashtable<String, IntegrityState> statesHash;
 
     public static final String getXMLGenericPolicy(String genericPolicy) {
@@ -91,9 +92,10 @@ public class IntegrityType extends IntegrityAdminObject {
         name = Integrity.getStringFieldValue(iType.get("name"));
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         relationshipFields = new Hashtable<>();
-        allFieldsHash = new Hashtable<String, IntegrityField>();
-        fieldsHash = new Hashtable<String, IntegrityField>();
-        statesHash = new Hashtable<String, IntegrityState>();
+        allFieldsHash = new LinkedHashMap<>();
+        fieldsHash = new Hashtable<>();
+        statesHash = new Hashtable<>();
+        directory = "Types";
 
         try {
             // Parsing for Mandatory Fields
@@ -447,9 +449,8 @@ public class IntegrityType extends IntegrityAdminObject {
     // Returns a field name based on its field ID
     private String getFieldName(String fieldID) {
         String fieldName = fieldID;
-        Enumeration<IntegrityField> fields = allFieldsHash.elements();
-        while (fields.hasMoreElements()) {
-            IntegrityField iField = fields.nextElement();
+        for (String field : allFieldsHash.keySet()) {
+            IntegrityField iField = allFieldsHash.get(field);
             if (iField.getID().equals(fieldID)) {
                 fieldName = iField.getName();
                 break;
@@ -523,7 +524,7 @@ public class IntegrityType extends IntegrityAdminObject {
     }
 
     // Export Presentation Template
-    public void exportPresentation(String template, File exportDir, Hashtable<String, IntegrityField> sysFieldsHash) throws APIException, ParserConfigurationException, SAXException, IOException {
+    public void exportPresentation(String template, File exportDir, LinkedHashMap<String, IntegrityField> sysFieldsHash) throws APIException, ParserConfigurationException, SAXException, IOException {
         // Initialize the global list of fields, so we can resolve field IDs that may not be visible to the Type
         allFieldsHash = sysFieldsHash;
         // Construct the db file path for the presentation template
@@ -561,8 +562,8 @@ public class IntegrityType extends IntegrityAdminObject {
         return Integrity.getUserFullName(iType.get("modifiedBy").getItem());
     }
 
-    public int getPosition() {
-        return iType.get("position").getInteger().intValue();
+    public String getPosition() {
+        return iType.get("position").getInteger().toString();
     }
 
     // name
@@ -844,5 +845,9 @@ public class IntegrityType extends IntegrityAdminObject {
     @Override
     public String getModelType() {
         return modelType;
+    }
+
+    public String getDirectory() {
+        return directory;
     }
 }

@@ -25,6 +25,7 @@ import com.mks.api.Command;
 import com.ptc.services.utilities.IterableNodeList;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.XMLUtils;
+import java.util.LinkedHashMap;
 
 /**
  * The Query class contains the following information about an Integrity Query:
@@ -66,6 +67,7 @@ public class Viewset extends IntegrityAdminObject {
         name = "";
         vsDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
+        directory = "Viewsets";
     }
 
     // All setter functions
@@ -102,7 +104,7 @@ public class Viewset extends IntegrityAdminObject {
         this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
     }
 
-    public void setViewsetLayout(Hashtable<String, IntegrityField> fieldsHash,
+    public void setViewsetLayout(LinkedHashMap<String, IntegrityField> fieldsHash,
             Hashtable<String, String> typeIDs,
             Hashtable<String, String> queryIDs,
             Hashtable<String, String> chartIDs, Document vsDoc) throws XPathExpressionException {
@@ -134,7 +136,7 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     // Substitutes the name equivalent for the field ID
-    private void substituteIDForName(Hashtable<String, IntegrityField> fieldsHash, Node node) {
+    private void substituteIDForName(LinkedHashMap<String, IntegrityField> fieldsHash, Node node) {
         String fieldID = node.getFirstChild().getNodeValue();
         if (Integer.parseInt(fieldID) > -100) {
             String fieldName = getFieldName(fieldsHash, fieldID);
@@ -147,7 +149,7 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     // Provides the parameterized name string for the supplied admin object ID reference
-    private String getParamNameForID(Hashtable<String, IntegrityField> fieldsHash,
+    private String getParamNameForID(LinkedHashMap<String, IntegrityField> fieldsHash,
             Hashtable<String, String> typeIDs,
             Hashtable<String, String> queryIDs,
             Hashtable<String, String> chartIDs,
@@ -191,7 +193,7 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     // Substitutes the name equivalent for the admin object ID
-    private void substituteIDForName(Hashtable<String, IntegrityField> fieldsHash,
+    private void substituteIDForName(LinkedHashMap<String, IntegrityField> fieldsHash,
             Hashtable<String, String> typeIDs,
             Hashtable<String, String> queryIDs,
             Hashtable<String, String> chartIDs, Node node) {
@@ -326,7 +328,7 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     // Converts the field id to field name for exporting viewset xml layout files
-    private void normalizeElement(Hashtable<String, IntegrityField> fieldsHash,
+    private void normalizeElement(LinkedHashMap<String, IntegrityField> fieldsHash,
             Hashtable<String, String> typeIDs,
             Hashtable<String, String> queryIDs,
             Hashtable<String, String> chartIDs, Node node) {
@@ -366,17 +368,16 @@ public class Viewset extends IntegrityAdminObject {
             }
         }
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     // Returns a field name based on its field ID
-    private String getFieldName(Hashtable<String, IntegrityField> fieldsHash, String fieldID) {
+    private String getFieldName(LinkedHashMap<String, IntegrityField> fieldsHash, String fieldID) {
         String fieldName = fieldID;
-        Enumeration<IntegrityField> fields = fieldsHash.elements();
-        while (fields.hasMoreElements()) {
-            IntegrityField iField = fields.nextElement();
+        for (String field : fieldsHash.keySet()) {
+            IntegrityField iField = fieldsHash.get(field);
             if (iField.getID().equals(fieldID)) {
                 fieldName = iField.getName();
                 break;
@@ -497,5 +498,9 @@ public class Viewset extends IntegrityAdminObject {
     @Override
     public String getModelType() {
         return modelType;
+    }
+
+    public String getDirectory() {
+        return directory;
     }
 }

@@ -24,6 +24,9 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
 import com.ptc.services.utilities.CmdExecutor;
+import java.util.LinkedHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Integrity {
 
@@ -60,8 +63,14 @@ public class Integrity {
     public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position" /*,references*/};
     public static final String[] queryAttributes = new String[]{"createdBy", "description", "fields", "id", "isAdmin", "lastModified", "name",
         "queryDefinition", /*"references",*/ "shareWith", "sortDirection", "sortField"};
+    public static final String[] groupAttributes = new String[]{"description", "email", "id", "image", "isActive", "isInRealm", "name", "notificationRule", "queryTimeout", /* "references", */ "sessionLimit"};
+    public static final String[] dynGroupAttributes = new String[]{"description", "id", "name"};
+    public static final String[] reportAttributes = new String[]{"description", "id", "name", "query", "shareWith", "sharedGroups"};
     public static final String[] chartAttributes = new String[]{"isAdmin", "id", "name", "chartType", "createdBy", /*"description",*/ "graphStyle", /*"lastModified",*/
         "query", /*"references",*/ "shareWith"};
+    // testAttributes
+    public static final String[] testVerdictAttributes = new String[]{"description","displayName","id","isActive","name","position","verdictType"};
+    
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
 
@@ -435,9 +444,11 @@ public class Integrity {
     }
 
     public Hashtable<String, Field> viewField(String typeName, String fieldName) throws APIException {
-        Hashtable<String, Field> fieldDetails = new Hashtable<String, Field>();
+        Hashtable<String, Field> fieldDetails = new Hashtable<>();
         Command imViewField = new Command(Command.IM, "viewfield");
-        imViewField.addOption(new Option("overrideForType", typeName));
+        if (typeName != null) {
+            imViewField.addOption(new Option("overrideForType", typeName));
+        }
         imViewField.addSelection(fieldName);
         Response res = api.runCommand(imViewField);
         if (null != res && null != res.getWorkItem(fieldName)) {
@@ -511,15 +522,15 @@ public class Integrity {
         return stateDetails;
     }
 
-    public Hashtable<String, IntegrityField> getFields() throws APIException {
+    public LinkedHashMap<String, IntegrityField> getFields() throws APIException {
         // Initialize our return variable
-        Hashtable<String, IntegrityField> fieldDetails = new Hashtable<String, IntegrityField>();
+        LinkedHashMap<String, IntegrityField> fieldDetails = new LinkedHashMap<>();
         // Setup the im fields command to get the global definition of the field
         Command imFields = new Command(Command.IM, "fields");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (int i = 0; i < Integrity.fieldAttributes.length; i++) {
-            mv.add(Integrity.fieldAttributes[i]);
+        for (String fieldAttribute : Integrity.fieldAttributes) {
+            mv.add(fieldAttribute);
         }
         imFields.addOption(new Option("fields", mv));
 
@@ -540,18 +551,17 @@ public class Integrity {
 
     public Hashtable<String, IntegrityField> getFields(String typeName, Field visibleFields, Field visibleFieldsForMe) throws APIException {
         // Initialize our return variable
-        Hashtable<String, IntegrityField> fieldDetails = new Hashtable<String, IntegrityField>();
+        Hashtable<String, IntegrityField> fieldDetails = new Hashtable<>();
 
         // Get a unique list of all fields that we need to interrogate later...
-        List<String> selectionList = new ArrayList<String>();
+        List<String> selectionList = new ArrayList<>();
 
         // Populate the visible fields hash with just the 'Visible To' values for quick access		
-        Hashtable<String, Field> visibleFieldsHash = new Hashtable<String, Field>();
+        Hashtable<String, Field> visibleFieldsHash = new Hashtable<>();
         @SuppressWarnings("unchecked")
         List<Item> partialVisibleFieldsList = visibleFields.getList();
         if (null != partialVisibleFieldsList) {
-            for (Iterator<Item> it = partialVisibleFieldsList.iterator(); it.hasNext();) {
-                Item fieldItem = it.next();
+            for (Item fieldItem : partialVisibleFieldsList) {
                 visibleFieldsHash.put(fieldItem.getId(), fieldItem.getField("groups"));
                 selectionList.add(fieldItem.getId());
             }
@@ -649,12 +659,75 @@ public class Integrity {
         return fieldDetails;
     }
 
+    public WorkItemIterator getGroups() throws APIException {
+        Command command = new Command(Command.IM, "groups");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.groupAttributes) {
+            mv.add(queryAttribute);
+        }
+        command.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(command).getWorkItems();
+    }
+
+    public WorkItemIterator getDynGroups() throws APIException {
+        Command command = new Command(Command.IM, "dynamicgroups");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.dynGroupAttributes) {
+            mv.add(queryAttribute);
+        }
+        command.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(command).getWorkItems();
+    }
+    
+    public WorkItemIterator getTestVerdicts() throws APIException {
+        Command command = new Command(Command.TM, "verdicts");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.testVerdictAttributes) {
+            mv.add(queryAttribute);
+        }
+        command.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(command).getWorkItems();
+    }    
+
+    public WorkItemIterator getReports() {
+        Command command = new Command(Command.IM, "reports");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.reportAttributes) {
+            mv.add(queryAttribute);
+        }
+        command.addOption(new Option("fields", mv));
+        System.out.println("Executing IM.Reports ...");
+        WorkItemIterator wit = null;
+        try {
+            // WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
+            wit = api.runCommandWithInterim(command).getWorkItems();
+        } catch (APIException ex) {
+            Logger.getLogger(Integrity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return wit;
+    }
+
+    public WorkItemIterator getStates() throws APIException {
+        Command command = new Command(Command.IM, "states");
+        // Construct the --fields=value,value,value option
+        MultiValue mv = new MultiValue(",");
+        for (String queryAttribute : Integrity.stateAttributes) {
+            mv.add(queryAttribute);
+        }
+        command.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(command).getWorkItems();
+    }
+
     public WorkItemIterator getQueries() throws APIException {
         Command imQueries = new Command(Command.IM, "queries");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (int i = 0; i < Integrity.queryAttributes.length; i++) {
-            mv.add(Integrity.queryAttributes[i]);
+        for (String queryAttribute : Integrity.queryAttributes) {
+            mv.add(queryAttribute);
         }
         imQueries.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(imQueries).getWorkItems();
@@ -753,7 +826,7 @@ public class Integrity {
     }
 
     public List<WorkItem> getStages(String stagingSystem) throws APIException {
-        List<WorkItem> stageList = new ArrayList<WorkItem>();
+        List<WorkItem> stageList = new ArrayList<>();
         Command sdStages = new Command(Command.SD, "stages");
         MultiValue mv = new MultiValue(",");
         mv.add("automaticrollbacktimeout");
@@ -796,7 +869,7 @@ public class Integrity {
     }
 
     public List<WorkItem> getDeployTargets(String stagingSystem, String stage) throws APIException {
-        List<WorkItem> deployTargetList = new ArrayList<WorkItem>();
+        List<WorkItem> deployTargetList = new ArrayList<>();
         Command sdDeployTargets = new Command(Command.SD, "deploytargets");
         MultiValue mv = new MultiValue(",");
         //mv.add("activerequestid");
