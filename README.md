@@ -2,29 +2,30 @@
 Creates a set of HTML pages documenting the PTC Integrity Lifecycle Manager configuration.
 
 # Version
-Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
+11.0.1: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
 
-# Status 
+# Develpment Status 
 Under Construction
 
 ## Purpose
-IntegrityDocs exports the current Integrity Server configuration from W&D, and creates HTML pages. Each section under Worklows&Documents will become one node within the reporting tree. Each section starts with an "Overview" page, and then each element can be reviewed in more detail by drilling down to the details. 
+IntegrityDocs exports the current Integrity Server configuration from W&D, and creates HTML pages. Each section under Worklows&Documents will become one node within the report tree. Each section starts with an "Overview" page, and then each element can be reviewed in more detail by drilling down. 
 
 ![IntegrityDocs](Doc/IntegrityDocs.png)
 
 ## Use Cases
 - Document the current configuration status
 - Validate and compare the configuration status
+- Present the Integrity LM configuration status without the need to have direct Integrity access
 
 ## Install
-Option 1: In IntegrityClient folder
+In IntegrityClient folder
 - Put the "lib/IntegrityDocs.jar" into your IntegrityClient/lib folder
 - Put the "IntegrityDocs.bat" directly into your IntegrityClient folder
 - Check and update the IntegrityDocs.bat with the correct client location:
 ```
 SET IC_HOME=C:\Integrity\ILMClient11
 ```
-- In case of any performance issue, you can also disable certain object types from beeing scanned, such as   
+- In case of any performance issue based on too many data in Integrity, you can also disable certain object types from beeing scanned, such as   
 ```
 --noQueries:      disable Queries scan and output
 --noTriggers:     disable Triggers scan and output
@@ -40,6 +41,7 @@ SET IC_HOME=C:\Integrity\ILMClient11
 
 ## How to run
 - run the IntegrityDocs.bat in your IntegrityClient folder
+- connect to the environment you like to scan
 - Then review the outcome
 
 ##  Development environment
