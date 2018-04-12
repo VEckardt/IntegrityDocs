@@ -13,8 +13,8 @@ IntegrityDocs exports the current Integrity Server configuration from W&D, and c
 ![IntegrityDocs](Doc/IntegrityDocs.png)
 
 ## Use Cases
-- Document the current configuration status
-- Validate and compare the configuration status
+- Document the current Integrity LM configuration status
+- Validate and compare the Integrity LM configuration status
 - Present the Integrity LM configuration status without the need to have direct Integrity access
 
 ## Install
@@ -54,3 +54,4 @@ SET IC_HOME=C:\Integrity\ILMClient11
 - there is just a limited list of attributes extracted, for example for fields
 - not all W&D objects are scanned yet, but the most important
 - none of the SI or MKS Domain object is exported (primarily because of the expected data volume)
+- the "deploy" reporting is no more supported since 10.5 or so 
