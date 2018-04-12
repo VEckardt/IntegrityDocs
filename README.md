@@ -38,6 +38,15 @@ SET IC_HOME=C:\Integrity\ILMClient11
 --noFields:       disable Fields scan and output
 --noTestVerdicts: disable TestVerdict scan and output
 ```
+- These parameters you can add to the bat command itself or put them directly into IntegrityDocs.bat, 
+```
+... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs --noFields --noGroups
+```
+- it's also possible to generate the output just for one type, then the command will be like this
+```
+... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs Defect
+```
+
 
 ## How to run
 - run the IntegrityDocs.bat in your IntegrityClient folder
