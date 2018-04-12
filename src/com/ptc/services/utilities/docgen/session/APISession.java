@@ -1,4 +1,4 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.session;
 
 import com.mks.api.CmdRunner;
 import com.mks.api.Command;

@@ -1,5 +1,6 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.stage;
 
+import com.ptc.services.utilities.docgen.stage.Stage;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +11,8 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.APIException;
+import com.ptc.services.utilities.docgen.utils.Action;
+import com.ptc.services.utilities.docgen.Integrity;
 
 public class StagingSystem {
 

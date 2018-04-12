@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

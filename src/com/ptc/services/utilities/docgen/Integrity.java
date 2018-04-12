@@ -1,6 +1,7 @@
 package com.ptc.services.utilities.docgen;
 
 // Java Imports
+import com.ptc.services.utilities.docgen.session.APISession;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;

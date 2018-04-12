@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.XMLErrorHandler;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -23,6 +24,11 @@ import org.xml.sax.SAXException;
 import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.XMLPrettyPrinter;
+import com.ptc.services.utilities.docgen.IntegrityAdminObject;
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import com.ptc.services.utilities.docgen.IntegrityField;
+import com.ptc.services.utilities.docgen.IntegrityState;
+import com.ptc.services.utilities.docgen.IntegrityType;
 import java.util.LinkedHashMap;
 
 public class XMLWriter {

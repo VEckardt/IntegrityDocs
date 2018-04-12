@@ -1,4 +1,4 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.type;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -9,6 +9,11 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
+import com.ptc.services.utilities.docgen.Integrity;
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import com.ptc.services.utilities.docgen.IntegrityState;
+import com.ptc.services.utilities.docgen.XMLWriter;
 
 public class StateTransitions {
 

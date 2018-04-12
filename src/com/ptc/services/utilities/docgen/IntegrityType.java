@@ -1,5 +1,10 @@
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.type.FieldRelationships;
+import com.ptc.services.utilities.docgen.type.VisibleFields;
+import com.ptc.services.utilities.docgen.type.TypeProperties;
+import com.ptc.services.utilities.docgen.type.StateTransitions;
+import com.ptc.services.utilities.docgen.type.MandatoryFields;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;

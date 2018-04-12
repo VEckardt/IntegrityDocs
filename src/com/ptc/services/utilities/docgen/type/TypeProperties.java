@@ -1,10 +1,12 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.type;
 
 import java.util.List;
 import java.util.Iterator;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import com.ptc.services.utilities.docgen.Integrity;
+import com.ptc.services.utilities.docgen.IntegrityDocs;
 
 public class TypeProperties {
 

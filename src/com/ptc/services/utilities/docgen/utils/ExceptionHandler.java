@@ -1,4 +1,4 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.utils;
 
 import com.mks.api.response.APIException;
 import com.mks.api.response.Response;

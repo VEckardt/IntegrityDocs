@@ -1,4 +1,4 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.stage;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
+import com.ptc.services.utilities.docgen.Integrity;
+import com.ptc.services.utilities.docgen.utils.PathMapping;
 
 public class Target {
 

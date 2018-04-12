@@ -1,5 +1,7 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.stage;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import com.ptc.services.utilities.docgen.stage.StagingSystem;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Date;

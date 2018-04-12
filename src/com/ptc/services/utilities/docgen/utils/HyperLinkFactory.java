@@ -1,5 +1,6 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.utils;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
 import java.util.StringTokenizer;
 
 public class HyperLinkFactory {

@@ -5,6 +5,8 @@
  */
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import com.ptc.services.utilities.docgen.session.APISession;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

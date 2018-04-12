@@ -1,5 +1,6 @@
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.stage;
 
+import com.ptc.services.utilities.docgen.stage.StagingSystem;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.FileWriter;
@@ -9,6 +10,8 @@ import javax.swing.JOptionPane;
 
 import com.mks.api.Command;
 import com.mks.api.response.APIException;
+import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
+import com.ptc.services.utilities.docgen.Integrity;
 import java.util.Arrays;
 
 public class DeployDocs {
