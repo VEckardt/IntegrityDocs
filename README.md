@@ -4,7 +4,7 @@ Creates a set of HTML pages documenting the PTC Integrity Lifecycle Manager conf
 ## Version
 11.0.1: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
 
-## Develpment Status 
+## Development Status 
 Under Construction
 
 ## Purpose
