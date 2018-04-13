@@ -19,43 +19,48 @@ IntegrityDocs exports the current Integrity Server configuration from W&D, and c
 
 ## Install
 In IntegrityClient folder
-- Put the "lib/IntegrityDocs.jar" into your IntegrityClient/lib folder
+- Put the "IntegrityDocs.jar" into your IntegrityClient/lib folder
 - Put the "IntegrityDocs.bat" directly into your IntegrityClient folder
+
 - Check and update the IntegrityDocs.bat with the correct client location:
 ```
 SET IC_HOME=C:\Integrity\ILMClient11
 ```
 - In case of any performance issue based on too many data in Integrity, you can also disable certain object types from beeing scanned, such as   
 ```
---noQueries:      disable Queries scan and output
---noTriggers:     disable Triggers scan and output
---noCharts:       disable Charts scan and output
---noViewsets:     disable Viewsets scan and output
---noGroups:       disable Groups scan and output
---noDynGroups:    disable DynGroups scan and output
---noStates:       disable States scan and output
---noReports:      disable Reports scan and output
---noFields:       disable Fields scan and output
---noTestVerdicts: disable TestVerdict scan and output
+--noQueries:          disable Queries scan and output
+--noTriggers:         disable Triggers scan and output
+--noCharts:           disable Charts scan and output
+--noViewsets:         disable Viewsets scan and output
+--noGroups:           disable Groups scan and output
+--noDynGroups:        disable DynGroups scan and output
+--noStates:           disable States scan and output
+--noReports:          disable Reports scan and output
+--noFields:           disable Fields scan and output
+--noTestVerdicts:     disable TestVerdict scan and output
+--noTestResultFields: disable TestResultFields scan and output
+
 ```
-- These parameters you can add to the bat command itself or put them directly into IntegrityDocs.bat, 
+- You can add these parameters to the bat command itself or put them directly into IntegrityDocs.bat, 
 ```
 ... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs --noFields --noGroups
 ```
-- it's also possible to generate the output just for one type, then the command will be like this
+- It's also possible to generate the output just for one or specific types, then the command will look like this
 ```
-... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs Defect
+... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs Defect Project
 ```
-
 
 ## How to run
-- run the IntegrityDocs.bat in your IntegrityClient folder
-- connect to the environment you like to scan
-- Then review the outcome
+- execute the IntegrityDocs.bat in your IntegrityClient folder
+- connect to the Integrity environment you like to scan
+- then review the outcome
+
+## Hints
+- You can sort the Overview tables by clicking at the light green headings 
 
 ##  Development environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
-- Netbeans 7.4 (or 8)
+- Netbeans 8
 - Java 1.8
 
 ## Known Limitations
