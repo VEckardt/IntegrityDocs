@@ -206,7 +206,7 @@ public class DocWriterTools {
         StringBuilder sb = new StringBuilder();
 
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "Name,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree,Branch,Label");
         sb.append(appendNewLine("<tbody>"));
 
@@ -232,7 +232,7 @@ public class DocWriterTools {
 
     private static void addHeadings(StringBuilder sb, String fields) {
         int cols = fields.split(",").length;
-        sb.append(appendNewLine(" <tr><td colspan='" + cols + "'><hr style='color: #d7d7d7; background-color: #d7d7d7; float: aligncenter;' align='center'/></td></tr>"));
+        // sb.append(appendNewLine(" <tr><td colspan='" + cols + "'><hr style='color: #d7d7d7; background-color: #d7d7d7; float: aligncenter;' align='center'/></td></tr>"));
         sb.append("<thead>");
         sb.append("<tr>");
         for (String field : fields.split(",")) {
@@ -250,7 +250,7 @@ public class DocWriterTools {
     private static String getTypeDetails(IntegrityType iType) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         sb.append(appendNewLine("      <tr><td colspan='2'><hr style='color: #d7d7d7; background-color: #d7d7d7; float: aligncenter;' align='center'/></td></tr>"));
 
         addFieldValue(sb, "Created By", iType.getCreatedBy() + " on " + iType.getCreatedDate(sdf));
@@ -296,7 +296,7 @@ public class DocWriterTools {
     private static String getTriggersOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "Position,Name,Type,Description,Script,Script Timing");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -319,7 +319,7 @@ public class DocWriterTools {
     private static String getTriggerDetails(Trigger trigger) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addFieldValue(sb, "Type", trigger.getType());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(trigger.getDescription()));
         if (trigger.getType().equalsIgnoreCase("rule")) {
@@ -343,7 +343,7 @@ public class DocWriterTools {
     private static String getQueryDetails(Query query) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(query.getDescription()));
         addFieldValue(sb, "QueryDefinition", query.getQueryDefinition());
         addFieldValue(sb, "Fields", query.getFields());
@@ -358,7 +358,7 @@ public class DocWriterTools {
     private static String getViewsetDetails(Viewset viewset) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", viewset.getName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(viewset.getDescription()));
         // Close out the triggers details table
@@ -370,7 +370,7 @@ public class DocWriterTools {
     private static String getGroupDetails(Group group) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", group.getName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(group.getDescription()));
         addFieldValue(sb, "Is Active", String.valueOf(group.isActive()));
@@ -383,7 +383,7 @@ public class DocWriterTools {
     private static String getSummary() {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "View Sets", String.valueOf(iViewsets.size()));
         addFieldValue(sb, "Groups", String.valueOf(iGroups.size()));
         addFieldValue(sb, "Dynamic Groups", String.valueOf(iDynGroups.size()));
@@ -404,7 +404,7 @@ public class DocWriterTools {
     private static String getDynGroupDetails(DynamicGroup group) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", group.getName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(group.getDescription()));
         // Close out the triggers details table
@@ -416,7 +416,7 @@ public class DocWriterTools {
     private static String getReportDetails(Report object) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", object.getName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(object.getDescription()));
         addFieldValue(sb, "Query", object.getQuery());
@@ -430,7 +430,7 @@ public class DocWriterTools {
     private static String getReportOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description,Share With");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -451,7 +451,7 @@ public class DocWriterTools {
     private static String getFieldOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description,Type");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -472,7 +472,7 @@ public class DocWriterTools {
     private static String getStateOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description,Display Name");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -493,7 +493,7 @@ public class DocWriterTools {
     private static String getGroupOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -513,7 +513,7 @@ public class DocWriterTools {
     private static String getQueryOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -533,7 +533,7 @@ public class DocWriterTools {
     private static String getChartOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -553,7 +553,7 @@ public class DocWriterTools {
     private static String getViewsetOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -573,7 +573,7 @@ public class DocWriterTools {
     private static String getDynGroupOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -593,7 +593,7 @@ public class DocWriterTools {
     private static String getChartDetails(Chart chart) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "ChartType", chart.getChartType());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(chart.getDescription()));
         addFieldValue(sb, "GraphStyle", chart.getGraphStyle());
@@ -608,7 +608,7 @@ public class DocWriterTools {
     private static String getTestVerdictDetails(TestVerdict object) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Verdict Type", object.getVerdictType());
         addFieldValue(sb, "Name", object.getName());
         addFieldValue(sb, "Display Name", object.getDisplayName());
@@ -622,7 +622,7 @@ public class DocWriterTools {
     private static String getTestVerdictOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description,Type");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -644,7 +644,7 @@ public class DocWriterTools {
     private static String getTestResultFieldDetails(TestResultField object) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Type", object.getType());
         addFieldValue(sb, "Name", object.getName());
         addFieldValue(sb, "Display Name", object.getDisplayName());
@@ -658,7 +658,7 @@ public class DocWriterTools {
     private static String getTestResultFieldOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append(appendNewLine("<table class='sortable'>"));
         addHeadings(sb, "ID,Name,Description,Type");
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
@@ -680,7 +680,7 @@ public class DocWriterTools {
     private static String getFieldDetails(IntegrityField object) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", object.getName());
         addFieldValue(sb, "Display Name", object.getDisplayName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(object.getDescription()));
@@ -698,7 +698,7 @@ public class DocWriterTools {
     private static String getStateDetails(IntegrityState state) {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
+        sb.append(appendNewLine("     <table class='sortable'>"));
         addFieldValue(sb, "Name", state.getName());
         addFieldValue(sb, "Display Name", state.getDisplayName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(state.getDescription()));
