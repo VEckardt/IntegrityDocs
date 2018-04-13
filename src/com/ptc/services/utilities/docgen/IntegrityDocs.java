@@ -224,7 +224,7 @@ public class IntegrityDocs {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts, iTestResultFields);
+                DocWriter doc = new DocWriter(i, iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts, iTestResultFields);
                 // Generate the report resources
                 generateResources();
 

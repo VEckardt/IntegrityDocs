@@ -5,12 +5,9 @@
         <group name="IntegrityFDOs"/>
         <group name="IntegrityWAR"/>
         <group>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/TocWriter.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityDocs.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityStateFactory.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Viewset.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriter.java</file>
             <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriterTools.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Integrity.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityState.java</file>
         </group>
     </open-files>
 </project-private>

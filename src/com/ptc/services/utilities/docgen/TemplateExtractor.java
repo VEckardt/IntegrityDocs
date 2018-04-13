@@ -175,7 +175,7 @@ public class TemplateExtractor {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i.getHostName() + ':' + i.getPort(), 
+                DocWriter doc = new DocWriter(i, 
                         iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
                         iStates, iReports, iFields, iTestVerdicts, iTestResultFields
                 );

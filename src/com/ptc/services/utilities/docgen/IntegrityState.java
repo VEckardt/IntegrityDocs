@@ -10,7 +10,9 @@ import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
-import static com.ptc.services.utilities.docgen.Group.XML_PREFIX;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * Object represents an Integrity State The following attributes are supported:
@@ -26,6 +28,20 @@ public class IntegrityState extends IntegrityAdminObject {
     private String position;
     private String iTypeName;
     private String xmlTypeName;
+    
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("     <table class='display'>"));
+        addFieldValue(sb, "Name", getName());
+        addFieldValue(sb, "Display Name", getDisplayName());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        // Close out the triggers details table
+        sb.append(appendNewLine("     </table>"));
+
+        return sb.toString();
+    }    
 
     public IntegrityState(String typeName, WorkItem wi) {
         // Initialize the variables

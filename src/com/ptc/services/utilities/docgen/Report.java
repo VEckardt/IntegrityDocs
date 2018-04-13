@@ -8,6 +8,9 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * The Query class contains the following information about an Integrity Query:
@@ -202,4 +205,20 @@ public class Report extends IntegrityAdminObject {
 //    }
     public String getDirectory() {
         return directory;
-    }}
+    }
+
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("     <table class='display'>"));
+        addFieldValue(sb, "Name", getName());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        addFieldValue(sb, "Query", getQuery());
+        addFieldValue(sb, "ShareWith", getShareWith());
+        // Close out the triggers details table
+        sb.append(appendNewLine("     </table>"));
+
+        return sb.toString();
+    }    
+}

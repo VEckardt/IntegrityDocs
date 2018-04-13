@@ -24,6 +24,10 @@ public abstract class IntegrityAdminObject {
     protected abstract String getModelType();
     
     protected abstract String getPosition();
+    
+    // protected abstract String getOverview();
+    
+    protected abstract String getDetails();
 
     public String getAdminObjectType() {
         if (null != modelType && modelType.indexOf('.') > 0) {

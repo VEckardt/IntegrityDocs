@@ -8,6 +8,11 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import static com.ptc.services.utilities.docgen.DocWriterTools.iTestResultFields;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.addHeadings;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * The Query class contains the following information about an Integrity Query:
@@ -39,6 +44,23 @@ public class TestResultField extends IntegrityAdminObject {
         type = "";
         directory = "TestResultFields";
     }
+    
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("     <table class='display'>"));
+        addFieldValue(sb, "Type", this.getType());
+        addFieldValue(sb, "Name", this.getName());
+        addFieldValue(sb, "Display Name", this.getDisplayName());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
+        // Close out the triggers details table
+        sb.append(appendNewLine("     </table>"));
+
+        return sb.toString();
+    }
+
+      
 
     
     // All setter functions

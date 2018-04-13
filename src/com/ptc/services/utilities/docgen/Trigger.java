@@ -5,6 +5,11 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import static com.ptc.services.utilities.docgen.DocWriterTools.iTriggers;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.addHeadings;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * The Trigger class contains the following information about an Integrity
@@ -44,6 +49,31 @@ public class Trigger extends IntegrityAdminObject {
         directory = "Triggers";
     }
 
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("<table class='display'>"));
+        addFieldValue(sb, "Type", this.getType());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        if (this.getType().equalsIgnoreCase("rule")) {
+            addFieldValue(sb, "Rule", this.getRule());
+        } else if (this.getType().equalsIgnoreCase("scheduled")) {
+            addFieldValue(sb, "Run As", this.getRunAs());
+            addFieldValue(sb, "Query", this.getQuery());
+            addFieldValue(sb, "Frequency", this.getFrequency());
+        }
+        addFieldValue(sb, "Script", this.getScript());
+        addFieldValue(sb, "Script Timing", this.getScriptTiming());
+        addFieldValue(sb, "Script Parameters", this.getScriptParams());
+        addFieldValue(sb, "Assignments", this.getAssignments());
+
+        // Close out the triggers details table
+        sb.append(appendNewLine("</table>"));
+
+        return sb.toString();
+    }    
+    
     // All setter functions
     public void setPosition(String pos) {
         position = pos;

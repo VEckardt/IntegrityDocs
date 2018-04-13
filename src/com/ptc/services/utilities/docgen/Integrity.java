@@ -117,11 +117,11 @@ public class Integrity {
     }
 
     public static final List<String> convertStringToList(String str, String delim) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         if (null != str && str.length() > 0) {
             String[] tokens = str.split(delim);
-            for (int i = 0; i < tokens.length; i++) {
-                list.add(tokens[i].trim());
+            for (String token : tokens) {
+                list.add(token.trim());
             }
         }
         return list;
@@ -146,7 +146,7 @@ public class Integrity {
 
     public static final boolean getBooleanFieldValue(Field fld) {
         if (null != fld && null != fld.getDataType() && fld.getDataType().endsWith(Field.BOOLEAN_TYPE)) {
-            return fld.getBoolean().booleanValue();
+            return fld.getBoolean();
         }
 
         return false;
@@ -169,10 +169,9 @@ public class Integrity {
         StringBuilder sb = new StringBuilder();
         if (null != itemList && null != itemList.getList()) {
             List<Item> principalList = itemList.getList();
-            List<String> usersList = new ArrayList<String>();
-            List<String> groupsList = new ArrayList<String>();
-            for (Iterator<Item> pit = principalList.iterator(); pit.hasNext();) {
-                Item principal = pit.next();
+            List<String> usersList = new ArrayList<>();
+            List<String> groupsList = new ArrayList<>();
+            for (Item principal : principalList) {
                 if (principal.getModelType().equals(IMModelTypeName.USER)) {
                     usersList.add(principal.getId());
                 } else if (principal.getModelType().equals(IMModelTypeName.GROUP)) {
@@ -194,7 +193,7 @@ public class Integrity {
     }
 
     public static final List<String> getListOfStrings(Field fld, String delim) {
-        List<String> listOfStrings = new ArrayList<String>();
+        List<String> listOfStrings = new ArrayList<>();
         if (null != fld && null != fld.getDataType()) {
             // First determine the field type we're dealing with
             if (fld.getDataType().equals(Field.VALUE_LIST_TYPE)) {
@@ -346,7 +345,7 @@ public class Integrity {
      * @throws APIException
      */
     public List<String> getAdminList(String obj) throws APIException {
-        List<String> adminList = new ArrayList<String>();
+        List<String> adminList = new ArrayList<>();
         Command imAdminList = new Command(Command.IM, obj);
         Response res = api.runCommand(imAdminList);
         if (null != res && res.getWorkItemListSize() > 0) {
@@ -366,7 +365,7 @@ public class Integrity {
      * @throws APIException
      */
     public Hashtable<String, String> getAdminIDList(String obj) throws APIException {
-        Hashtable<String, String> adminIDList = new Hashtable<String, String>();
+        Hashtable<String, String> adminIDList = new Hashtable<>();
         Command imAdminList = new Command(Command.IM, obj);
         imAdminList.addOption(new Option("fields", "id,name"));
         Response res = api.runCommand(imAdminList);
@@ -382,12 +381,12 @@ public class Integrity {
 
     @SuppressWarnings("unchecked")
     public Hashtable<String, Field> viewType(String typeName) throws APIException {
-        Hashtable<String, Field> typeDetails = new Hashtable<String, Field>();
+        Hashtable<String, Field> typeDetails = new Hashtable<>();
         Command imTypes = new Command(Command.IM, "types");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (int i = 0; i < Integrity.typeAttributes.length; i++) {
-            mv.add(Integrity.typeAttributes[i]);
+        for (String typeAttribute : Integrity.typeAttributes) {
+            mv.add(typeAttribute);
         }
         imTypes.addOption(new Option("fields", mv));
         imTypes.addSelection(typeName);
@@ -926,6 +925,29 @@ public class Integrity {
         }
         return deployTargetWI;
     }
+    
+    public String getAbout(String sectionName) {
+
+        String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
+                + sectionName + "<br>Current User: " + getUserName()
+                + "<br>"+ IntegrityDocs.copyright + "<br>";
+        Command cmd = new Command("im", "about");
+        try {
+            Response response = api.runCommand(cmd);
+            WorkItem wi = response.getWorkItem("ci");
+            // get the details
+            result = result + wi.getField("title").getValueAsString();
+            result = result + ", Version: " + wi.getField("version").getValueAsString();
+            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString()+"</br>";
+            result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
+
+            return result + "</div>";
+        } catch (APIException | NullPointerException ex) {
+            // Logger.getLogger(APISession.class.getName()).log(Level.SEVERE, null,
+            // ex);
+        }
+        return result;
+    }    
 
     public String getHostName() {
         return api.getHostName();

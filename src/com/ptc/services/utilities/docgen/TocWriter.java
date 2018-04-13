@@ -5,9 +5,9 @@
  */
 package com.ptc.services.utilities.docgen;
 
-import static com.ptc.services.utilities.docgen.DocWriterTools.appendNewLine;
 import static com.ptc.services.utilities.docgen.DocWriterTools.getFormattedContent;
 import static com.ptc.services.utilities.docgen.DocWriterTools.objectTemplate;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import static com.ptc.services.utilities.docgen.utils.Utils.getObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 /**
  *
@@ -63,4 +62,5 @@ public class TocWriter extends BufferedWriter {
             triggerWriter.close();
         }
     }    
+    
 }

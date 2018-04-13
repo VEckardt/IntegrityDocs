@@ -13,6 +13,9 @@ import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * Object represents an Integrity Field The following attributes are supported:
@@ -254,6 +257,25 @@ public class IntegrityField extends IntegrityAdminObject {
             fieldDetailsHash.put(attribute.getName(), attribute);
         }
     }
+    
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("     <table class='display'>"));
+        addFieldValue(sb, "Name", getName());
+        addFieldValue(sb, "Display Name", getDisplayName());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        addFieldValue(sb, "Type", getType());
+        addFieldValue(sb, "Default Value", getDefaultValue());
+        addFieldValue(sb, "Editability Rule", getEditabilityRule());
+        addFieldValue(sb, "Relevance Rule", getRelevanceRule());
+        // addFieldValue(sb, "Query", object.getQuery());
+        // Close out the triggers details table
+        sb.append(appendNewLine("     </table>"));
+
+        return sb.toString();
+    }    
 
     // Special function to parse the list of relationships
     private List<String> parseAllowedTypes(Field allowedTypesFld) {

@@ -1,7 +1,7 @@
 package com.ptc.services.utilities.docgen;
 
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import static com.ptc.services.utilities.docgen.utils.Utils.getObjectName;
-import java.util.Iterator;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,7 +17,7 @@ public class DocWriter extends DocWriterTools {
     private static final File indexFile = new File(IntegrityDocs.REPORT_DIR + IntegrityDocs.fs + "index.htm");
     private static final File titleFile = new File(IntegrityDocs.REPORT_DIR + IntegrityDocs.fs + "title.htm");
 
-    public DocWriter(String hostInfo,
+    public DocWriter(Integrity i,
             List<IntegrityType> typeList,
             List<Trigger> triggersList,
             List<Query> queriesList,
@@ -31,7 +31,7 @@ public class DocWriter extends DocWriterTools {
             List<TestVerdict> testVerdictList,
             List<TestResultField> testResultFieldList
     ) {
-        super(hostInfo);
+        super(i);
 
         iTypes = typeList;
         iTriggers = triggersList;
@@ -73,7 +73,7 @@ public class DocWriter extends DocWriterTools {
         addFileContent(naviHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "navi_start.htm");
         addFileContent(indexHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "index_start.htm");
 
-        indexHtm.write(appendNewLine("Integrity Docs (" + svrInfo + ")  <small>as of " + sdf.format(now) + "</small>"));
+        indexHtm.write(appendNewLine("Integrity Docs (" + i.getHostName() + ":" + i.getPort() + ")  <small>as of " + getNow() + "</small>"));
 
         // navi file
         // whtdata0htm.write(appendNewLine("<html>"));
@@ -91,6 +91,8 @@ public class DocWriter extends DocWriterTools {
 
         writeSummary();
 
+        // publishObject (naviHtm, iViewsets);
+        
         // Part 1: Publish Viewset, if appropriate...
         if (null != iViewsets && iViewsets.size() > 0) {
             naviHtm.addBook(iViewsets.get(0));
@@ -277,8 +279,7 @@ public class DocWriter extends DocWriterTools {
         if (null != iReports && iReports.size() > 0) {
             naviHtm.addBook(iReports.get(0));
             naviHtm.addOverviewHeader(iReports.get(0));
-            for (Iterator<Report> it = iReports.iterator(); it.hasNext();) {
-                Report object = it.next();
+            for (Report object : iReports) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -306,6 +307,24 @@ public class DocWriter extends DocWriterTools {
         // whtdata0xml.close();
     }
 
+    
+    private void publishObject (TocWriter naviHtm, List<IntegrityAdminObject> aol) throws IOException {
+        // Part 1: Publish Viewset, if appropriate...
+        if (null != aol && aol.size() > 0) {
+            naviHtm.addBook(aol.get(0));
+            naviHtm.addOverviewHeader(aol.get(0));
+            for (IntegrityAdminObject object : aol) {
+                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
+                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
+                // Publish the individual trigger details
+                naviHtm.writeObjectHtml(object);
+            }
+            addOverviewData(aol.get(0));
+            naviHtm.endBook();
+            // whtdata0xml.write(appendNewLine("  </book>"));
+        }        
+    }
+    
     private void addFileContent(BufferedWriter naviHtm, String sourceFileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFileName))) {
             String line;

@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -25,6 +24,9 @@ import com.mks.api.Command;
 import com.ptc.services.utilities.IterableNodeList;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.XMLUtils;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.util.LinkedHashMap;
 
 /**
@@ -500,7 +502,21 @@ public class Viewset extends IntegrityAdminObject {
         return modelType;
     }
 
+    @Override
     public String getDirectory() {
         return directory;
     }
+    
+    @Override
+    public String getDetails() {
+        StringBuilder sb = new StringBuilder();
+        // Print out the detail about each item type
+        sb.append(appendNewLine("     <table class='display'>"));
+        addFieldValue(sb, "Name", getName());
+        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        // Close out the triggers details table
+        sb.append(appendNewLine("     </table>"));
+
+        return sb.toString();
+    }    
 }
