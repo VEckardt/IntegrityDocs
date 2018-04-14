@@ -35,7 +35,7 @@ public class Group extends IntegrityAdminObject {
     private String notificationRule;
     private String queryTimeout;
     private String sessionLimit;
-    
+
     public Group() {
         modelType = IMModelTypeName.GROUP;
         id = "";
@@ -51,6 +51,11 @@ public class Group extends IntegrityAdminObject {
         sessionLimit = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         directory = "Groups";
+        objectType = "Group";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     // All setter functions
@@ -73,7 +78,6 @@ public class Group extends IntegrityAdminObject {
 //    public void setFields(String fields) {
 //        this.fields = fields;
 //    }
-
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
@@ -98,15 +102,14 @@ public class Group extends IntegrityAdminObject {
 //    public void setSortField(String sortField) {
 //        this.sortField = sortField;
 //    }
-
     // All getter/access functions...
     public String getModelType() {
         return modelType;
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
@@ -157,7 +160,6 @@ public class Group extends IntegrityAdminObject {
 //        if (name.length() > 0) {
 //            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 //        }
-
         return command;
     }
 
@@ -180,7 +182,6 @@ public class Group extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
-
     public boolean isActive() {
         return isActive;
     }
@@ -208,12 +209,11 @@ public class Group extends IntegrityAdminObject {
 //    public String getSortField() {
 //        return sortField;
 //    }
-
     @Override
     protected String getDirectory() {
         return directory;
     }
-    
+
     @Override
     public String getDetails() {
         StringBuilder sb = new StringBuilder();
@@ -226,5 +226,9 @@ public class Group extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }    
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }

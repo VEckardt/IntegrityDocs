@@ -47,6 +47,7 @@ public class Trigger extends IntegrityAdminObject {
         scriptParams = "";
         scriptTiming = "";
         directory = "Triggers";
+        objectType = "Trigger";
     }
 
     @Override
@@ -256,4 +257,13 @@ public class Trigger extends IntegrityAdminObject {
     }
     public String getDirectory() {
         return directory;
-    }}
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
+    
+    protected String getObjectType () {
+        return objectType;
+    }
+}

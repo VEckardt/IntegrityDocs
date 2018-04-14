@@ -70,6 +70,11 @@ public class Viewset extends IntegrityAdminObject {
         vsDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         directory = "Viewsets";
+        objectType = "Viewset";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     // All setter functions
@@ -506,7 +511,7 @@ public class Viewset extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
-    
+
     @Override
     public String getDetails() {
         StringBuilder sb = new StringBuilder();
@@ -518,5 +523,9 @@ public class Viewset extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }    
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }

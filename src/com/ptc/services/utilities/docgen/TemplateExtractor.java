@@ -2,7 +2,6 @@ package com.ptc.services.utilities.docgen;
 
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.session.APISession;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
@@ -94,17 +93,18 @@ public class TemplateExtractor {
     public void generateDocs(String[] args) {
         Integrity i = null;
         List<IntegrityType> iTypes = new ArrayList<>();
-        List<Query> iQueries = new ArrayList<>();
+        List<IntegrityObject> iQueries = new ArrayList<>();
         List<Trigger> iTriggers = new ArrayList<>();
         List<Chart> iCharts = new ArrayList<>();
-        List<Group> iGroups = new ArrayList<>();
-        List<DynamicGroup> iDynGroups = new ArrayList<>();
-        List<Viewset> iViewsets = new ArrayList<>();
-        List<IntegrityState> iStates = new ArrayList<>();
-        List<Report> iReports = new ArrayList<>();
+        List<IntegrityObject> iGroups = new ArrayList<>();
+        List<IntegrityObject> iDynGroups = new ArrayList<>();
+        List<IntegrityObject> iViewsets = new ArrayList<>();
+        List<IntegrityObject> iStates = new ArrayList<>();
+        List<IntegrityObject> iReports = new ArrayList<>();
         List<IntegrityField> iFields = new ArrayList<>();
-        List<TestVerdict> iTestVerdicts = new ArrayList<>();
-        List<TestResultField> iTestResultFields = new ArrayList<>();
+        List<IntegrityObject> iTestVerdicts = new ArrayList<>();
+        List<IntegrityObject> iTestResultFields = new ArrayList<>();
+        List<IntegrityObject> iDashboards= new ArrayList<>();
 
         
         try {
@@ -146,7 +146,7 @@ public class TemplateExtractor {
 
             // Get a list of queries, if asked for
             if (doQueries) {
-                iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
+                // iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
             }
 
             // Get a list of triggers, if asked for
@@ -161,7 +161,7 @@ public class TemplateExtractor {
 
             // Get a list of viewsets, if asked for
             if (doViewsets) {
-                iViewsets = ViewsetFactory.parseViewsets(i, i.viewViewSets(), sysFieldsHash, doXML);
+                // iViewsets = ViewsetFactory.parseViewsets(i, i.viewViewSets(), sysFieldsHash, doXML);
             }
 
             // Generate Transaction XML files for the Load Test Harness
@@ -177,7 +177,8 @@ public class TemplateExtractor {
                 // Pass the abstraction to the DocWriter
                 DocWriter doc = new DocWriter(i, 
                         iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
-                        iStates, iReports, iFields, iTestVerdicts, iTestResultFields
+                        iStates, iReports, iFields, iTestVerdicts, iTestResultFields,
+                        iDashboards
                 );
                 // Generate the report resources
                 generateResources();

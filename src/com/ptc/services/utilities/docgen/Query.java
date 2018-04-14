@@ -49,6 +49,11 @@ public class Query extends IntegrityAdminObject {
         sortDirection = "";
         sortField = "";
         directory = "Queries";
+        objectType = "Query";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     // All setter functions
@@ -101,10 +106,10 @@ public class Query extends IntegrityAdminObject {
     public String getModelType() {
         return modelType;
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
@@ -206,10 +211,12 @@ public class Query extends IntegrityAdminObject {
     public String getSortField() {
         return sortField;
     }
+
     @Override
     public String getDirectory() {
         return directory;
     }
+
     @Override
     public String getDetails() {
         StringBuilder sb = new StringBuilder();
@@ -224,4 +231,10 @@ public class Query extends IntegrityAdminObject {
         sb.append(appendNewLine("</table>"));
 
         return sb.toString();
-    }}
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
+}
+

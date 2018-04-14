@@ -29,7 +29,7 @@ public class TestVerdict extends IntegrityAdminObject {
     private String createdBy;
     private String displayName;
     private String verdicyType;
-    
+
     public TestVerdict() {
         modelType = IMModelTypeName.TEST_VERDICT;
         id = "";
@@ -41,9 +41,13 @@ public class TestVerdict extends IntegrityAdminObject {
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         verdicyType = "";
         directory = "TestVerdicts";
+        objectType = "TestVerdict";
     }
 
-    
+    public String getObjectType() {
+        return objectType;
+    }
+
     // All setter functions
     public void setID(String id) {
         this.id = id;
@@ -60,14 +64,14 @@ public class TestVerdict extends IntegrityAdminObject {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public void setVerdicyType(String verdicyType) {
         this.verdicyType = verdicyType;
     }
-    
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }    
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -89,17 +93,16 @@ public class TestVerdict extends IntegrityAdminObject {
 //    public void setSortField(String sortField) {
 //        this.sortField = sortField;
 //    }
-
     // All getter/access functions...
     @Override
     public String getModelType() {
         return modelType;
     }
-    
+
     @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     @Override
     public Element getXML(Document job, Element command) {
@@ -151,7 +154,6 @@ public class TestVerdict extends IntegrityAdminObject {
 //        if (name.length() > 0) {
 //            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 //        }
-
         return command;
     }
 
@@ -175,7 +177,6 @@ public class TestVerdict extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
-
     @Override
     public String getName() {
         return name;
@@ -205,14 +206,14 @@ public class TestVerdict extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
-    
+
     public String getDisplayName() {
         return displayName;
     }
-    
+
     public String getVerdictType() {
         return verdicyType;
-    }    
+    }
 
     @Override
     public String getDetails() {
@@ -228,5 +229,8 @@ public class TestVerdict extends IntegrityAdminObject {
 
         return sb.toString();
     }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }
-

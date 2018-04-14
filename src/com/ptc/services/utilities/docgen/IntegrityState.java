@@ -28,7 +28,7 @@ public class IntegrityState extends IntegrityAdminObject {
     private String position;
     private String iTypeName;
     private String xmlTypeName;
-    
+
     @Override
     public String getDetails() {
         StringBuilder sb = new StringBuilder();
@@ -41,7 +41,7 @@ public class IntegrityState extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }    
+    }
 
     public IntegrityState(String typeName, WorkItem wi) {
         // Initialize the variables
@@ -66,24 +66,30 @@ public class IntegrityState extends IntegrityAdminObject {
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         xmlTypeName = XMLWriter.padXMLParamName(IntegrityType.XML_PREFIX + XMLWriter.getXMLParamName(iTypeName));
         position = wi.getField("position").getValueAsString();
+        objectType = "State";
     }
-    
+
+    public String getObjectType() {
+        return objectType;
+    }
+
     // All setter functions
     public void setID(String id) {
         this.id = id;
     }
-    
+
     public void setName(String name) {
         this.name = name;
         this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
-    }    
+    }
+
     public void setDisplayName(String DisplayName) {
         this.displayName = DisplayName;
-    }      
+    }
 
     private void setCapabilities(Field c) {
         if (null != c && null != c.getList()) {
@@ -129,9 +135,10 @@ public class IntegrityState extends IntegrityAdminObject {
     public String getDescription() {
         return description;
     }
+
     public String getDisplayName() {
         return displayName;
-    }    
+    }
 
     public String getGlobalDescription() {
         return globalDescription;
@@ -211,7 +218,12 @@ public class IntegrityState extends IntegrityAdminObject {
     public String getModelType() {
         return modelType;
     }
+
     public String getDirectory() {
         return directory;
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
     }
 }

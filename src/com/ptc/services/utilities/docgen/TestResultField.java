@@ -43,6 +43,7 @@ public class TestResultField extends IntegrityAdminObject {
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         type = "";
         directory = "TestResultFields";
+        objectType = "TestResult";
     }
     
     @Override
@@ -50,7 +51,7 @@ public class TestResultField extends IntegrityAdminObject {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "Type", this.getType());
+        addFieldValue(sb, "Type", type);
         addFieldValue(sb, "Name", this.getName());
         addFieldValue(sb, "Display Name", this.getDisplayName());
         addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
@@ -229,9 +230,14 @@ public class TestResultField extends IntegrityAdminObject {
         return displayName;
     }
     
-    public String getType() {
-        return type;
+    @Override
+    public String getObjectType() {
+        return objectType;
     }    
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }
 
 

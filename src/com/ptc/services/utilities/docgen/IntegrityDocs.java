@@ -2,7 +2,6 @@ package com.ptc.services.utilities.docgen;
 
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.session.APISession;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
@@ -10,10 +9,14 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
+import com.mks.api.response.WorkItem;
+import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
 import java.io.FileOutputStream;
 import static java.lang.System.out;
 import java.util.LinkedHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.parsers.ParserConfigurationException;
@@ -86,18 +89,19 @@ public class IntegrityDocs {
     public void generateDocs(String[] args) {
         Integrity i = null;
         List<IntegrityType> iTypes = new ArrayList<>();
-        List<Query> iQueries = new ArrayList<>();
+        List<IntegrityField> iFields = new ArrayList<>();
         List<Trigger> iTriggers = new ArrayList<>();
         List<Chart> iCharts = new ArrayList<>();
-        List<Viewset> iViewsets = new ArrayList<>();
-        List<Group> iGroups = new ArrayList<>();
-        List<DynamicGroup> iDynGroups = new ArrayList<>();
-        List<IntegrityState> iStates = new ArrayList<>();
-        List<Report> iReports = new ArrayList<>();
-        List<IntegrityField> iFields = new ArrayList<>();
-        // TestVerdict TestResultFields
-        List<TestVerdict> iTestVerdicts = new ArrayList<>();
-        List<TestResultField> iTestResultFields = new ArrayList<>();
+
+        List<IntegrityObject> iViewsets = new ArrayList<>();
+        List<IntegrityObject> iGroups = new ArrayList<>();
+        List<IntegrityObject> iDynGroups = new ArrayList<>();
+        List<IntegrityObject> iStates = new ArrayList<>();
+        List<IntegrityObject> iTestVerdicts = new ArrayList<>();
+        List<IntegrityObject> iTestResultFields = new ArrayList<>();
+        List<IntegrityObject> iQueries = new ArrayList<>();
+        List<IntegrityObject> iDashboards = new ArrayList<>();
+        List<IntegrityObject> iReports = new ArrayList<>();
 
         try {
 
@@ -156,17 +160,33 @@ public class IntegrityDocs {
 
             // Get a list of queries, if asked for
             if (doQueries) {
-                iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
+                // iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
+                // iReports = ReportFactory.parseReports(i.getReports(), doXML);
+                WorkItemIterator objects = i.getObjects("query");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iQueries.add(new IntegrityObject(object));
+                }
             }
 
             // Get a list of queries, if asked for
             if (doGroups) {
-                iGroups = GroupFactory.parseGroups(i.getGroups(), doXML);
+                //iGroups = GroupFactory.parseGroups(i.getGroups(), doXML);
+                WorkItemIterator objects = i.getObjects("group");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iGroups.add(new IntegrityObject(object));
+                }
             }
 
             // Get a list of queries, if asked for
             if (doDynGroups) {
-                iDynGroups = DynamicGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
+                // iDynGroups = DynamicGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
+                WorkItemIterator objects = i.getObjects("dynamicgroup");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iDynGroups.add(new IntegrityObject(object));
+                }
             }
 
             // Get a list of triggers, if asked for
@@ -177,30 +197,57 @@ public class IntegrityDocs {
             // Get a list of charts, if asked for
             if (doCharts) {
                 iCharts = ChartFactory.parseCharts(i.getCharts());
+//                WorkItemIterator objects = i.getObjects("chart");
+//                while (objects.hasNext()) {
+//                    WorkItem object = objects.next();
+//                    iCharts.add(new IntegrityObject(object));
+//                }
             }
 
             // Get a list of charts, if asked for
             if (doStates) {
-                iStates = IntegrityStateFactory.parseStates(i.getStates(), doXML);
+                // iStates = IntegrityStateFactory.parseStates(i.getStates(), doXML);
+                WorkItemIterator objects = i.getObjects("state");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iStates.add(new IntegrityObject(object));
+                }
             }
 
             // Get a list of viewsets, if asked for
             if (doViewsets) {
-                iViewsets = ViewsetFactory.parseViewsets(i, i.viewViewSets(), sysFieldsHash, doXML);
+                // iViewsets = ViewsetFactory.parseViewsets(i, i.viewViewSets(), sysFieldsHash, doXML);
+                WorkItemIterator objects = i.getObjects("viewset");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iViewsets.add(new IntegrityObject(object, "Viewset"));
+                }
             }
 
             if (doReports) {
-                System.out.println("Reading Reports ...");
-                iReports = ReportFactory.parseReports(i.getReports(), doXML);
+                // iReports = ReportFactory.parseReports(i.getReports(), doXML);
+                WorkItemIterator objects = i.getObjects("report");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iReports.add(new IntegrityObject(object));
+                }
             }
 
             if (doTestVerdicts) {
-                System.out.println("Reading Test Verdicts ...");
-                iTestVerdicts = TestVerdictFactory.parseTestVerdicts(i.getTestVerdicts(), doXML);
+                // iTestVerdicts = TestVerdictFactory.parseTestVerdicts(i.getTestVerdicts(), doXML);
+                WorkItemIterator objects = i.getObjects("verdict");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iTestVerdicts.add(new IntegrityObject(object));
+                }
             }
             if (doTestResultFields) {
-                System.out.println("Reading TestResultFields ...");
-                iTestResultFields = TestResultFieldFactory.parseTestResultFields(i.getTestResultFields(), doXML);
+                // iTestResultFields = TestResultFieldFactory.parseTestResultFields(i.getTestResultFields(), doXML);
+                WorkItemIterator objects = i.getObjects("resultfield");
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iTestResultFields.add(new IntegrityObject(object, "TestResultField"));
+                }
             }
 
             // Get a list of Fields, if asked for
@@ -211,6 +258,13 @@ public class IntegrityDocs {
                     System.out.println("Processing Field: " + fieldName);
                     iFields.add(fields.get(fieldName));
                 }
+            }
+
+            // dashboards
+            WorkItemIterator objects = i.getObjects("dashboard");
+            while (objects.hasNext()) {
+                WorkItem object = objects.next();
+                iDashboards.add(new IntegrityObject(object));
             }
 
             // Generate Transaction XML files for the Load Test Harness
@@ -224,7 +278,10 @@ public class IntegrityDocs {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i, iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups, iStates, iReports, iFields, iTestVerdicts, iTestResultFields);
+                DocWriter doc = new DocWriter(i, iTypes, iTriggers, iQueries,
+                        iViewsets, iCharts, iGroups, iDynGroups,
+                        iStates, iReports, iFields, iTestVerdicts,
+                        iTestResultFields, iDashboards);
                 // Generate the report resources
                 generateResources();
 
@@ -247,7 +304,7 @@ public class IntegrityDocs {
                     "Integrity Workflow Report - Error",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-        } catch (CmdException | ParserConfigurationException | SAXException | IOException | XPathExpressionException ex) {
+        } catch (CmdException | ParserConfigurationException | SAXException | IOException ex) {
             ex.printStackTrace();
             System.out.println("Caught " + ex.getClass().getName() + "!");
             JOptionPane.showMessageDialog(null,

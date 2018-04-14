@@ -9,7 +9,6 @@ import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
 import static com.ptc.services.utilities.docgen.utils.Utils.addHeadings;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
-import static com.ptc.services.utilities.docgen.utils.Utils.getObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,22 +26,24 @@ import java.util.List;
  */
 public class DocWriterTools {
 
+    static List<IntegrityObject> iViewsets = null;
     static List<IntegrityType> iTypes = null;
-    static List<Trigger> iTriggers = null;
-    static List<Query> iQueries = null;
-    static List<Viewset> iViewsets = null;
-    static List<Chart> iCharts = null;
-    static List<Group> iGroups = null;
-    static List<DynamicGroup> iDynGroups = null;
-    static List<IntegrityState> iStates = null;
-    static List<Report> iReports = null;
     static List<IntegrityField> iFields = null;
-    static List<TestVerdict> iTestVerdicts = null;
-    static List<TestResultField> iTestResultFields = null;
+    static List<Trigger> iTriggers = null;
+    static List<Chart> iCharts = null;
 
+    static List<IntegrityObject> iGroups = null;
+    static List<IntegrityObject> iDynGroups = null;
+    static List<IntegrityObject> iStates = null;
+    static List<IntegrityObject> iTestVerdicts = null;
+    static List<IntegrityObject> iTestResultFields = null;
+    static List<IntegrityObject> iDashboards = null;
+    static List<IntegrityObject> iQueries = null;
+    static List<IntegrityObject> iReports = null;
+
+    static Integrity i;
     private static Date now;
     static SimpleDateFormat sdf;
-    static Integrity i;
 
     public static final File objectTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "ObjectTemplate.txt");
     public static final File titleTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "title.txt");
@@ -77,8 +78,6 @@ public class DocWriterTools {
         int startIndex = 0;
         int currentIndex;
 
-        String className = getObjectName(adminObj);
-
         while ((currentIndex = str.indexOf("<%", startIndex)) >= 0) {
             if (currentIndex > 0) {
                 sb.append(str.substring(startIndex, currentIndex));
@@ -101,33 +100,37 @@ public class DocWriterTools {
                 } else if ("now".equals(paramName)) {
                     sb.append(sdf.format(now));
                 } else if ("objecttype".equals(paramName)) {
-                    sb.append(className);
+                    if (null != adminObj) {
+                        sb.append(adminObj.getObjectType());
+                    }
                 } else if (paramName.endsWith("overview")) {
                     if (null != adminObj) {
                         if (adminObj instanceof IntegrityType) {
                             sb.append(getTypesOverview());
                         } else if (adminObj instanceof Trigger) {
                             sb.append(getTriggersOverview());
-                        } else if (adminObj instanceof Report) {
-                            sb.append(getReportOverview());
-                        } else if (adminObj instanceof IntegrityState) {
-                            sb.append(getStateOverview());
-                        } else if (adminObj instanceof Group) {
-                            sb.append(getGroupOverview());
-                        } else if (adminObj instanceof DynamicGroup) {
-                            sb.append(getDynGroupOverview());
-                        } else if (adminObj instanceof Query) {
-                            sb.append(getQueryOverview());
-                        } else if (adminObj instanceof Chart) {
-                            sb.append(getChartOverview());
-                        } else if (adminObj instanceof Viewset) {
-                            sb.append(getViewsetOverview());
                         } else if (adminObj instanceof IntegrityField) {
-                            sb.append(getFieldOverview());
-                        } else if (adminObj instanceof TestVerdict) {
-                            sb.append(getTestVerdictOverview());
-                        } else if (adminObj instanceof TestResultField) {
-                            sb.append(getTestResultFieldOverview());
+                            sb.append(getFieldOverview());                            
+                        } else if (adminObj.getObjectType().equals("Report")) {
+                            sb.append(getObjectOverview(iReports, ""));
+                        } else if (adminObj.getObjectType().equals("State")) {
+                            sb.append(getObjectOverview(iStates, ""));
+                        } else if (adminObj.getObjectType().equals("Group")) {
+                            sb.append(getObjectOverview(iGroups, ""));
+                        } else if (adminObj.getObjectType().equals("DynamicGroup")) {
+                            sb.append(getObjectOverview(iDynGroups, ""));
+                        } else if (adminObj.getObjectType().equals("Query")) {
+                            sb.append(getObjectOverview(iQueries, ""));
+                        } else if (adminObj.getObjectType().equals("Chart")) {
+                            sb.append(getChartOverview());
+                        } else if (adminObj.getObjectType().equals("Viewset")) {
+                            sb.append(getObjectOverview(iViewsets, ""));
+                        } else if (adminObj.getObjectType().equals("TestVerdict")) {
+                            sb.append(getObjectOverview(iTestVerdicts, "Type"));
+                        } else if (adminObj.getObjectType().equals("TestResultField")) {
+                            sb.append(getObjectOverview(iTestResultFields, "Type"));
+                        } else if (adminObj.getObjectType().equals("Dashboard")) {
+                            sb.append(getObjectOverview(iDashboards, ""));
                         }
                     }
 
@@ -230,45 +233,6 @@ public class DocWriterTools {
         return sb.toString();
     }
 
-    public static String getTestResultFieldOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description,Type");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (TestResultField object : iTestResultFields) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='TestVerdicts/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine("   <td class='border'>" + object.getType() + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
-
-    private static String getReportOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description,Share With");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (Report object : iReports) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='Reports/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine("   <td class='border'>" + object.getShareWith() + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
-
     private static String getFieldOverview() {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
@@ -288,54 +252,21 @@ public class DocWriterTools {
         return sb.toString();
     }
 
-    private static String getStateOverview() {
+    private static String getObjectOverview(List<IntegrityObject> objectList, String additionalColumns) {
         StringBuilder sb = new StringBuilder();
         // Summary heading line
         sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description,Display Name");
+        String headings = "ID,Name,Description" + (additionalColumns.isEmpty() ? "" : "," + additionalColumns);
+        addHeadings(sb, headings);
         sb.append(appendNewLine("<tbody>"));
         // Print out the summary about each trigger
-        for (IntegrityState object : iStates) {
+        for (IntegrityObject object : objectList) {
             sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='States/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
+            sb.append(appendNewLine("   <td class='border'><a href='" + object.getDirectory() + "/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
             sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine("   <td class='border'>" + object.getDisplayName() + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
-
-    private static String getGroupOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (Group object : iGroups) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='Groups/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
-
-    private static String getQueryOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (Query object : iQueries) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='Queries/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
+            if (additionalColumns.contains("Type")) {
+                sb.append(appendNewLine("   <td class='border'>" + object.getType() + "</td>"));
+            }
             sb.append(appendNewLine(" </tr>"));
         }
         sb.append(appendNewLine("</tbody></table>"));
@@ -352,7 +283,7 @@ public class DocWriterTools {
         // Print out the summary about each trigger
         for (Chart object : iCharts) {
             sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='Charts/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
+            sb.append(appendNewLine("   <td class='border'><a href='Charts/" + object.getGlobalID() + ".htm'>" + object.getName() + "</a></td>"));
             sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
             sb.append(appendNewLine(" </tr>"));
         }
@@ -361,61 +292,7 @@ public class DocWriterTools {
         return sb.toString();
     }
 
-    private static String getViewsetOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (Viewset object : iViewsets) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='Viewsets/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
 
-        return sb.toString();
-    }
-
-    private static String getDynGroupOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (DynamicGroup object : iDynGroups) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='" + object.getDirectory() + "/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
-
-    private static String getTestVerdictOverview() {
-        StringBuilder sb = new StringBuilder();
-        // Summary heading line
-        sb.append(appendNewLine("<table class='sortable'>"));
-        addHeadings(sb, "ID,Name,Description,Type");
-        sb.append(appendNewLine("<tbody>"));
-        // Print out the summary about each trigger
-        for (TestVerdict object : iTestVerdicts) {
-            sb.append(appendNewLine("   <td class='border'>" + object.getPosition() + "</td>"));
-            sb.append(appendNewLine("   <td class='border'><a href='TestVerdicts/" + object.getPosition() + ".htm'>" + object.getName() + "</a></td>"));
-
-            sb.append(appendNewLine("   <td class='border'>" + HyperLinkFactory.convertHyperLinks(object.getDescription()) + "</td>"));
-            sb.append(appendNewLine("   <td class='border'>" + object.getVerdictType() + "</td>"));
-            sb.append(appendNewLine(" </tr>"));
-        }
-        sb.append(appendNewLine("</tbody></table>"));
-
-        return sb.toString();
-    }
 
     // Delete all the template files
     public void cleanupTempFiles() {

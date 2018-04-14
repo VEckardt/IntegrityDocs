@@ -27,7 +27,7 @@ public class DynamicGroup extends IntegrityAdminObject {
     private String id;
     private Date lastModified;
     private String createdBy;
-    
+
     public DynamicGroup() {
         modelType = IMModelTypeName.DYNAMIC_GROUP;
         id = "";
@@ -37,6 +37,11 @@ public class DynamicGroup extends IntegrityAdminObject {
         description = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         directory = "DynamicGroups";
+        objectType = "DynamicGroup";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     // All setter functions
@@ -76,15 +81,14 @@ public class DynamicGroup extends IntegrityAdminObject {
 //    public void setSortField(String sortField) {
 //        this.sortField = sortField;
 //    }
-
     // All getter/access functions...
     public String getModelType() {
         return modelType;
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
@@ -135,7 +139,6 @@ public class DynamicGroup extends IntegrityAdminObject {
 //        if (name.length() > 0) {
 //            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 //        }
-
         return command;
     }
 
@@ -158,7 +161,6 @@ public class DynamicGroup extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
-
     public String getName() {
         return name;
     }
@@ -185,7 +187,7 @@ public class DynamicGroup extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
-    
+
     public String getDetails() {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
@@ -196,5 +198,9 @@ public class DynamicGroup extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }    
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }

@@ -41,6 +41,11 @@ public class Chart extends IntegrityAdminObject {
         shareWith = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         directory = "Charts";
+        objectType = "Chart";
+    }
+    
+    public String getObjectType () {
+        return objectType;
     }
 
     // All setter functions
@@ -245,5 +250,10 @@ public class Chart extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
+    }
+
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
     }
 }

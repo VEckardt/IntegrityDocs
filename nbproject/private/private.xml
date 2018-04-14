@@ -5,9 +5,13 @@
         <group name="IntegrityFDOs"/>
         <group name="IntegrityWAR"/>
         <group>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Viewset.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Chart.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityObject.java</file>
             <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriter.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/TemplateExtractor.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityDocs.java</file>
             <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriterTools.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/ChartFactory.java</file>
         </group>
     </open-files>
 </project-private>

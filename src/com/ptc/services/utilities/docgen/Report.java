@@ -29,10 +29,9 @@ public class Report extends IntegrityAdminObject {
     private String createdBy;
     private String query;
     private String recipeParams;
-    private String shareWith; 
+    private String shareWith;
     private String sharedGroups;
-    
-    
+
     public Report() {
         modelType = IMModelTypeName.REPORT;
         id = "";
@@ -42,6 +41,11 @@ public class Report extends IntegrityAdminObject {
         description = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         directory = "Reports";
+        objectType = "Report";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     // All setter functions
@@ -52,10 +56,10 @@ public class Report extends IntegrityAdminObject {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-    
+
     public void setQuery(String query) {
         this.query = query;
-    }    
+    }
 
     public void setLastModifiedDate(Date lastModified) {
         this.lastModified = lastModified;
@@ -69,9 +73,10 @@ public class Report extends IntegrityAdminObject {
         this.name = name;
         this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
     }
+
     public void setShareWith(String shareWith) {
         this.shareWith = shareWith;
-    }    
+    }
 
 //    public void setQueryDefinition(String queryDefinition) {
 //        this.queryDefinition = queryDefinition;
@@ -88,21 +93,22 @@ public class Report extends IntegrityAdminObject {
 //    public void setSortField(String sortField) {
 //        this.sortField = sortField;
 //    }
-
     // All getter/access functions...
     public String getModelType() {
         return modelType;
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
+
     public String getQuery() {
         return this.query;
-    }    
+    }
+
     public String getShareWith() {
         return shareWith;
-    }    
+    }
 
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
@@ -153,7 +159,6 @@ public class Report extends IntegrityAdminObject {
 //        if (name.length() > 0) {
 //            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 //        }
-
         return command;
     }
 
@@ -177,7 +182,6 @@ public class Report extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
-
     @Override
     public String getName() {
         return name;
@@ -220,5 +224,9 @@ public class Report extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }    
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
 }

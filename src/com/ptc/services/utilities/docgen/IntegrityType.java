@@ -155,6 +155,11 @@ public class IntegrityType extends IntegrityAdminObject {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+        objectType = "Type";
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 
     @Override
@@ -902,5 +907,9 @@ public class IntegrityType extends IntegrityAdminObject {
 
     public String getDirectory() {
         return directory;
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
     }
 }

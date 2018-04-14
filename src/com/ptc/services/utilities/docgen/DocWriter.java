@@ -1,7 +1,6 @@
 package com.ptc.services.utilities.docgen;
 
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
-import static com.ptc.services.utilities.docgen.utils.Utils.getObjectName;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,16 +19,17 @@ public class DocWriter extends DocWriterTools {
     public DocWriter(Integrity i,
             List<IntegrityType> typeList,
             List<Trigger> triggersList,
-            List<Query> queriesList,
-            List<Viewset> viewSetsList,
+            List<IntegrityObject> queriesList,
+            List<IntegrityObject> viewSetsList,
             List<Chart> chartsList,
-            List<Group> groupsList,
-            List<DynamicGroup> dynGroupsList,
-            List<IntegrityState> statesList,
-            List<Report> reportsList,
+            List<IntegrityObject> groupsList,
+            List<IntegrityObject> dynGroupsList,
+            List<IntegrityObject> statesList,
+            List<IntegrityObject> reportsList,
             List<IntegrityField> fieldList,
-            List<TestVerdict> testVerdictList,
-            List<TestResultField> testResultFieldList
+            List<IntegrityObject> testVerdictList,
+            List<IntegrityObject> testResultFieldList,
+            List<IntegrityObject> iDashboardsFieldList
     ) {
         super(i);
 
@@ -45,6 +45,7 @@ public class DocWriter extends DocWriterTools {
         iFields = fieldList;
         iTestVerdicts = testVerdictList;
         iTestResultFields = testResultFieldList;
+        iDashboards = iDashboardsFieldList;
     }
 
     public void publish() throws IOException {
@@ -92,12 +93,11 @@ public class DocWriter extends DocWriterTools {
         writeSummary();
 
         // publishObject (naviHtm, iViewsets);
-        
         // Part 1: Publish Viewset, if appropriate...
         if (null != iViewsets && iViewsets.size() > 0) {
             naviHtm.addBook(iViewsets.get(0));
             naviHtm.addOverviewHeader(iViewsets.get(0));
-            for (Viewset object : iViewsets) {
+            for (IntegrityObject object : iViewsets) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -112,7 +112,7 @@ public class DocWriter extends DocWriterTools {
         if (null != iGroups && iGroups.size() > 0) {
             naviHtm.addBook(iGroups.get(0));
             naviHtm.addOverviewHeader(iGroups.get(0));
-            for (Group object : iGroups) {
+            for (IntegrityObject object : iGroups) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -127,7 +127,7 @@ public class DocWriter extends DocWriterTools {
         if (null != iDynGroups && iDynGroups.size() > 0) {
             naviHtm.addBook(iDynGroups.get(0));
             naviHtm.addOverviewHeader(iDynGroups.get(0));
-            for (DynamicGroup object : iDynGroups) {
+            for (IntegrityObject object : iDynGroups) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -142,7 +142,7 @@ public class DocWriter extends DocWriterTools {
         if (null != iStates && iStates.size() > 0) {
             naviHtm.addBook(iStates.get(0));
             naviHtm.addOverviewHeader(iStates.get(0));
-            for (IntegrityState object : iStates) {
+            for (IntegrityObject object : iStates) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -215,7 +215,7 @@ public class DocWriter extends DocWriterTools {
 
             naviHtm.addOverviewHeader(iTestVerdicts.get(0));
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
-            for (TestVerdict object : iTestVerdicts) {
+            for (IntegrityObject object : iTestVerdicts) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -233,7 +233,7 @@ public class DocWriter extends DocWriterTools {
 
             naviHtm.addOverviewHeader(iTestResultFields.get(0));
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
-            for (TestResultField object : iTestResultFields) {
+            for (IntegrityObject object : iTestResultFields) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -264,7 +264,7 @@ public class DocWriter extends DocWriterTools {
         if (null != iQueries && iQueries.size() > 0) {
             naviHtm.addBook(iQueries.get(0));
             naviHtm.addOverviewHeader(iQueries.get(0));
-            for (Query object : iQueries) {
+            for (IntegrityObject object : iQueries) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
@@ -279,13 +279,29 @@ public class DocWriter extends DocWriterTools {
         if (null != iReports && iReports.size() > 0) {
             naviHtm.addBook(iReports.get(0));
             naviHtm.addOverviewHeader(iReports.get(0));
-            for (Report object : iReports) {
+            for (IntegrityObject object : iReports) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
                 naviHtm.writeObjectHtml(object);
             }
             addOverviewData(iReports.get(0));
+            naviHtm.endBook();
+            // whtdata0xml.write(appendNewLine("  </book>"));
+        }
+
+        // Part 15: Publish Query, if appropriate...
+        // publishObject(TocWriter naviHtm, List<IntegrityAdminObject> aol)
+        if (null != iDashboards && iDashboards.size() > 0) {
+            naviHtm.addBook(iDashboards.get(0));
+            naviHtm.addOverviewHeader(iDashboards.get(0));
+            for (IntegrityObject object : iDashboards) {
+                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
+                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
+                // Publish the individual trigger details
+                naviHtm.writeObjectHtml(object);
+            }
+            addOverviewData(iDashboards.get(0));
             naviHtm.endBook();
             // whtdata0xml.write(appendNewLine("  </book>"));
         }
@@ -306,9 +322,8 @@ public class DocWriter extends DocWriterTools {
         // whtdata0xml.flush();
         // whtdata0xml.close();
     }
-
     
-    private void publishObject (TocWriter naviHtm, List<IntegrityAdminObject> aol) throws IOException {
+    private void publishObject(TocWriter naviHtm, List<IntegrityAdminObject> aol) throws IOException {
         // Part 1: Publish Viewset, if appropriate...
         if (null != aol && aol.size() > 0) {
             naviHtm.addBook(aol.get(0));
@@ -322,9 +337,9 @@ public class DocWriter extends DocWriterTools {
             addOverviewData(aol.get(0));
             naviHtm.endBook();
             // whtdata0xml.write(appendNewLine("  </book>"));
-        }        
+        }
     }
-    
+
     private void addFileContent(BufferedWriter naviHtm, String sourceFileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFileName))) {
             String line;
@@ -338,7 +353,7 @@ public class DocWriter extends DocWriterTools {
 //        naviHtm.write(appendNewLine("<ul><li title=\"" + objectName + " Overview\" data-context=\"20\"><a href=\"WorkflowDocs/" + objectName + "_overview.htm\" target=\"topic\">Overview</a></li></ul>"));
 //    }
     private void addOverviewData(IntegrityAdminObject adminObject) throws FileNotFoundException, IOException {
-        String objectName = getObjectName(adminObject);
+        String objectName = adminObject.getObjectType();
 
         try ( // Next lets publish the types overview
                 BufferedReader reader = new BufferedReader(new FileReader(overviewTemplate))) {

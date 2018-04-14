@@ -8,7 +8,6 @@ package com.ptc.services.utilities.docgen;
 import static com.ptc.services.utilities.docgen.DocWriterTools.getFormattedContent;
 import static com.ptc.services.utilities.docgen.DocWriterTools.objectTemplate;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
-import static com.ptc.services.utilities.docgen.utils.Utils.getObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,7 +39,7 @@ public class TocWriter extends BufferedWriter {
         this.write(appendNewLine("<li class=\"hs-book\" title=\"" + name + "\">" + name + ""));
     }    
     public void addOverviewHeader(IntegrityAdminObject ao) throws IOException {
-        String name = getObjectName(ao);
+        String name = ao.getObjectType();
         this.write(appendNewLine("<ul><li title=\"" + name + " Overview\" data-context=\"20\"><a href=\"WorkflowDocs/" + name + "_overview.htm\" target=\"topic\">Overview</a></li></ul>"));
     }    
     public void endBook() throws IOException {

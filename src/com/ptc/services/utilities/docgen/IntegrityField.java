@@ -256,6 +256,7 @@ public class IntegrityField extends IntegrityAdminObject {
             Field attribute = fit.next();
             fieldDetailsHash.put(attribute.getName(), attribute);
         }
+        objectType = "Field";
     }
     
     @Override
@@ -676,5 +677,13 @@ public class IntegrityField extends IntegrityAdminObject {
     @Override
     public String getDirectory() {
         return directory;
+    }
+    @Override
+    protected String getGlobalID() {
+        return getPosition();
+    }
+    
+    protected String getObjectType(){
+        return objectType;
     }
 }

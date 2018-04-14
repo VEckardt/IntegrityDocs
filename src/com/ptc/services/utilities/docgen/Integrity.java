@@ -31,6 +31,8 @@ import java.util.logging.Logger;
 
 public class Integrity {
 
+    public static int globalId = 0;
+
     // Static objects for escaping pick values
     private static final CharSequence equals = new StringBuffer("=");
     private static final CharSequence equalsFix = new StringBuffer("\\=");
@@ -61,7 +63,7 @@ public class Integrity {
         "max", "maxLength", "min", "name", "pairedField", "paramSubstitution", "phases", "picks",
         "position", "query", "ranges", /*"references",*/ "relevanceRule", "richContent", "showDateTime",
         "staticComputation", "storeToHistoryFrequency", "suggestions", "textindex", "trace", "type"};
-    public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position" , "displayName"/*,references*/};
+    public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position", "displayName"/*,references*/};
     public static final String[] queryAttributes = new String[]{"createdBy", "description", "fields", "id", "isAdmin", "lastModified", "name",
         "queryDefinition", /*"references",*/ "shareWith", "sortDirection", "sortField"};
     public static final String[] groupAttributes = new String[]{"description", "email", "id", "image", "isActive", "isInRealm", "name", "notificationRule", "queryTimeout", /* "references", */ "sessionLimit"};
@@ -70,9 +72,9 @@ public class Integrity {
     public static final String[] chartAttributes = new String[]{"isAdmin", "id", "name", "chartType", "createdBy", /*"description",*/ "graphStyle", /*"lastModified",*/
         "query", /*"references",*/ "shareWith"};
     // testAttributes
-    public static final String[] testVerdictAttributes = new String[]{"description","displayName","id","isActive","name","position","verdictType"};
+    public static final String[] testVerdictAttributes = new String[]{"description", "displayName", "id", "isActive", "name", "position", "verdictType"};
     // resultFieldsAttributes
-    public static final String[] resultFieldsAttributes = new String[]{"description","displayName","id","name","position","type"};
+    public static final String[] resultFieldsAttributes = new String[]{"description", "displayName", "id", "name", "position", "type"};
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
 
@@ -622,7 +624,7 @@ public class Integrity {
                 // Get the encapsulated IntegrityField object for this visible field
                 IntegrityField iField = fieldDetails.get(fieldName);
                 // Get the list of "Visible To" group values
-                List<String> groups = new ArrayList<String>();
+                List<String> groups = new ArrayList<>();
                 Field visibleGroups = visibleFieldsHash.get(fieldName);
                 if (null != visibleGroups) {
                     @SuppressWarnings("unchecked")
@@ -664,8 +666,8 @@ public class Integrity {
         Command command = new Command(Command.IM, "groups");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.groupAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.groupAttributes) {
+            mv.add(attribute);
         }
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
@@ -675,30 +677,67 @@ public class Integrity {
         Command command = new Command(Command.IM, "dynamicgroups");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.dynGroupAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.dynGroupAttributes) {
+            mv.add(attribute);
         }
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
     }
-    
+
+    public WorkItemIterator getObjects(String objectName) throws APIException {
+        System.out.println("Reading " + objectName + "s ...");
+        String cmd = objectName.equals("verdict") ? Command.TM : (objectName.equals("resultfield") ? Command.TM : Command.IM);
+        if (objectName.equals("viewset")) {
+            cmd = Command.INTEGRITY;
+        }
+        Command command = new Command(cmd, objectName.equals("query") ? "queries" : objectName + "s");
+//        if (objectName.equals("viewset")) 
+//            command.addOption(new Option("fields", attr));
+        WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
+        if (objectName.equals("viewset")) {
+            return wit;
+        }
+
+        if (objectName.equals("resultfield")) {
+            cmd = Command.IM;
+            objectName = "field";
+        }
+
+        command = new Command(cmd, "view" + objectName);
+        while (wit.hasNext()) {
+            WorkItem wi = wit.next();
+            command.addSelection(wi.getId());
+        }
+        return api.runCommandWithInterim(command).getWorkItems();
+    }
+
+//    public WorkItemIterator getDashboards() throws APIException {
+//        Command command = new Command(Command.IM, "dashboards");
+//        // Construct the --fields=value,value,value option
+////        MultiValue mv = new MultiValue(",");
+////        for (String attribute : Integrity.dynGroupAttributes) {
+////            mv.add(attribute);
+////        }
+////        command.addOption(new Option("fields", mv));
+//        return api.runCommandWithInterim(command).getWorkItems();
+//    }       
     public WorkItemIterator getTestVerdicts() throws APIException {
         Command command = new Command(Command.TM, "verdicts");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.testVerdictAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.testVerdictAttributes) {
+            mv.add(attribute);
         }
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
-    }    
+    }
 
     public WorkItemIterator getReports() {
         Command command = new Command(Command.IM, "reports");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.reportAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.reportAttributes) {
+            mv.add(attribute);
         }
         command.addOption(new Option("fields", mv));
         System.out.println("Executing IM.Reports ...");
@@ -716,8 +755,8 @@ public class Integrity {
         Command command = new Command(Command.IM, "states");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.stateAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.stateAttributes) {
+            mv.add(attribute);
         }
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
@@ -727,31 +766,31 @@ public class Integrity {
         Command imQueries = new Command(Command.IM, "queries");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.queryAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.queryAttributes) {
+            mv.add(attribute);
         }
         imQueries.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(imQueries).getWorkItems();
     }
-    
+
     public WorkItemIterator getTestResultFields() throws APIException {
-        Command imQueries = new Command(Command.TM, "resultfields");
+        Command cmd = new Command(Command.TM, "resultfields");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (String queryAttribute : Integrity.resultFieldsAttributes) {
-            mv.add(queryAttribute);
+        for (String attribute : Integrity.resultFieldsAttributes) {
+            mv.add(attribute);
         }
-        imQueries.addOption(new Option("fields", mv));
-        return api.runCommandWithInterim(imQueries).getWorkItems();
-    }    
+        cmd.addOption(new Option("fields", mv));
+        return api.runCommandWithInterim(cmd).getWorkItems();
+    }
 
     public WorkItemIterator viewQueries(List<String> queryList) throws APIException {
-        Command imViewQuery = new Command(Command.IM, "viewquery");
+        Command cmd = new Command(Command.IM, "viewquery");
         // Add each query selection to the view query command
         for (Iterator<String> it = queryList.iterator(); it.hasNext();) {
-            imViewQuery.addSelection(it.next());
+            cmd.addSelection(it.next());
         }
-        return api.runCommandWithInterim(imViewQuery).getWorkItems();
+        return api.runCommandWithInterim(cmd).getWorkItems();
     }
 
     public String getCharts() throws CmdException {
@@ -925,12 +964,12 @@ public class Integrity {
         }
         return deployTargetWI;
     }
-    
+
     public String getAbout(String sectionName) {
 
         String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
                 + sectionName + "<br>Current User: " + getUserName()
-                + "<br>"+ IntegrityDocs.copyright + "<br>";
+                + "<br>" + IntegrityDocs.copyright + "<br>";
         Command cmd = new Command("im", "about");
         try {
             Response response = api.runCommand(cmd);
@@ -938,7 +977,7 @@ public class Integrity {
             // get the details
             result = result + wi.getField("title").getValueAsString();
             result = result + ", Version: " + wi.getField("version").getValueAsString();
-            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString()+"</br>";
+            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString() + "</br>";
             result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
 
             return result + "</div>";
@@ -947,7 +986,7 @@ public class Integrity {
             // ex);
         }
         return result;
-    }    
+    }
 
     public String getHostName() {
         return api.getHostName();
