@@ -165,6 +165,9 @@ public class DocWriterTools {
         StringBuilder sb = new StringBuilder();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='sortable'>"));
+        addHeadings(sb, "Object,Count");
+        sb.append(appendNewLine("<tbody>"));
+        
         addFieldValue(sb, "View Sets", String.valueOf(iViewsets.size()));
         addFieldValue(sb, "Groups", String.valueOf(iGroups.size()));
         addFieldValue(sb, "Dynamic Groups", String.valueOf(iDynGroups.size()));
@@ -180,8 +183,8 @@ public class DocWriterTools {
         addFieldValue(sb, "Queries", String.valueOf(iQueries.size()));
         addFieldValue(sb, "Reports", String.valueOf(iReports.size()));
 
-        // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
+        // Close out the table
+        sb.append(appendNewLine("</tbody></table>"));
 
         return sb.toString();
     }

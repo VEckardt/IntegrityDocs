@@ -977,7 +977,7 @@ public class Integrity {
             // get the details
             result = result + wi.getField("title").getValueAsString();
             result = result + ", Version: " + wi.getField("version").getValueAsString();
-            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString() + "</br>";
+            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString().replaceAll(",", ", ") + "</br>";
             result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
 
             return result + "</div>";
