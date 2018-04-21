@@ -25,12 +25,14 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
 import com.ptc.services.utilities.CmdExecutor;
+import static com.ptc.services.utilities.docgen.ChartFactory.parseChart;
+import com.ptc.services.utilities.docgen.utils.OSCommandHandler;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Integrity {
-
+    
     public static int globalId = 0;
 
     // Static objects for escaping pick values
@@ -42,7 +44,7 @@ public class Integrity {
     private static final CharSequence semicolonFix = new StringBuffer("\\;");
     private static final CharSequence comma = new StringBuffer(",");
     private static final CharSequence commaFix = new StringBuffer("\\,");
-
+    
     private APISession api = null;
     public static final String[] typeAttributes = new String[]{"addLabel", "allowChangePackages", "associatedType", "backsProject", "branch",
         "branchEnabled", "canRelateToTestResult", "copyFields", "copyTree", "copytreeEnabled",
@@ -54,27 +56,34 @@ public class Integrity {
         "phaseField", "position", "printPresentation", "properties", /*"references",*/ "revisionEnabled",
         "showWorkflow", "significantEdit", "stateTransitions", "testCaseResultFields", "testRole",
         "testStepsEnabled", "timeTrackingEnabled", "typeClass", "viewPresentation", "visibleFields", "visibleFieldsForMe"};
-    public static final String[] fieldAttributes = new String[]{"allowedTypes", "associatedField", "backedBy", "backingFilter", "backingStates",
+    public static final String[] fieldAttributes = new String[]{"id", "name", "displayName",
+        "displayPattern", "description", "type", "default", "position", "allowedTypes", "associatedField",
+        "backedBy", "backingFilter", "backingStates",
         "backingTextField", "backingTextFormat", "backingType", "computation", "correlation",
-        "cycleDetection", "default", "defaultAttachmentField", "defaultBrowseQuery", "defaultColumns",
-        "description", "displayAsLink", "displayAsProgress", "displayLocation", "displayName",
-        "displayPattern", "displayRows", "displayStyle", "editabilityRule", "id", "isForward",
+        "cycleDetection", "defaultAttachmentField", "defaultBrowseQuery", "defaultColumns",
+        "displayAsLink", "displayAsProgress", "displayLocation", "displayRows", "displayStyle", "editabilityRule", "isForward",
         "isMultiValued", "isSystemManaged", "isTestResult", "lastcompute", "linkFlags", "loggingText",
-        "max", "maxLength", "min", "name", "pairedField", "paramSubstitution", "phases", "picks",
-        "position", "query", "ranges", /*"references",*/ "relevanceRule", "richContent", "showDateTime",
-        "staticComputation", "storeToHistoryFrequency", "suggestions", "textindex", "trace", "type"};
+        "max", "min", "maxLength", "pairedField", "paramSubstitution", "phases", "picks",
+        "query", "ranges", /*"references",*/ "relevanceRule", "richContent", "showDateTime",
+        "staticComputation", "storeToHistoryFrequency", "suggestions", "textindex", "trace"};
     public static final String[] stateAttributes = new String[]{"capabilities", "description", "id", "name", "position", "displayName"/*,references*/};
     public static final String[] queryAttributes = new String[]{"createdBy", "description", "fields", "id", "isAdmin", "lastModified", "name",
         "queryDefinition", /*"references",*/ "shareWith", "sortDirection", "sortField"};
     public static final String[] groupAttributes = new String[]{"description", "email", "id", "image", "isActive", "isInRealm", "name", "notificationRule", "queryTimeout", /* "references", */ "sessionLimit"};
     public static final String[] dynGroupAttributes = new String[]{"description", "id", "name"};
     public static final String[] reportAttributes = new String[]{"description", "id", "name", "query", "shareWith", "sharedGroups"};
-    public static final String[] chartAttributes = new String[]{"isAdmin", "id", "name", "chartType", "createdBy", /*"description",*/ "graphStyle", /*"lastModified",*/
+    public static final String[] chartAttributes = new String[]{"id", "name", "description", "isAdmin", "chartType", "createdBy", "graphStyle", /*"lastModified",*/
         "query", /*"references",*/ "shareWith"};
-    // testAttributes
+    public static final String[] chartAttributes2 = new String[]{"id", "Name", "Description", "Is Admin", "Chart Type", "Created By", "Graph Style", /*"lastModified",*/
+        "Query", /*"references",*/ "Share With"};    // testAttributes
     public static final String[] testVerdictAttributes = new String[]{"description", "displayName", "id", "isActive", "name", "position", "verdictType"};
     // resultFieldsAttributes
     public static final String[] resultFieldsAttributes = new String[]{"description", "displayName", "id", "name", "position", "type"};
+    
+    public static final String[] cpTypesAttributes = {"id", "name", "description", "displayName", "attributes", "entryAttributes", "entryKey", "permittedAdministrators", "permittedGroups", "position"};
+    public static final String[] projectAttributes = {"id", "name", "description", "isActive", "backingIssueID", "closedImage", "parent", "permittedAdministrators", "permittedGroups"};
+    // public static final String[] projectAttributes = {"description", "id", "isActive", "name"};
+
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
 
@@ -108,7 +117,7 @@ public class Integrity {
     public static final String fixPropertyValue(String value) {
         return (null != value && value.length() > 0) ? value.replace(colon, colonFix).replace(semicolon, semicolonFix) : value;
     }
-
+    
     public static final String convertListToString(List<String> list, String delim) {
         StringBuilder sb = new StringBuilder();
         for (Iterator<String> it = list.iterator(); it.hasNext();) {
@@ -117,7 +126,7 @@ public class Integrity {
         }
         return sb.toString();
     }
-
+    
     public static final List<String> convertStringToList(String str, String delim) {
         List<String> list = new ArrayList<>();
         if (null != str && str.length() > 0) {
@@ -128,7 +137,7 @@ public class Integrity {
         }
         return list;
     }
-
+    
     public static final String getUserFullName(Item iUser) {
         Field fullName = iUser.getField("fullname");
         if (null != fullName && null != fullName.getValueAsString() && fullName.getValueAsString().length() > 0) {
@@ -137,7 +146,7 @@ public class Integrity {
             return iUser.getId();
         }
     }
-
+    
     public static final String getDateString(SimpleDateFormat sdf, Date fieldValue) {
         if (null == sdf) {
             return fieldValue.toString();
@@ -145,15 +154,15 @@ public class Integrity {
             return sdf.format(fieldValue);
         }
     }
-
+    
     public static final boolean getBooleanFieldValue(Field fld) {
         if (null != fld && null != fld.getDataType() && fld.getDataType().endsWith(Field.BOOLEAN_TYPE)) {
             return fld.getBoolean();
         }
-
+        
         return false;
     }
-
+    
     public static final String getStringFieldValue(Field fld) {
         if (null != fld && null != fld.getDataType()) {
             if (fld.getDataType().equals(Field.ITEM_TYPE) && null != fld.getItem()) {
@@ -165,7 +174,7 @@ public class Integrity {
             return "";
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     public static final String summarizePermissionsList(Field itemList, String delim) {
         StringBuilder sb = new StringBuilder();
@@ -180,7 +189,7 @@ public class Integrity {
                     groupsList.add(principal.getId());
                 }
             }
-
+            
             if (delim.equals("<br/>" + IntegrityDocs.nl)) {
                 sb.append(usersList.size() > 0 ? "Users:&nbsp;&nbsp;" + convertListToString(usersList, ", ") : "");
                 sb.append(usersList.size() > 0 && groupsList.size() > 0 ? "<br/>" : "");
@@ -193,7 +202,7 @@ public class Integrity {
         }
         return sb.toString();
     }
-
+    
     public static final List<String> getListOfStrings(Field fld, String delim) {
         List<String> listOfStrings = new ArrayList<>();
         if (null != fld && null != fld.getDataType()) {
@@ -215,10 +224,10 @@ public class Integrity {
                 listOfStrings.addAll(convertStringToList(getStringFieldValue(fld), delim));
             }
         }
-
+        
         return listOfStrings;
     }
-
+    
     public static final String getFieldValue(Field fld, String delimiter) {
         StringBuilder values = new StringBuilder();
         for (Iterator<?> vlit = getListOfStrings(fld, delimiter).iterator(); vlit.hasNext();) {
@@ -226,7 +235,7 @@ public class Integrity {
         }
         return values.toString();
     }
-
+    
     public static final String getXMLParamFieldValue(Field fld, String xmlPrefix, String delimiter) {
         StringBuilder values = new StringBuilder();
         for (Iterator<?> vlit = getListOfStrings(fld, delimiter).iterator(); vlit.hasNext();) {
@@ -241,7 +250,7 @@ public class Integrity {
         }
         return values.toString();
     }
-
+    
     public static final String getXMLParamFieldValue(List<String> list, String xmlPrefix, String delimiter) {
         StringBuilder values = new StringBuilder();
         for (Iterator<String> vlit = list.iterator(); vlit.hasNext();) {
@@ -252,7 +261,7 @@ public class Integrity {
         }
         return values.toString();
     }
-
+    
     public static String getXMLParamFieldValue(String textFormat) {
         // Only process if we've got something to resolve...
         if (null != textFormat && textFormat.indexOf("{") >= 0) {
@@ -263,7 +272,7 @@ public class Integrity {
                 if (curIndx > 0) {
                     resolvedString.append(textFormat.substring(startIndx, curIndx));
                 }
-
+                
                 if (curIndx == (textFormat.length() - 1)) {
                     resolvedString.append("{");
                     startIndx = curIndx + 1;
@@ -273,50 +282,50 @@ public class Integrity {
                         // Matching closing token not found, parse error!
                         break;
                     }
-
+                    
                     String rawFieldName = textFormat.substring(curIndx + 1, endIndx);
                     String xmlParam = IntegrityField.XML_PREFIX + XMLWriter.getXMLParamName(rawFieldName);
                     XMLWriter.paramsHash.put(xmlParam, rawFieldName);
                     resolvedString.append(XMLWriter.padXMLParamName(xmlParam));
                     startIndx = endIndx + 1;
                 }
-
+                
                 curIndx = textFormat.indexOf("{", startIndx);
             }
-
+            
             if (startIndx < textFormat.length()) {
                 resolvedString.append(textFormat.substring(startIndx));
             }
-
+            
             return resolvedString.toString();
         } else {
             return textFormat;
         }
     }
-
+    
     public static String getXMLParamFieldValue(IntegrityField iField, String iFieldValue) {
         StringBuilder sb = new StringBuilder();
         switch (iField.getFieldType()) {
             case TYPE:
                 sb.append(XMLWriter.padXMLParamName(IntegrityType.XML_PREFIX + XMLWriter.getXMLParamName(iFieldValue)));
                 break;
-
+            
             case STATE:
                 sb.append(XMLWriter.padXMLParamName(IntegrityState.XML_PREFIX + XMLWriter.getXMLParamName(iFieldValue)));
                 break;
-
+            
             case USER:
                 sb.append(XMLWriter.padXMLParamName(Integrity.USER_XML_PREFIX + XMLWriter.getXMLParamName(iFieldValue)));
                 break;
-
+            
             case GROUP:
                 sb.append(XMLWriter.padXMLParamName(Integrity.GROUP_XML_PREFIX + XMLWriter.getXMLParamName(iFieldValue)));
                 break;
-
+            
             default:
                 sb.append(iFieldValue);
         }
-
+        
         return sb.toString();
     }
 
@@ -380,7 +389,7 @@ public class Integrity {
         }
         return adminIDList;
     }
-
+    
     @SuppressWarnings("unchecked")
     public Hashtable<String, Field> viewType(String typeName) throws APIException {
         Hashtable<String, Field> typeDetails = new Hashtable<>();
@@ -418,17 +427,17 @@ public class Integrity {
             System.out.print("\t... " + created.getName());
             typeDetails.put(created.getName(), created);
             System.out.println(" done.");
-
+            
             Field createdBy = wi.getField("createdBy");
             System.out.print("\t... " + createdBy.getName());
             typeDetails.put(createdBy.getName(), createdBy);
             System.out.println(" done.");
-
+            
             Field lastModified = wi.getField("lastModified");
             System.out.print("\t... " + lastModified.getName());
             typeDetails.put(lastModified.getName(), lastModified);
             System.out.println(" done.");
-
+            
             Field modifiedBy = wi.getField("modifiedBy");
             System.out.print("\t... " + modifiedBy.getName());
             typeDetails.put(modifiedBy.getName(), modifiedBy);
@@ -436,7 +445,7 @@ public class Integrity {
         }
         return typeDetails;
     }
-
+    
     public WorkItemIterator viewTriggers(List<String> triggerList) throws APIException {
         Command imViewTrigger = new Command(Command.IM, "viewtrigger");
         // Add each trigger selection to the view trigger command
@@ -445,7 +454,41 @@ public class Integrity {
         }
         return api.runCommandWithInterim(imViewTrigger).getWorkItems();
     }
+    
+    public WorkItemIterator getMainProjects() throws APIException {
+        // CmdExecutor shell = new CmdExecutor();
+        ArrayList<String> lines = new ArrayList<>();
+        MultiValue mv = new MultiValue(",");
+        for (String typeAttribute : Integrity.projectAttributes) {
+            mv.add(typeAttribute);
+        }
+        
+        Command cmd = new Command(Command.IM, "diag");
+        cmd.addOption(new Option("diag", "runsql"));
+        cmd.addOption(new Option("param", "select Name from Projects where ParentID is null"));
+        Response response = api.runCommandWithInterim(cmd);
+        String message = response.getResult().getMessage();
+        // ResponseUtil.printResponse(response, 1, System.out);
 
+        cmd = new Command(Command.IM, "projects");
+        cmd.addOption(new Option("fields", mv));
+        
+        for (String line : message.split("\n")) {
+            // out.println("line: " + line);
+            line = line.trim();
+            // ignore 
+            if (!line.toUpperCase().equals("NAME") && !line.startsWith("-----")) {
+                lines.add(line);
+                if (!line.isEmpty()) {
+                    // add th eprojects you want to list
+                    cmd.addSelection("/" + line.trim());
+                }
+            }
+        }
+        
+        return api.runCommandWithInterim(cmd).getWorkItems();
+    }
+    
     public Hashtable<String, Field> viewField(String typeName, String fieldName) throws APIException {
         Hashtable<String, Field> fieldDetails = new Hashtable<>();
         Command imViewField = new Command(Command.IM, "viewfield");
@@ -463,7 +506,7 @@ public class Integrity {
         }
         return fieldDetails;
     }
-
+    
     public Hashtable<String, IntegrityState> getStates(String typeName, List<String> statesList) throws APIException {
         Hashtable<String, IntegrityState> stateDetails = new Hashtable<String, IntegrityState>();
         Command imStates = new Command(Command.IM, "states");
@@ -473,7 +516,7 @@ public class Integrity {
             mv.add(Integrity.stateAttributes[i]);
         }
         imStates.addOption(new Option("fields", mv));
-
+        
         if (statesList.size() > 0) {
             // Add the list of selections
             for (Iterator<String> it = statesList.iterator(); it.hasNext();) {
@@ -521,10 +564,10 @@ public class Integrity {
                 stateDetails.put(stateName, iState);
             }
         }
-
+        
         return stateDetails;
     }
-
+    
     public LinkedHashMap<String, IntegrityField> getFields() throws APIException {
         // Initialize our return variable
         LinkedHashMap<String, IntegrityField> fieldDetails = new LinkedHashMap<>();
@@ -551,7 +594,7 @@ public class Integrity {
         }
         return fieldDetails;
     }
-
+    
     public Hashtable<String, IntegrityField> getFields(String typeName, Field visibleFields, Field visibleFieldsForMe) throws APIException {
         // Initialize our return variable
         Hashtable<String, IntegrityField> fieldDetails = new Hashtable<>();
@@ -578,7 +621,7 @@ public class Integrity {
             mv.add(Integrity.fieldAttributes[i]);
         }
         imFields.addOption(new Option("fields", mv));
-
+        
         @SuppressWarnings("unchecked")
         List<Item> visibleFieldsList = visibleFieldsForMe.getList();
         // Ensure we have visible fields defined...
@@ -658,10 +701,10 @@ public class Integrity {
                 fieldDetails.put(fieldName, iField);
             }
         }
-
+        
         return fieldDetails;
     }
-
+    
     public WorkItemIterator getGroups() throws APIException {
         Command command = new Command(Command.IM, "groups");
         // Construct the --fields=value,value,value option
@@ -672,7 +715,7 @@ public class Integrity {
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
     }
-
+    
     public WorkItemIterator getDynGroups() throws APIException {
         Command command = new Command(Command.IM, "dynamicgroups");
         // Construct the --fields=value,value,value option
@@ -683,44 +726,43 @@ public class Integrity {
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
     }
-
+    
     public WorkItemIterator getObjects(String objectName) throws APIException {
         System.out.println("Reading " + objectName + "s ...");
+        if (objectName.equals("improject")) {
+            return getMainProjects();
+        }
+        
         String cmd = objectName.equals("verdict") ? Command.TM : (objectName.equals("resultfield") ? Command.TM : Command.IM);
         if (objectName.equals("viewset")) {
             cmd = Command.INTEGRITY;
         }
         Command command = new Command(cmd, objectName.equals("query") ? "queries" : objectName + "s");
-//        if (objectName.equals("viewset")) 
-//            command.addOption(new Option("fields", attr));
+        
+        if (objectName.equals("project")) {
+            command.setApp(Command.SI);
+            command.addOption(new Option("nodisplaySubs"));
+        }
+        
         WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
-        if (objectName.equals("viewset")) {
+        if (objectName.equals("viewset") || objectName.equals("project")) {
             return wit;
         }
-
+        
         if (objectName.equals("resultfield")) {
             cmd = Command.IM;
             objectName = "field";
         }
-
+        
         command = new Command(cmd, "view" + objectName);
         while (wit.hasNext()) {
             WorkItem wi = wit.next();
+            // out.println("wi.getId(): " + wi.getDisplayId());
             command.addSelection(wi.getId());
         }
         return api.runCommandWithInterim(command).getWorkItems();
     }
 
-//    public WorkItemIterator getDashboards() throws APIException {
-//        Command command = new Command(Command.IM, "dashboards");
-//        // Construct the --fields=value,value,value option
-////        MultiValue mv = new MultiValue(",");
-////        for (String attribute : Integrity.dynGroupAttributes) {
-////            mv.add(attribute);
-////        }
-////        command.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(command).getWorkItems();
-//    }       
     public WorkItemIterator getTestVerdicts() throws APIException {
         Command command = new Command(Command.TM, "verdicts");
         // Construct the --fields=value,value,value option
@@ -731,7 +773,7 @@ public class Integrity {
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
     }
-
+    
     public WorkItemIterator getReports() {
         Command command = new Command(Command.IM, "reports");
         // Construct the --fields=value,value,value option
@@ -750,7 +792,7 @@ public class Integrity {
         }
         return wit;
     }
-
+    
     public WorkItemIterator getStates() throws APIException {
         Command command = new Command(Command.IM, "states");
         // Construct the --fields=value,value,value option
@@ -761,7 +803,7 @@ public class Integrity {
         command.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(command).getWorkItems();
     }
-
+    
     public WorkItemIterator getQueries() throws APIException {
         Command imQueries = new Command(Command.IM, "queries");
         // Construct the --fields=value,value,value option
@@ -772,7 +814,7 @@ public class Integrity {
         imQueries.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(imQueries).getWorkItems();
     }
-
+    
     public WorkItemIterator getTestResultFields() throws APIException {
         Command cmd = new Command(Command.TM, "resultfields");
         // Construct the --fields=value,value,value option
@@ -783,7 +825,7 @@ public class Integrity {
         cmd.addOption(new Option("fields", mv));
         return api.runCommandWithInterim(cmd).getWorkItems();
     }
-
+    
     public WorkItemIterator viewQueries(List<String> queryList) throws APIException {
         Command cmd = new Command(Command.IM, "viewquery");
         // Add each query selection to the view query command
@@ -792,7 +834,7 @@ public class Integrity {
         }
         return api.runCommandWithInterim(cmd).getWorkItems();
     }
-
+    
     public String getCharts() throws CmdException {
         // Open a command shell to execute the im charts command
         CmdExecutor shell = new CmdExecutor();
@@ -810,12 +852,43 @@ public class Integrity {
         // Return the output
         return shell.getCommandOutput();
     }
-
+    
+    public List<IntegrityObject> getCharts2() throws CmdException, APIException {
+        List<IntegrityObject> result = new ArrayList<>();
+        System.out.println("Reading " + "charts ...");
+        Command cmd = new Command(Command.IM, "charts");
+        // Add each query selection to the view query command
+        String fields = "";
+        for (int i = 0; i < Integrity.chartAttributes.length; i++) {
+            fields += (Integrity.chartAttributes[i]);
+            fields += (i < (Integrity.chartAttributes.length + 1) ? "," : "");
+        }
+        cmd.addOption(new Option("fields", fields));
+        WorkItemIterator wit = api.runCommandWithInterim(cmd).getWorkItems();
+        
+        while (wit.hasNext()) {
+            WorkItem chart = wit.next();
+            // Execute the im charts command
+            String cmdString = "im viewchart " + api.getConnectionString() + " \"" + chart.getId() + "\"";
+            // out.println("CMD: " + cmdString + " ...");
+            // Open a command shell to execute the im charts command
+            OSCommandHandler osh = new OSCommandHandler();
+            int retCode = osh.executeCmd(cmdString, true);
+            // if (out.println("Return code: " + retCode);
+            // out.println("Return text: \n" + osh.getUnfilteredResult());
+            String output = osh.getUnfilteredResult();
+            
+            result.add(parseChart(chart, output));
+        }
+        // Return the output
+        return result;
+    }
+    
     public WorkItemIterator viewViewSets() throws APIException {
         Command intViewsets = new Command(Command.INTEGRITY, "viewsets");
         return api.runCommandWithInterim(intViewsets).getWorkItems();
     }
-
+    
     public File fetchViewset(String viewset, File exportDir) throws APIException {
         File vsFile = new File(exportDir, viewset + ".vs");
         Command intFetchViewset = new Command(Command.INTEGRITY, "fetchviewset");
@@ -832,7 +905,7 @@ public class Integrity {
         }
         return vsFile;
     }
-
+    
     public File getDBFile(String file, File exportDir) throws APIException {
         File exportFile = new File(file);
         exportFile = new File(exportDir, exportFile.getName());
@@ -851,9 +924,9 @@ public class Integrity {
         // Return the location to the exported file
         return exportFile;
     }
-
+    
     public List<String> getStagingSystems() throws APIException {
-        List<String> stagingSystems = new ArrayList<String>();
+        List<String> stagingSystems = new ArrayList<>();
         Command sdStagingSystems = new Command(Command.SD, "stagingsystems");
         Response res = api.runCommand(sdStagingSystems);
         if (null != res && res.getWorkItemListSize() > 0) {
@@ -864,7 +937,7 @@ public class Integrity {
         }
         return stagingSystems;
     }
-
+    
     public WorkItem viewStagingSystem(String stagingSystem) throws APIException {
         WorkItem stagingSystemWI = null;
         Command sdViewStagingSystem = new Command(Command.SD, "viewstagingsystem");
@@ -875,7 +948,7 @@ public class Integrity {
         }
         return stagingSystemWI;
     }
-
+    
     public List<WorkItem> getStages(String stagingSystem) throws APIException {
         List<WorkItem> stageList = new ArrayList<>();
         Command sdStages = new Command(Command.SD, "stages");
@@ -896,7 +969,7 @@ public class Integrity {
         mv.add("transfermode");
         sdStages.addOption(new Option("fields", mv));
         sdStages.addOption(new Option("stagingSystem", stagingSystem));
-
+        
         Response res = api.runCommand(sdStages);
         if (null != res && res.getWorkItemListSize() > 0) {
             WorkItemIterator wit = res.getWorkItems();
@@ -906,7 +979,7 @@ public class Integrity {
         }
         return stageList;
     }
-
+    
     public WorkItem viewStage(String stagingSystem, String stage) throws APIException {
         WorkItem stageWI = null;
         Command sdViewStage = new Command(Command.SD, "viewstage");
@@ -918,7 +991,7 @@ public class Integrity {
         }
         return stageWI;
     }
-
+    
     public List<WorkItem> getDeployTargets(String stagingSystem, String stage) throws APIException {
         List<WorkItem> deployTargetList = new ArrayList<>();
         Command sdDeployTargets = new Command(Command.SD, "deploytargets");
@@ -941,7 +1014,7 @@ public class Integrity {
         sdDeployTargets.addOption(new Option("fields", mv));
         sdDeployTargets.addOption(new Option("stagingSystem", stagingSystem));
         sdDeployTargets.addOption(new Option("stage", stage));
-
+        
         Response res = api.runCommand(sdDeployTargets);
         if (null != res && res.getWorkItemListSize() > 0) {
             WorkItemIterator wit = res.getWorkItems();
@@ -951,7 +1024,7 @@ public class Integrity {
         }
         return deployTargetList;
     }
-
+    
     public WorkItem viewDeployTarget(String stagingSystem, String stage, String deployTarget) throws APIException {
         WorkItem deployTargetWI = null;
         Command sdViewDeployTarget = new Command(Command.SD, "viewdeploytarget");
@@ -964,9 +1037,9 @@ public class Integrity {
         }
         return deployTargetWI;
     }
-
+    
     public String getAbout(String sectionName) {
-
+        
         String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
                 + sectionName + "<br>Current User: " + getUserName()
                 + "<br>" + IntegrityDocs.copyright + "<br>";
@@ -979,7 +1052,7 @@ public class Integrity {
             result = result + ", Version: " + wi.getField("version").getValueAsString();
             result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString().replaceAll(",", ", ") + "</br>";
             result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
-
+            
             return result + "</div>";
         } catch (APIException | NullPointerException ex) {
             // Logger.getLogger(APISession.class.getName()).log(Level.SEVERE, null,
@@ -987,19 +1060,19 @@ public class Integrity {
         }
         return result;
     }
-
+    
     public String getHostName() {
         return api.getHostName();
     }
-
+    
     public String getPort() {
         return api.getPort();
     }
-
+    
     public String getUserName() {
         return api.getUserName();
     }
-
+    
     public void exit() {
         if (null != api) {
             try {

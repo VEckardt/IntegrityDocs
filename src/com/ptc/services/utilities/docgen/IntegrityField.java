@@ -1,6 +1,5 @@
 package com.ptc.services.utilities.docgen;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,9 +12,8 @@ import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
-import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
+import com.ptc.services.utilities.docgen.utils.StringObj;
+import java.util.LinkedHashMap;
 
 /**
  * Object represents an Integrity Field The following attributes are supported:
@@ -86,7 +84,7 @@ public class IntegrityField extends IntegrityAdminObject {
     private boolean isPlatformField;
     private List<String> allowedTypes; // NOTE:  This is calculated in context of the requested type
     private List<String> visibleGroups;
-    private Hashtable<String, Field> fieldDetailsHash;
+    private LinkedHashMap<String, Field> fieldDetailsHash;
 
     // Context of the Integrity Type
     private String iTypeName;
@@ -225,7 +223,7 @@ public class IntegrityField extends IntegrityAdminObject {
         return FieldType.UNDEFINED;
     }
 
-    public static final List<FieldType> COMPUTED_FIELDS = new ArrayList<FieldType>();
+    public static final List<FieldType> COMPUTED_FIELDS = new ArrayList<>();
 
     static {
         COMPUTED_FIELDS.add(FieldType.INT);
@@ -237,10 +235,10 @@ public class IntegrityField extends IntegrityAdminObject {
 
     IntegrityField(String typeName, WorkItem wi) {
         modelType = IMModelTypeName.FIELD;
-        fieldDetailsHash = new Hashtable<String, Field>();
+        fieldDetailsHash = new LinkedHashMap<>();
         iTypeName = (null == typeName ? "" : typeName);
         id = wi.getField("id").getValueAsString();
-        isPlatformField = Integer.parseInt(id) < 0 ? true : false;
+        isPlatformField = Integer.parseInt(id) < 0;
         type = wi.getField("type").getValueAsString();
         name = wi.getField("name").getValueAsString();
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
@@ -248,52 +246,63 @@ public class IntegrityField extends IntegrityAdminObject {
         displayName = wi.getField("displayName").getValueAsString();
         globalDescription = wi.getField("description").getValueAsString();
         allowedTypes = parseAllowedTypes(wi.getField("allowedTypes"));
-        visibleGroups = new ArrayList<String>();
+        visibleGroups = new ArrayList<>();
         directory = "Fields";
 
         // Initialize the fieldDetailsHash with the information from the Work Item
-        for (@SuppressWarnings("unchecked") Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
-            Field attribute = fit.next();
-            fieldDetailsHash.put(attribute.getName(), attribute);
+        for (Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
+            Field field = fit.next();
+            fieldDetailsHash.put(field.getName(), field);
         }
         objectType = "Field";
     }
+
+    // typeClass
+    public String getTypeClassGroup() {
+        return (type.substring(0, 1).toUpperCase() + type.substring(1)).replaceAll("([A-Z])", " $1");
+    }      
     
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "Name", getName());
-        addFieldValue(sb, "Display Name", getDisplayName());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        addFieldValue(sb, "Type", getType());
-        addFieldValue(sb, "Default Value", getDefaultValue());
-        addFieldValue(sb, "Editability Rule", getEditabilityRule());
-        addFieldValue(sb, "Relevance Rule", getRelevanceRule());
+        sb.append("     <table class='display'>");
+
+        for (String fieldName : fieldDetailsHash.keySet()) {
+            Field field = fieldDetailsHash.get(fieldName);
+            if (field.getValue() != null) {
+                sb.addFieldValue(fieldName, field.getValueAsString());
+            }
+        }
+
+//        sb.addFieldValue("Name", getName());
+//        sb.addFieldValue("Display Name", getDisplayName());
+//        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+//        sb.addFieldValue("Type", getType());
+//        sb.addFieldValue("Default Value", getDefaultValue());
+//        sb.addFieldValue("Editability Rule", getEditabilityRule());
+//        sb.addFieldValue("Relevance Rule", getRelevanceRule());
         // addFieldValue(sb, "Query", object.getQuery());
         // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
+        sb.append("     </table>");
 
         return sb.toString();
-    }    
+    }
 
     // Special function to parse the list of relationships
     private List<String> parseAllowedTypes(Field allowedTypesFld) {
-        List<String> allowedTypesList = new ArrayList<String>();
+        List<String> allowedTypesList = new ArrayList<>();
         if (type.equalsIgnoreCase("relationship") && null != allowedTypesFld.getList()) {
             // Get the allowed types list
             @SuppressWarnings("unchecked")
             List<Item> relTypesList = allowedTypesFld.getList();
-            for (Iterator<Item> it = relTypesList.iterator(); it.hasNext();) {
-                Item relation = it.next();
+            for (Item relation : relTypesList) {
                 String fromType = relation.getField("from").getValueAsString();
                 // We're only interested in the relationships from this type
                 if (iTypeName.equals(fromType)) {
                     @SuppressWarnings("unchecked")
                     List<Item> toTypesList = relation.getField("to").getList();
-                    for (Iterator<Item> tit = toTypesList.iterator(); tit.hasNext();) {
-                        Item toType = tit.next();
+                    for (Item toType : toTypesList) {
                         // Only add the (to) types that we haven't already encountered for this relationship
                         if (!allowedTypesList.contains(toType.getId())) {
                             allowedTypesList.add(toType.getId());
@@ -309,14 +318,13 @@ public class IntegrityField extends IntegrityAdminObject {
     // Special parsing for pick values
     @SuppressWarnings("unchecked")
     private List<String> parsePickValues(Field picks) {
-        List<String> pickListValues = new ArrayList<String>();
+        List<String> pickListValues = new ArrayList<>();
         if (null != picks && null != picks.getDataType() && picks.getDataType().equals(Field.ITEM_LIST_TYPE)) {
             if (null != picks.getList()) {
                 List<Item> pickList = picks.getList();
-                for (Iterator<Item> it = pickList.iterator(); it.hasNext();) {
-                    Item curPickItem = (Item) it.next();
+                for (Item curPickItem : pickList) {
                     String pickLabel = curPickItem.getField("label").getValueAsString();
-                    boolean isActive = curPickItem.getField("active").getBoolean().booleanValue();
+                    boolean isActive = curPickItem.getField("active").getBoolean();
                     // Only report on the active pick values
                     if (isActive) {
                         pickListValues.add(pickLabel);
@@ -416,6 +424,7 @@ public class IntegrityField extends IntegrityAdminObject {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this field to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -430,8 +439,7 @@ public class IntegrityField extends IntegrityAdminObject {
         command.appendChild(cmdName);
 
         // Lets go through the list of field attributes
-        for (int i = 0; i < Integrity.fieldAttributes.length; i++) {
-            String strAttribute = Integrity.fieldAttributes[i];
+        for (String strAttribute : Integrity.fieldAttributes) {
             Field fldAttribute = getAttribute(strAttribute);
             if (null != fldAttribute && null != fldAttribute.getDataType()) {
                 // Currently there is no support for the following in the API (i.e. to read the values):
@@ -477,8 +485,7 @@ public class IntegrityField extends IntegrityAdminObject {
                     StringBuilder sb = new StringBuilder();
                     List<Item> phaseList = fldAttribute.getList();
                     int phaseCount = 0;
-                    for (Iterator<Item> it = phaseList.iterator(); it.hasNext();) {
-                        Item phase = it.next();
+                    for (Item phase : phaseList) {
                         // Ignore the 'Out of Phase' phase
                         if (!phase.getId().equalsIgnoreCase("Out of Phase")) {
                             sb.append(phaseCount > 0 ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
@@ -678,12 +685,14 @@ public class IntegrityField extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();
     }
-    
-    protected String getObjectType(){
+
+    @Override
+    protected String getObjectType() {
         return objectType;
     }
 }

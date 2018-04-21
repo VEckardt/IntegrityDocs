@@ -11,7 +11,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
@@ -31,14 +31,14 @@ public class IntegrityState extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "Name", getName());
-        addFieldValue(sb, "Display Name", getDisplayName());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.append("<table class='display'>");
+        sb.addFieldValue( "Name", getName());
+        sb.addFieldValue( "Display Name", getDisplayName());
+        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
         // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
+        sb.append("</table>");
 
         return sb.toString();
     }
@@ -69,6 +69,7 @@ public class IntegrityState extends IntegrityAdminObject {
         objectType = "State";
     }
 
+    @Override
     public String getObjectType() {
         return objectType;
     }

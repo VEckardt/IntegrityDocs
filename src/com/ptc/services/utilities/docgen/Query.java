@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
@@ -219,14 +219,14 @@ public class Query extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("<table class='display'>"));
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        addFieldValue(sb, "QueryDefinition", getQueryDefinition());
-        addFieldValue(sb, "Fields", getFields());
-        addFieldValue(sb, "ShareWith", getShareWith());
-        addFieldValue(sb, "SortField", getSortField() + " (" + getSortDirection() + ")");
+        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue( "QueryDefinition", getQueryDefinition());
+        sb.addFieldValue( "Fields", getFields());
+        sb.addFieldValue( "ShareWith", getShareWith());
+        sb.addFieldValue( "SortField", getSortField() + " (" + getSortDirection() + ")");
         // Close out the triggers details table
         sb.append(appendNewLine("</table>"));
 

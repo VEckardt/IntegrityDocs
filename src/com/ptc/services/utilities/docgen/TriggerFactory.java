@@ -1,7 +1,6 @@
 package com.ptc.services.utilities.docgen;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class TriggerFactory {
     }
 
     public static List<Trigger> parseTriggers(LinkedHashMap<String, IntegrityField> fieldsHash, WorkItemIterator wii, boolean forXML) throws APIException {
-        List<Trigger> iTriggersList = new ArrayList<Trigger>();
+        List<Trigger> iTriggersList = new ArrayList<>();
         // Ensure we have a list of triggers to work with...
         if (null != wii && wii.hasNext()) {
             while (wii.hasNext()) {

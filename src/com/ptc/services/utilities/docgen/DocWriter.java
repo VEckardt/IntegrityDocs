@@ -5,7 +5,6 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class DocWriter extends DocWriterTools {
             List<Trigger> triggersList,
             List<IntegrityObject> queriesList,
             List<IntegrityObject> viewSetsList,
-            List<Chart> chartsList,
+            List<IntegrityObject> chartsList,
             List<IntegrityObject> groupsList,
             List<IntegrityObject> dynGroupsList,
             List<IntegrityObject> statesList,
@@ -29,7 +28,10 @@ public class DocWriter extends DocWriterTools {
             List<IntegrityField> fieldList,
             List<IntegrityObject> testVerdictList,
             List<IntegrityObject> testResultFieldList,
-            List<IntegrityObject> iDashboardsFieldList
+            List<IntegrityObject> iDashboardsFieldList,
+            List<IntegrityObject> iCPTypesList,
+            List<IntegrityObject> iIMProjectsList,
+            List<IntegrityObject> iSIProjectsList
     ) {
         super(i);
 
@@ -46,6 +48,9 @@ public class DocWriter extends DocWriterTools {
         iTestVerdicts = testVerdictList;
         iTestResultFields = testResultFieldList;
         iDashboards = iDashboardsFieldList;
+        iCPTypes = iCPTypesList;
+        iIMProjects = iIMProjectsList;
+        iSIProjects = iSIProjectsList;
     }
 
     public void publish() throws IOException {
@@ -63,7 +68,7 @@ public class DocWriter extends DocWriterTools {
 
         // Open the table of content files
         TocWriter naviHtm = new TocWriter(new FileWriter(tocHtmlFile));
-        BufferedWriter indexHtm = new BufferedWriter(new FileWriter(indexFile));
+        TocWriter indexHtm = new TocWriter(new FileWriter(indexFile));
 
 //        whtdata0xml.write(appendNewLine("<?xml version='1.0' encoding='utf-8' ?>"));
 //        whtdata0xml.write(appendNewLine("<tocdata>"));
@@ -71,248 +76,157 @@ public class DocWriter extends DocWriterTools {
 //        whtdata0xml.write(appendNewLine("  <item name=\"Title\" url=\"WorkflowDocs/title.htm\" />"));
 //        whtdata0xml.write(appendNewLine("  <item name=\"Overview\" url=\"WorkflowDocs/overview.htm\" />"));
 //        whtdata0xml.write(appendNewLine("  <book name=\"Types\">"));
-        addFileContent(naviHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "navi_start.htm");
-        addFileContent(indexHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "index_start.htm");
+        naviHtm.addFileContent(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "navi_start.htm");
+        indexHtm.addFileContent(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "index_start.htm");
 
         indexHtm.write(appendNewLine("Integrity Docs (" + i.getHostName() + ":" + i.getPort() + ")  <small>as of " + getNow() + "</small>"));
 
         // navi file
-        // whtdata0htm.write(appendNewLine("<html>"));
-        // whtdata0htm.write(appendNewLine("<body>"));
-        // whtdata0htm.write(appendNewLine("<script language='javascript' src='whtdata.js'/>"));
-        // whtdata0htm.write(appendNewLine("<script language='javascript'>"));
-        // whtdata0htm.write(appendNewLine("<!--"));
-        // whtdata0htm.write(appendNewLine(" aTE(1," + (null != iTriggers && iTriggers.size() > 0 ? 2 + iTypes.size() + iTriggers.size() : 1 + iTypes.size())
-        //         + ",'Integrity Docs (" + svrInfo + ")');"));
-        // whtdata0htm.write(appendNewLine("   aTE(2,0,'Title','WorkflowDocs/title.htm');"));
-        // whtdata0htm.write(appendNewLine("   aTE(2,0,'Overview','WorkflowDocs/overview.htm');"));
-        // whtdata0htm.write(appendNewLine("   aTE(1," + iTypes.size() + ",'Types');"));
         naviHtm.addLeaf("Title");
         naviHtm.addLeaf("Summary");
 
         writeSummary();
 
-        // publishObject (naviHtm, iViewsets);
+        // Projects
+        naviHtm.publishObject(iIMProjects);
+        naviHtm.publishObject(iSIProjects);
+        
         // Part 1: Publish Viewset, if appropriate...
-        if (null != iViewsets && iViewsets.size() > 0) {
-            naviHtm.addBook(iViewsets.get(0));
-            naviHtm.addOverviewHeader(iViewsets.get(0));
-            for (IntegrityObject object : iViewsets) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iViewsets.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iViewsets);
 
         // Part 2: Publish Group, if appropriate...
-        if (null != iGroups && iGroups.size() > 0) {
-            naviHtm.addBook(iGroups.get(0));
-            naviHtm.addOverviewHeader(iGroups.get(0));
-            for (IntegrityObject object : iGroups) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iGroups.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iGroups);
 
-        // Publish Dynamic Groups, if appropriate...
-        if (null != iDynGroups && iDynGroups.size() > 0) {
-            naviHtm.addBook(iDynGroups.get(0));
-            naviHtm.addOverviewHeader(iDynGroups.get(0));
-            for (IntegrityObject object : iDynGroups) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iDynGroups.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        // Part 3: Publish Dynamic Groups, if appropriate...
+        naviHtm.publishObject(iDynGroups);
 
-        // Publish States, if appropriate...
-        if (null != iStates && iStates.size() > 0) {
-            naviHtm.addBook(iStates.get(0));
-            naviHtm.addOverviewHeader(iStates.get(0));
-            for (IntegrityObject object : iStates) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iStates.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        // Part 4: Publish Dynamic Groups, if appropriate...
+
+        // Part 5: Publish States, if appropriate...
+        naviHtm.publishObject(iStates);
 
         // Part 7: Publish Types , if appropriate...
         if (null != iTypes && iTypes.size() > 0) {
 
+            // sort at first:
+            iTypes.sort((IntegrityType m1, IntegrityType m2) -> m1.getTypeClassGroup().compareTo(m2.getTypeClassGroup()));
+
             naviHtm.addBook(iTypes.get(0));
 
             // overview.htm
-            naviHtm.addOverviewHeader(iTypes.get(0));
+            naviHtm.addOverview(iTypes.get(0));
+            String typeClassGroup = "";
 
             for (IntegrityType object : iTypes) {
                 // indexHtm.write(appendNewLine("	<item name=\"" + type.getName()
                 //         + "\" url=\"WorkflowDocs/Types/" + type.getPosition() + ".htm\" />"));
                 // Publish the individual type details
+                if (!object.getTypeClassGroup().equals(typeClassGroup)) {
+                    if (!typeClassGroup.isEmpty()) {
+                        naviHtm.endBook();
+                    }
+                    naviHtm.addBook(object.getTypeClassGroup() + "s");
+                    typeClassGroup = object.getTypeClassGroup();
+                }
                 naviHtm.writeObjectHtml(object);
             }
-
+            naviHtm.endBook();
+            naviHtm.addOverviewCloser();
             // whtdata0xml.write(appendNewLine("  </book>"));
-            addOverviewData(iTypes.get(0));
+            // naviHtm.addOverviewData(iTypes.get(0));
             naviHtm.endBook();
         }
 
         // Part 8: Publish Fields, if appropriate...
         if (null != iFields && iFields.size() > 0) {
+
+            // sort at first:
+            iFields.sort((IntegrityField m1, IntegrityField m2) -> m1.getTypeClassGroup().compareTo(m2.getTypeClassGroup()));
+
             naviHtm.addBook(iFields.get(0));
 
-            naviHtm.addOverviewHeader(iFields.get(0));
+            naviHtm.addOverview(iFields.get(0));
+            String typeClassGroup = "";
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
             for (IntegrityField object : iFields) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
+                if (!object.getTypeClassGroup().equals(typeClassGroup)) {
+                    if (!typeClassGroup.isEmpty()) {
+                        naviHtm.endBook();
+                    }
+                    naviHtm.addBook(object.getTypeClassGroup() + "s");
+                    typeClassGroup = object.getTypeClassGroup();
+                }
                 naviHtm.writeObjectHtml(object);
             }
             naviHtm.endBook();
+            naviHtm.addOverviewCloser();
+            naviHtm.endBook();
             // whtdata0xml.write(appendNewLine("  </book>"));
             // Next lets publish the types overview
-            addOverviewData(iFields.get(0));
         }
 
         // Part 9: Publish triggers, if appropriate...
         if (null != iTriggers && iTriggers.size() > 0) {
+
+            // sort at first:
+            iTriggers.sort((Trigger m1, Trigger m2) -> m2.getTypeClassGroup().compareTo(m1.getTypeClassGroup()));
+
             naviHtm.addBook(iTriggers.get(0));
 
-            naviHtm.addOverviewHeader(iTriggers.get(0));
+            naviHtm.addOverview(iTriggers.get(0));
+            String typeClassGroup = "";
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
             for (Trigger object : iTriggers) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
                 // Publish the individual trigger details
+                if (!object.getTypeClassGroup().equals(typeClassGroup)) {
+                    if (!typeClassGroup.isEmpty()) {
+                        naviHtm.endBook();
+                    }
+                    naviHtm.addBook(object.getTypeClassGroup());
+                    typeClassGroup = object.getTypeClassGroup();
+                }
                 naviHtm.writeObjectHtml(object);
             }
             naviHtm.endBook();
+            naviHtm.addOverviewCloser();
+            naviHtm.endBook();
             // whtdata0xml.write(appendNewLine("  </book>"));
             // Next lets publish the types overview
-            addOverviewData(iTriggers.get(0));
         }
+
+        // Part 10: Publish CPTypes, if appropriate...
+        naviHtm.publishObject(iCPTypes);
 
         // Part 11: Publish TestVerdict, if appropriate...
-        if (null != iTestVerdicts && iTestVerdicts.size() > 0) {
-            naviHtm.addBook(iTestVerdicts.get(0));
+        naviHtm.publishObject(iTestVerdicts);
 
-            naviHtm.addOverviewHeader(iTestVerdicts.get(0));
-            // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
-            for (IntegrityObject object : iTestVerdicts) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-            // Next lets publish the types overview
-            addOverviewData(iTestVerdicts.get(0));
-        }
-
-        // Part 11: Publish TestVerdict, if appropriate...
-        if (null != iTestResultFields && iTestResultFields.size() > 0) {
-            naviHtm.addBook(iTestResultFields.get(0));
-
-            naviHtm.addOverviewHeader(iTestResultFields.get(0));
-            // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
-            for (IntegrityObject object : iTestResultFields) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-            // Next lets publish the types overview
-            addOverviewData(iTestResultFields.get(0));
-        }
+        // Part 12: Publish TestResultFields, if appropriate...
+        naviHtm.publishObject(iTestResultFields);
 
         // Part 13: Publish Chart, if appropriate...
-        if (null != iCharts && iCharts.size() > 0) {
-            naviHtm.addBook(iCharts.get(0));
-            naviHtm.addOverviewHeader(iCharts.get(0));
-            for (Chart object : iCharts) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iCharts.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iCharts);
 
         // Part 15: Publish Query, if appropriate...
-        if (null != iQueries && iQueries.size() > 0) {
-            naviHtm.addBook(iQueries.get(0));
-            naviHtm.addOverviewHeader(iQueries.get(0));
-            for (IntegrityObject object : iQueries) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iQueries.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iQueries);
 
         // Part 15: Publish Query, if appropriate...
-        if (null != iReports && iReports.size() > 0) {
-            naviHtm.addBook(iReports.get(0));
-            naviHtm.addOverviewHeader(iReports.get(0));
-            for (IntegrityObject object : iReports) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iReports.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iReports);
 
         // Part 15: Publish Query, if appropriate...
-        // publishObject(TocWriter naviHtm, List<IntegrityAdminObject> aol)
-        if (null != iDashboards && iDashboards.size() > 0) {
-            naviHtm.addBook(iDashboards.get(0));
-            naviHtm.addOverviewHeader(iDashboards.get(0));
-            for (IntegrityObject object : iDashboards) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(iDashboards.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
+        naviHtm.publishObject(iDashboards);
 
         // whtdata0xml.write(appendNewLine("</book>"));
         // whtdata0xml.write(appendNewLine("</tocdata>"));
         // write navi end
-        addFileContent(indexHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "index_end.htm");
+        indexHtm.addFileContent(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "index_end.htm");
 
         // write navi end
-        addFileContent(naviHtm, IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "navi_end.htm");
+        naviHtm.addFileContent(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "navi_end.htm");
 
         // Close the table of content files
         naviHtm.flush();
@@ -321,49 +235,5 @@ public class DocWriter extends DocWriterTools {
         indexHtm.close();
         // whtdata0xml.flush();
         // whtdata0xml.close();
-    }
-    
-    private void publishObject(TocWriter naviHtm, List<IntegrityAdminObject> aol) throws IOException {
-        // Part 1: Publish Viewset, if appropriate...
-        if (null != aol && aol.size() > 0) {
-            naviHtm.addBook(aol.get(0));
-            naviHtm.addOverviewHeader(aol.get(0));
-            for (IntegrityAdminObject object : aol) {
-                // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
-                //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
-                // Publish the individual trigger details
-                naviHtm.writeObjectHtml(object);
-            }
-            addOverviewData(aol.get(0));
-            naviHtm.endBook();
-            // whtdata0xml.write(appendNewLine("  </book>"));
-        }
-    }
-
-    private void addFileContent(BufferedWriter naviHtm, String sourceFileName) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(sourceFileName))) {
-            String line;
-            while (null != (line = reader.readLine())) {
-                naviHtm.write(appendNewLine(getFormattedContent(line, null)));
-            }
-        }
-    }
-
-//    private void addOverviewHeader(String objectName, BufferedWriter naviHtm) throws IOException {
-//        naviHtm.write(appendNewLine("<ul><li title=\"" + objectName + " Overview\" data-context=\"20\"><a href=\"WorkflowDocs/" + objectName + "_overview.htm\" target=\"topic\">Overview</a></li></ul>"));
-//    }
-    private void addOverviewData(IntegrityAdminObject adminObject) throws FileNotFoundException, IOException {
-        String objectName = adminObject.getObjectType();
-
-        try ( // Next lets publish the types overview
-                BufferedReader reader = new BufferedReader(new FileReader(overviewTemplate))) {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + objectName + "_overview.htm"));
-            String line;
-            while (null != (line = reader.readLine())) {
-                writer.write(appendNewLine(getFormattedContent(line, adminObject)));
-            }
-            writer.flush();
-            writer.close();
-        }
     }
 }

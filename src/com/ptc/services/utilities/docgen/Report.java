@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
@@ -213,18 +213,19 @@ public class Report extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "Name", getName());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        addFieldValue(sb, "Query", getQuery());
-        addFieldValue(sb, "ShareWith", getShareWith());
+        sb.append("     <table class='display'>");
+        sb.addFieldValue("Name", getName());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue("Query", getQuery());
+        sb.addFieldValue("ShareWith", getShareWith());
         // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
+        sb.append("     </table>");
 
         return sb.toString();
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();

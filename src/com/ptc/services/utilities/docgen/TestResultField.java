@@ -8,10 +8,8 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
-import static com.ptc.services.utilities.docgen.DocWriterTools.iTestResultFields;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
-import static com.ptc.services.utilities.docgen.utils.Utils.addHeadings;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
@@ -48,13 +46,13 @@ public class TestResultField extends IntegrityAdminObject {
     
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "Type", type);
-        addFieldValue(sb, "Name", this.getName());
-        addFieldValue(sb, "Display Name", this.getDisplayName());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
+        sb.addFieldValue( "Type", type);
+        sb.addFieldValue( "Name", this.getName());
+        sb.addFieldValue( "Display Name", this.getDisplayName());
+        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
         // Close out the triggers details table
         sb.append(appendNewLine("     </table>"));
 

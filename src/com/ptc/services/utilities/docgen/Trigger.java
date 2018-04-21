@@ -5,10 +5,8 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
-import static com.ptc.services.utilities.docgen.DocWriterTools.iTriggers;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
-import static com.ptc.services.utilities.docgen.utils.Utils.addHeadings;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
@@ -52,29 +50,29 @@ public class Trigger extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("<table class='display'>"));
-        addFieldValue(sb, "Type", this.getType());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue("Type", this.getType());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
         if (this.getType().equalsIgnoreCase("rule")) {
-            addFieldValue(sb, "Rule", this.getRule());
+            sb.addFieldValue("Rule", this.getRule());
         } else if (this.getType().equalsIgnoreCase("scheduled")) {
-            addFieldValue(sb, "Run As", this.getRunAs());
-            addFieldValue(sb, "Query", this.getQuery());
-            addFieldValue(sb, "Frequency", this.getFrequency());
+            sb.addFieldValue("Run As", this.getRunAs());
+            sb.addFieldValue("Query", this.getQuery());
+            sb.addFieldValue("Frequency", this.getFrequency());
         }
-        addFieldValue(sb, "Script", this.getScript());
-        addFieldValue(sb, "Script Timing", this.getScriptTiming());
-        addFieldValue(sb, "Script Parameters", this.getScriptParams());
-        addFieldValue(sb, "Assignments", this.getAssignments());
+        sb.addFieldValue("Script", this.getScript());
+        sb.addFieldValue("Script Timing", this.getScriptTiming());
+        sb.addFieldValue("Script Parameters", this.getScriptParams());
+        sb.addFieldValue("Assignments", this.getAssignments());
 
         // Close out the triggers details table
         sb.append(appendNewLine("</table>"));
 
         return sb.toString();
-    }    
-    
+    }
+
     // All setter functions
     public void setPosition(String pos) {
         position = pos;
@@ -126,10 +124,17 @@ public class Trigger extends IntegrityAdminObject {
     }
 
     // All getter/access functions...
+    @Override
     public String getModelType() {
         return modelType;
     }
 
+    // typeClassGroup
+    public String getTypeClassGroup() {
+        return (getType().substring(0, 1).toUpperCase() + getType().substring(1)).replaceAll("([A-Z])", " $1");
+    }
+
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this trigger to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -204,6 +209,7 @@ public class Trigger extends IntegrityAdminObject {
         return command;
     }
 
+    @Override
     public String getPosition() {
         return position;
     }
@@ -212,14 +218,17 @@ public class Trigger extends IntegrityAdminObject {
         return type;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -255,15 +264,19 @@ public class Trigger extends IntegrityAdminObject {
     public String getScriptTiming() {
         return scriptTiming;
     }
+
+    @Override
     public String getDirectory() {
         return directory;
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();
     }
-    
-    protected String getObjectType () {
+
+    @Override
+    protected String getObjectType() {
         return objectType;
     }
 }

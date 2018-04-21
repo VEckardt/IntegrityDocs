@@ -6,8 +6,7 @@ import org.w3c.dom.Element;
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 
 /**
  * The Chart class contains the following information about an Integrity Chart:
@@ -238,16 +237,16 @@ public class Chart extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        addFieldValue(sb, "ChartType", this.getChartType());
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
-        addFieldValue(sb, "GraphStyle", this.getGraphStyle());
-        addFieldValue(sb, "ShareWith", this.getShareWith());
-        addFieldValue(sb, "Query", this.getQuery());
+        sb.append("<table class='display'>");
+        sb.addFieldValue("ChartType", this.getChartType());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
+        sb.addFieldValue("GraphStyle", this.getGraphStyle());
+        sb.addFieldValue("ShareWith", this.getShareWith());
+        sb.addFieldValue("Query", this.getQuery());
         // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
+        sb.append("</table>");
 
         return sb.toString();
     }

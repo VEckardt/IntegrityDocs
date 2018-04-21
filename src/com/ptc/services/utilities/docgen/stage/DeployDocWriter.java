@@ -37,7 +37,7 @@ public class DeployDocWriter {
         writeLine("    .display td { vertical-align: top; font-size: 9pt; }");
         writeLine("    table.list { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%; border-width: 1px; "
                 + "border-style: solid; border-color: #333399; border-collapse: collapse; padding: 5px 5px 5px 5px; }");
-        writeLine("    .list th { font-size: 9pt; color: #000000; background-color: #E6E6CB; border-width: 1px; border-style: solid; "
+        writeLine("    .list th { font-size: 9pt; color: #000000; background-color: #5bb73b; border-width: 1px; border-style: solid; "
                 + "text-align: left; vertical-align: middle; border-color: #333399; padding: 2px 8px 2px 8px; }");
         writeLine("    .list td { background-color: #F9F7F7; vertical-align: top; border-width: 1px; border-style: solid; "
                 + "border-color: #333399; padding: 5px 5px 5px 5px; }");

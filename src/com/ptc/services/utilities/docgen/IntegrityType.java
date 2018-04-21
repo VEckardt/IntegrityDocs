@@ -36,7 +36,7 @@ import static com.ptc.services.utilities.docgen.DocWriterTools.sdf;
 import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
 import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
+import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.util.LinkedHashMap;
 
@@ -164,42 +164,42 @@ public class IntegrityType extends IntegrityAdminObject {
 
     @Override
     public String getDetails() {
-        StringBuilder sb = new StringBuilder();
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
         sb.append(appendNewLine("      <tr><td colspan='2'><hr style='color: #d7d7d7; background-color: #d7d7d7; float: aligncenter;' align='center'/></td></tr>"));
 
-        addFieldValue(sb, "Created By", getCreatedBy() + " on " + getCreatedDate(sdf));
-        addFieldValue(sb, "Modified By", getModifiedBy() + " on " + getModifiedDate(sdf));
-        addFieldValue(sb, "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        addFieldValue(sb, "Administrators", getPermittedAdministrators());
-        addFieldValue(sb, "Permitted Groups", getPermittedGroups());
-        addFieldValue(sb, "Notification Fields", getNotificationFields());
-        addFieldValue(sb, "Change Packages Allowed?", getAllowChangePackages()
+        sb.addFieldValue("Created By", getCreatedBy() + " on " + getCreatedDate(sdf));
+        sb.addFieldValue("Modified By", getModifiedBy() + " on " + getModifiedDate(sdf));
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue("Administrators", getPermittedAdministrators());
+        sb.addFieldValue("Permitted Groups", getPermittedGroups());
+        sb.addFieldValue("Notification Fields", getNotificationFields());
+        sb.addFieldValue("Change Packages Allowed?", getAllowChangePackages()
                 + (getAllowChangePackages() ? "&nbsp;&nbsp;<b>Policy:</b> " + getCreateCPPolicy() : ""));
-        addFieldValue(sb, "Copy Tree?", getCopyTreeEnabled()
+        sb.addFieldValue("Copy Tree?", getCopyTreeEnabled()
                 + (getCopyTreeEnabled() ? "&nbsp;&nbsp;<b>Rule:</b> " + getCopyTree() : ""));
-        addFieldValue(sb, "Branch Allowed?", getBranchEnabled()
+        sb.addFieldValue("Branch Allowed?", getBranchEnabled()
                 + (getBranchEnabled() ? "&nbsp;&nbsp;<b>Rule:</b> " + getBranch() : ""));
-        addFieldValue(sb, "Labelling Allowed?", getLabelEnabled()
+        sb.addFieldValue("Labelling Allowed?", getLabelEnabled()
                 + (getLabelEnabled() ? "&nbsp;&nbsp;<b>Rule:</b> " + getAddLabel() : ""));
-        addFieldValue(sb, "Time Tracking Enabled?", String.valueOf(getTimeTrackingEnabled()));
-        addFieldValue(sb, "Show Workflow?", String.valueOf(getShowWorkflow()));
-        addFieldValue(sb, "Backs Projects?", String.valueOf(getBacksProject()));
-        addFieldValue(sb, "Phase Field", getPhaseField());
-        addFieldValue(sb, "Presentation Templates", "<b>View:</b> " + getViewPresentation() + "&nbsp;&nbsp;<b>Edit:</b> "
+        sb.addFieldValue("Time Tracking Enabled?", String.valueOf(getTimeTrackingEnabled()));
+        sb.addFieldValue("Show Workflow?", String.valueOf(getShowWorkflow()));
+        sb.addFieldValue("Backs Projects?", String.valueOf(getBacksProject()));
+        sb.addFieldValue("Phase Field", getPhaseField());
+        sb.addFieldValue("Presentation Templates", "<b>View:</b> " + getViewPresentation() + "&nbsp;&nbsp;<b>Edit:</b> "
                 + getEditPresentation() + "&nbsp;&nbsp;<b>Print:</b> " + getPrintPresentation());
-        addFieldValue(sb, "Item Editability Rule", getIssueEditability());
+        sb.addFieldValue("Item Editability Rule", getIssueEditability());
 
         // The output for relationship fields is broken in 2007
         // Only supporting 2009 and newer releases for relationship diagrams		    
-        addFieldValue(sb, "Relationships", "<img src=\"" + getPosition() + "_Relationships.jpeg\"/>");
-        addFieldValue(sb, "Visible Fields", getVisibleFields());
-        addFieldValue(sb, "Workflow", "<img src=\"" + getPosition() + "_Workflow.jpeg\"/>");
-        addFieldValue(sb, "State Transitions", getStateTransitions());
-        addFieldValue(sb, "Mandatory Fields", getMandatoryFields());
-        addFieldValue(sb, "Field Relationships", getFieldRelationships());
-        addFieldValue(sb, "Type Properties", getTypeProperties());
+        sb.addFieldValue("Relationships", "<img src=\"" + getPosition() + "_Relationships.jpeg\"/>");
+        sb.addFieldValue("Visible Fields", getVisibleFields());
+        sb.addFieldValue("Workflow", "<img src=\"" + getPosition() + "_Workflow.jpeg\"/>");
+        sb.addFieldValue("State Transitions", getStateTransitions());
+        sb.addFieldValue("Mandatory Fields", getMandatoryFields());
+        sb.addFieldValue("Field Relationships", getFieldRelationships());
+        sb.addFieldValue("Type Properties", getTypeProperties());
 
         // Close out the type details table
         sb.append(appendNewLine("     </table>"));
@@ -816,6 +816,11 @@ public class IntegrityType extends IntegrityAdminObject {
         return null == iType.get("typeClass").getValueAsString() ? "none" : iType.get("typeClass").getValueAsString();
     }
 
+    // typeClassGroup
+    public String getTypeClassGroup() {
+        return null == iType.get("typeClass").getValueAsString() ? "Item" : (iType.get("typeClass").getValueAsString().equals("none") ? "Item" : "Document");
+    }
+
     // associatedType
     public String getAssociatedType() {
         return Integrity.getFieldValue(iType.get("associatedType"), "");
@@ -908,6 +913,7 @@ public class IntegrityType extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();

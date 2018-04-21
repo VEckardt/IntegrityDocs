@@ -1,12 +1,38 @@
 package com.ptc.services.utilities.docgen;
 
+import com.mks.api.response.Field;
+import com.mks.api.response.WorkItem;
+import static com.ptc.services.utilities.docgen.Integrity.chartAttributes;
+import static com.ptc.services.utilities.docgen.Integrity.chartAttributes2;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class ChartFactory {
+
+    public static IntegrityObject parseChart(WorkItem chart, String chartOutput) {
+        StringTokenizer chartTokens = new StringTokenizer(chartOutput, IntegrityDocs.nl);
+        List<Field> fieldlist = new ArrayList<>();
+        while (chartTokens.hasMoreTokens()) {
+            String line = chartTokens.nextToken();
+            String fieldName;
+            String fieldValue;
+            if (line.length() > 10 && line.indexOf(":") > 2) {
+
+                
+                
+                fieldName = line.substring(0, line.indexOf(":")).replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+                if (!Arrays.asList(chartAttributes2).contains(fieldName)) {
+                    fieldValue = line.substring(line.indexOf(":") + 1);
+                    fieldlist.add(new SimpleField(fieldName, fieldValue));
+                }
+            }
+        }
+        return new IntegrityObject(chart, fieldlist);
+    }
 
     public static List<Chart> parseCharts(String chartsOutput) {
         List<Chart> chartList = new ArrayList<>();

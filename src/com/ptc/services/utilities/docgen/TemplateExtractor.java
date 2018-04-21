@@ -95,7 +95,7 @@ public class TemplateExtractor {
         List<IntegrityType> iTypes = new ArrayList<>();
         List<IntegrityObject> iQueries = new ArrayList<>();
         List<Trigger> iTriggers = new ArrayList<>();
-        List<Chart> iCharts = new ArrayList<>();
+        List<IntegrityObject> iCharts = new ArrayList<>();
         List<IntegrityObject> iGroups = new ArrayList<>();
         List<IntegrityObject> iDynGroups = new ArrayList<>();
         List<IntegrityObject> iViewsets = new ArrayList<>();
@@ -105,6 +105,9 @@ public class TemplateExtractor {
         List<IntegrityObject> iTestVerdicts = new ArrayList<>();
         List<IntegrityObject> iTestResultFields = new ArrayList<>();
         List<IntegrityObject> iDashboards= new ArrayList<>();
+        List<IntegrityObject> iCPTypes= new ArrayList<>();
+        List<IntegrityObject> iIMProjects= new ArrayList<>();
+        List<IntegrityObject> iSIProjects= new ArrayList<>();
 
         
         try {
@@ -156,7 +159,7 @@ public class TemplateExtractor {
 
             // Get a list of charts, if asked for
             if (doCharts) {
-                iCharts = ChartFactory.parseCharts(i.getCharts());
+                // iCharts = ChartFactory.parseCharts(i.getCharts());
             }
 
             // Get a list of viewsets, if asked for
@@ -178,7 +181,7 @@ public class TemplateExtractor {
                 DocWriter doc = new DocWriter(i, 
                         iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
                         iStates, iReports, iFields, iTestVerdicts, iTestResultFields,
-                        iDashboards
+                        iDashboards, iCPTypes, iIMProjects, iSIProjects
                 );
                 // Generate the report resources
                 generateResources();

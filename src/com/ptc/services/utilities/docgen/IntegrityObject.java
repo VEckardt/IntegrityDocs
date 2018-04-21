@@ -8,9 +8,10 @@ package com.ptc.services.utilities.docgen;
 import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
 import static com.ptc.services.utilities.docgen.Integrity.globalId;
-import static com.ptc.services.utilities.docgen.utils.Utils.addFieldValue;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
+import com.ptc.services.utilities.docgen.utils.StringObj;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,14 +29,30 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     public IntegrityObject(WorkItem workitem) {
         this(workitem, workitem.getModelType());
+        // out.println("iProjects: 2");
         modelType = workitem.getModelType();
         if (modelType.indexOf('.') > 0) {
             modelType = modelType.substring(modelType.indexOf('.') + 1);
         }
     }
 
+    public IntegrityObject(WorkItem workitem, List<Field> fieldListFromText) {
+        this(workitem, workitem.getModelType().replaceAll("im.", ""));
+        List<Field> fieldlistneu = new ArrayList<>();
+        // take what we already have
+        while (fields.hasNext()) {
+            fieldlistneu.add((Field) fields.next());
+        }
+        // add new text fields 
+        for (Field field : fieldListFromText) {
+            fieldlistneu.add(field);
+        }
+        this.fields = fieldlistneu.iterator();
+    }
+
     public IntegrityObject(WorkItem workitem, String modelType) {
         object = workitem;
+        // out.println("iProjects: 3");
         fields = workitem.getFields();
         id = globalId++;
         name = workitem.getId();
@@ -52,7 +69,7 @@ public class IntegrityObject extends IntegrityAdminObject {
             try {
                 position = workitem.getField("id").getValueAsString();
             } catch (NoSuchElementException ex2) {
-                position = workitem.getId();
+                position = workitem.getId().replace("#/", "").replace("/", "_");
             }
         }
         try {
@@ -82,7 +99,7 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     @Override
     protected String getDirectory() {
-        directory = modelType + "s";
+        directory = modelType.replaceAll("im.", "") + "s";
         directory = directory.equals("Querys") ? "Queries" : directory;
         return directory;
     }
@@ -124,15 +141,17 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     @Override
     protected String getDetails() {
-        StringBuilder sb = new StringBuilder();
+
+        StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("<table class='display'>"));
+        sb.append("<table class='display'>");
+        sb.setPath(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + modelType + "s");
         while (fields.hasNext()) {
             Field fld = (Field) fields.next();
-            addFieldValue(sb, fld.getName(), fld.getValueAsString());
+            sb.addFieldValue(fld.getName(), fld.getValueAsString());
         }
         // Close out the triggers details table
-        sb.append(appendNewLine("</table>"));
+        sb.append("</table>");
 
         return sb.toString();
     }
