@@ -58,7 +58,8 @@ SET IC_HOME=C:\Integrity\ILMClient11
 - connect to the Integrity environment you like to scan
 - then review the outcome
 
-## Verson Info
+## Version Info
+- 11.0.0: Added 12 additional object types to the existing Types and Triggers, complete code review
 - 11.0.1: You can sort the Overview tables by clicking at the light green headings 
 - 11.0.2: Added Main Project for W&D
 - 11.0.2: Reports now previewable and downloadable
