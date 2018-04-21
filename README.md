@@ -58,15 +58,19 @@ SET IC_HOME=C:\Integrity\ILMClient11
 - connect to the Integrity environment you like to scan
 - then review the outcome
 
-## Hints
-- You can sort the Overview tables by clicking at the light green headings 
+## Verson Info
+- 11.0.1: You can sort the Overview tables by clicking at the light green headings 
+- 11.0.2: Added Main Project for W&D
+- 11.0.2: Reports now previewable and downloadable
+- 11.0.3: Edit-In-Word Templates download now possible (links provided in the Type form)
+- 11.0.3: Added Main Project for CM
 
-##  Development environment
+##  Development Environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
 - Netbeans 8
 - Java 1.8
 
 ## Known Limitations
 - the search does not work yet
-- none of the SI or MKS Domain object is exported (primarily because of the expected data volume)
+- none of the SI or MKS Domain object is exported (primarily because of the expected high data volume)
 - the "deploy" reporting is no more supported since 10.5 or so 
