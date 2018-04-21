@@ -28,6 +28,9 @@ SET IC_HOME=C:\Integrity\ILMClient11
 ```
 - In case of any performance issue based on too many data in Integrity, you can also disable certain object types from beeing scanned, such as   
 ```
+--noIMProjects:       disable Workflows & Documents Main Projects scan and output
+--noSIProjects:       disable Config Management Main Projects scan and output
+--noTypes:            disable Types scan and output
 --noQueries:          disable Queries scan and output
 --noTriggers:         disable Triggers scan and output
 --noCharts:           disable Charts scan and output
@@ -65,7 +68,5 @@ SET IC_HOME=C:\Integrity\ILMClient11
 
 ## Known Limitations
 - the search does not work yet
-- there is just a limited list of attributes extracted, for example for fields
-- not all W&D objects are scanned yet, but the most important
 - none of the SI or MKS Domain object is exported (primarily because of the expected data volume)
 - the "deploy" reporting is no more supported since 10.5 or so 
