@@ -1,10 +1,5 @@
 package com.ptc.services.utilities.docgen;
 
-import com.ptc.services.utilities.docgen.type.FieldRelationships;
-import com.ptc.services.utilities.docgen.type.VisibleFields;
-import com.ptc.services.utilities.docgen.type.TypeProperties;
-import com.ptc.services.utilities.docgen.type.StateTransitions;
-import com.ptc.services.utilities.docgen.type.MandatoryFields;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -26,19 +21,29 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.mks.api.Command;
+import com.mks.api.Option;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
 import com.mks.api.im.IMModelTypeName;
+import com.mks.api.response.Response;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import static com.ptc.services.utilities.docgen.DocWriterTools.sdf;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.REPORT_DIR;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
 import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
 import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.util.LinkedHashMap;
+
+import com.ptc.services.utilities.docgen.type.MandatoryFields;
+import com.ptc.services.utilities.docgen.type.FieldRelationships;
+import com.ptc.services.utilities.docgen.type.StateTransitions;
+import com.ptc.services.utilities.docgen.type.TypeProperties;
+import com.ptc.services.utilities.docgen.type.VisibleFields;
 
 public class IntegrityType extends IntegrityAdminObject {
 
@@ -49,6 +54,7 @@ public class IntegrityType extends IntegrityAdminObject {
     private Integrity i;
     private Hashtable<String, Field> iType;
     private String mandatoryFields;
+    private String wordTemplates = "";
     private String visibleFields;
     private String stateTransitions;
     private String fieldRelationships;
@@ -93,7 +99,7 @@ public class IntegrityType extends IntegrityAdminObject {
         return xmlParamPolicy;
     }
 
-    public IntegrityType(Integrity i, Hashtable<String, Field> typeDetails, boolean doXML) {
+    public IntegrityType(Integrity i, Hashtable<String, Field> typeDetails, boolean doXML) throws APIException {
         this.i = i;
         modelType = IMModelTypeName.TYPE;
         iType = typeDetails;
@@ -151,6 +157,26 @@ public class IntegrityType extends IntegrityAdminObject {
             TypeProperties tp = new TypeProperties(iType.get("properties"));
             typeProperties = (doXML ? tp.getStringTypeProperties() : tp.getFormattedReport());
             System.out.println("done.");
+
+            String pos = Integrity.getStringFieldValue(iType.get("position"));
+            String wordPath = REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs" + fs + "Types" + fs + pos;
+            setCurrentDirectory(wordPath);
+
+            Response response = i.getWordTemplates(name);
+
+            File path = new File(wordPath);
+
+            File[] listOfFiles = path.listFiles();
+            for (File file : listOfFiles) {
+                if (file.isFile()) {
+                    // <a href=\"file:///" + path + "\\File" + fileId + ".htm" + "\">Preview</a>
+
+                    String fname = pos + fs + file.getName();
+                    wordTemplates += (wordTemplates.isEmpty() ? "" : "<br>") + "<a href=\"" + fname + "\">" + file.getName() + "</a>";
+                }
+            }
+            // wordTemplates ", new Field(wordTemplates));
+
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -158,8 +184,24 @@ public class IntegrityType extends IntegrityAdminObject {
         objectType = "Type";
     }
 
+    public static boolean setCurrentDirectory(String directory_name) {
+        boolean result = false;  // Boolean indicating whether directory was set
+        File directory;       // Desired current working directory
+
+        directory = new File(directory_name).getAbsoluteFile();
+        if (directory.exists() || directory.mkdirs()) {
+            result = (System.setProperty("user.dir", directory.getAbsolutePath()) != null);
+        }
+
+        return result;
+    }
+
     public String getObjectType() {
         return objectType;
+    }
+
+    public String getWordTemplates() {
+        return wordTemplates;
     }
 
     @Override
@@ -190,6 +232,7 @@ public class IntegrityType extends IntegrityAdminObject {
         sb.addFieldValue("Presentation Templates", "<b>View:</b> " + getViewPresentation() + "&nbsp;&nbsp;<b>Edit:</b> "
                 + getEditPresentation() + "&nbsp;&nbsp;<b>Print:</b> " + getPrintPresentation());
         sb.addFieldValue("Item Editability Rule", getIssueEditability());
+        sb.addFieldValue("Word Templates", getWordTemplates());
 
         // The output for relationship fields is broken in 2007
         // Only supporting 2009 and newer releases for relationship diagrams		    
@@ -910,6 +953,7 @@ public class IntegrityType extends IntegrityAdminObject {
         return modelType;
     }
 
+    @Override
     public String getDirectory() {
         return directory;
     }

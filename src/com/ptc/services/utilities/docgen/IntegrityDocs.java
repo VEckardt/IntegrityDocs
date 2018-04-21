@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 
 public class IntegrityDocs {
 
-    public static final String iDOCS_REV = "$Revision: 11.0.2 $";
+    public static final String iDOCS_REV = "$Revision: 11.0. $";
     public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
     private static final String os = System.getProperty("os.name");
     public static final String nl = System.getProperty("line.separator");
@@ -122,6 +122,8 @@ public class IntegrityDocs {
             for (String arg : args) {
                 if (arg.compareToIgnoreCase("--xml") == 0) {
                     doXML = true;
+                } else if (arg.compareToIgnoreCase("--noTypes") == 0) {
+                    doTypes = false;
                 } else if (arg.compareToIgnoreCase("--noQueries") == 0) {
                     doQueries = false;
                 } else if (arg.compareToIgnoreCase("--noTriggers") == 0) {

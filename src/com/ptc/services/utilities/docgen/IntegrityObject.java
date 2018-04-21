@@ -25,6 +25,7 @@ public class IntegrityObject extends IntegrityAdminObject {
     Iterator fields;
     String type;  // object individual type!
     WorkItem object;
+    String isActive = "";
     int id = 0;
 
     public IntegrityObject(WorkItem workitem) {
@@ -86,6 +87,12 @@ public class IntegrityObject extends IntegrityAdminObject {
                 type = "-";
             }
         }
+        try {
+            isActive = workitem.getField("isActive").getValueAsString();
+        }catch (NoSuchElementException ex) {
+            
+        }
+        
     }
 
     @Override
@@ -95,6 +102,10 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     protected String getType() {
         return type;
+    }
+    
+    public String getIsActive() {
+        return isActive;
     }
 
     @Override

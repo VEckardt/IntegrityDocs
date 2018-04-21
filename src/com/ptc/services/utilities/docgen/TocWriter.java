@@ -64,24 +64,15 @@ public class TocWriter extends BufferedWriter {
     }
 
     public void addOverview(IntegrityAdminObject ao) throws IOException {
-        addOverviewHeader(ao);
-        addOverviewData(ao);
-    }
-
-    public void addOverviewHeader(IntegrityAdminObject ao) throws IOException {
         String name = ao.getObjectType();
         this.write(appendNewLine("<ul><li title=\"" + name + " Overview\" data-context=\"20\"><a href=\"WorkflowDocs/" + name + "_overview.htm\" target=\"topic\">Overview</a></li>"));
-    }
-
-    public void addOverviewData(IntegrityAdminObject adminObject) throws FileNotFoundException, IOException {
-        String objectName = adminObject.getObjectType();
 
         try ( // Next lets publish the types overview
                 BufferedReader reader = new BufferedReader(new FileReader(overviewTemplate))) {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + objectName + "_overview.htm"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + name + "_overview.htm"));
             String line;
             while (null != (line = reader.readLine())) {
-                writer.write(appendNewLine(getFormattedContent(line, adminObject)));
+                writer.write(appendNewLine(getFormattedContent(line, ao)));
             }
             writer.flush();
             writer.close();
@@ -110,7 +101,7 @@ public class TocWriter extends BufferedWriter {
             triggerWriter.close();
         }
     }
-    
+
     public void addFileContent(String sourceFileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFileName))) {
             String line;
@@ -118,6 +109,6 @@ public class TocWriter extends BufferedWriter {
                 this.write(appendNewLine(getFormattedContent(line, null)));
             }
         }
-    }    
+    }
 
 }

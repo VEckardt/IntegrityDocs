@@ -121,7 +121,7 @@ public class DocWriterTools {
                         } else if (adminObj.getObjectType().equals("State")) {
                             sb.append(getObjectOverview(iStates, ""));
                         } else if (adminObj.getObjectType().equals("Group")) {
-                            sb.append(getObjectOverview(iGroups, ""));
+                            sb.append(getObjectOverview(iGroups, "isActive"));
                         } else if (adminObj.getObjectType().equals("DynamicGroup")) {
                             sb.append(getObjectOverview(iDynGroups, ""));
                         } else if (adminObj.getObjectType().equals("Query")) {
@@ -134,7 +134,7 @@ public class DocWriterTools {
                         } else if (adminObj.getObjectType().equals("ChangePackageType")) {
                             sb.append(getObjectOverview(iCPTypes, ""));
                         } else if (adminObj.getObjectType().equals("TestVerdict")) {
-                            sb.append(getObjectOverview(iTestVerdicts, "Type"));
+                            sb.append(getObjectOverview(iTestVerdicts, "Type,isActive"));
                         } else if (adminObj.getObjectType().equals("TestResultField")) {
                             sb.append(getObjectOverview(iTestResultFields, "Type"));
                         } else if (adminObj.getObjectType().equals("Dashboard")) {
@@ -207,7 +207,7 @@ public class DocWriterTools {
         StringObj sb = new StringObj();
 
         // Summary heading line
-        sb.append("<table class='display'>");
+        sb.append("<table class='sortable'>");
         sb.addHeadings("Name,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree,Branch,Label");
         sb.append("<tbody>");
 
@@ -287,6 +287,9 @@ public class DocWriterTools {
             sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
             if (additionalColumns.contains("Type")) {
                 sb.addTDborder(object.getType());
+            }
+            if (additionalColumns.contains("isActive")) {
+                sb.addTDborder(object.getIsActive());
             }
             sb.append((" </tr>"));
         }
