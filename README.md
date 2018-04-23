@@ -2,20 +2,20 @@
 Creates a set of HTML pages documenting the PTC Integrity Lifecycle Manager configuration.
 
 ## Version
-11.0.1: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
+11.0.4: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
 
 ## Development Status 
 Under Construction
 
 ## Purpose
-IntegrityDocs exports the current Integrity Server configuration from W&D, and creates HTML pages. Each section under Worklows&Documents will become one node within the report tree. Each section starts with an "Overview" page, and then each element can be reviewed in more detail by drilling down. 
+IntegrityDocs exports the current Integrity Server configuration from W&D, and creates HTML pages. Each section under Workflows&Documents will become one node within the report tree. Each section starts with an "Overview" page, and then each element can be reviewed in more detail by drilling down. 
 
 ![IntegrityDocs](Doc/IntegrityDocs.png)
 
 ## Use Cases
 - Document the current Integrity LM configuration status
 - Validate and compare the Integrity LM configuration status
-- Present the Integrity LM configuration status without the need to have direct Integrity access
+- Present and Discuss the Integrity LM configuration status without the need to have direct Integrity access
 
 ## Install
 In IntegrityClient folder
@@ -65,6 +65,7 @@ SET IC_HOME=C:\Integrity\ILMClient11
 - 11.0.2: Reports now previewable and downloadable
 - 11.0.3: Edit-In-Word Templates download now possible (links provided in the Type form)
 - 11.0.3: Added Main Project for CM
+- 11.0.4: Added Gateway details
 
 ##  Development Environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
