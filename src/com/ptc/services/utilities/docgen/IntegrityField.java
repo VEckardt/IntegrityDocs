@@ -260,8 +260,8 @@ public class IntegrityField extends IntegrityAdminObject {
     // typeClass
     public String getTypeClassGroup() {
         return (type.substring(0, 1).toUpperCase() + type.substring(1)).replaceAll("([A-Z])", " $1");
-    }      
-    
+    }
+
     @Override
     public String getDetails() {
         StringObj sb = new StringObj();

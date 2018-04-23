@@ -41,6 +41,9 @@ public class DocWriterTools {
     static List<IntegrityObject> iCPTypes = null;
     static List<IntegrityObject> iIMProjects = null;
     static List<IntegrityObject> iSIProjects = null;
+    static List<IntegrityObject> iGatewayImportConfigs = null;
+    static List<IntegrityObject> iGatewayExportConfigs = null;
+    static List<IntegrityObject> iGatewayMappings = null;
 
     static Integrity i;
     private static Date now;
@@ -139,6 +142,12 @@ public class DocWriterTools {
                             sb.append(getObjectOverview(iTestResultFields, "Type"));
                         } else if (adminObj.getObjectType().equals("Dashboard")) {
                             sb.append(getObjectOverview(iDashboards, ""));
+                        } else if (adminObj.getObjectType().equals("GatewayImportConfig")) {
+                            sb.append(getObjectOverview(iGatewayImportConfigs, "Type"));
+                        } else if (adminObj.getObjectType().equals("GatewayExportConfig")) {
+                            sb.append(getObjectOverview(iGatewayExportConfigs, "Type"));
+                        } else if (adminObj.getObjectType().equals("GatewayMapping")) {
+                            sb.append(getObjectOverview(iGatewayMappings, ""));
                         }
                     }
 
@@ -178,7 +187,7 @@ public class DocWriterTools {
 
         sb.addFieldValue("Main W&D Projects", (iIMProjects.size()));
         sb.addFieldValue("Main CM Projects", (iSIProjects.size()));
-        sb.addFieldValue("", "");        
+        sb.addFieldValue("", "");
         sb.addFieldValue("View Sets", (iViewsets.size()));
         sb.addFieldValue("Groups", (iGroups.size()));
         sb.addFieldValue("Dynamic Groups", (iDynGroups.size()));
@@ -196,6 +205,10 @@ public class DocWriterTools {
         sb.addFieldValue("Queries", (iQueries.size()));
         sb.addFieldValue("Reports", (iReports.size()));
         sb.addFieldValue("Dashboards", (iDashboards.size()));
+        sb.addFieldValue("", "");
+        sb.addFieldValue("Gateway Import Configurations", (iGatewayImportConfigs.size()));
+        sb.addFieldValue("Gateway Export Configurations", (iGatewayExportConfigs.size()));
+        sb.addFieldValue("Gateway Mappings", (iGatewayMappings.size()));
 
         // Close out the table
         sb.append("</tbody></table>");

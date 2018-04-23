@@ -14,7 +14,6 @@ import com.ptc.services.utilities.docgen.IntegrityDocs;
 public class Utils {
 
 //    static SimpleDateFormat sdf;
-
 //    public static String getObjectName(IntegrityAdminObject ao) {
 //        String className = "";
 //
@@ -24,10 +23,6 @@ public class Utils {
 //        }
 //        return className;
 //    }
-
-
-
-
     public static String appendNewLine(String line) {
         return line + IntegrityDocs.nl;
     }

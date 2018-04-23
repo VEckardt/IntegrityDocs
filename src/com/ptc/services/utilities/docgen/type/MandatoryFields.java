@@ -51,9 +51,7 @@ public class MandatoryFields {
         if (null != fields && null != fields.getList()) {
             List<Item> stateList = fields.getList();
             // Loop thru all the state names
-            for (Iterator<Item> lit = stateList.iterator(); lit.hasNext();) {
-                // Get the "State" value
-                Item state = lit.next();
+            for (Item state : stateList) {
                 // Write out the new table row
                 report.append("  <tr>" + IntegrityDocs.nl);
                 report.append("    <td>" + state.getId() + "</td>" + IntegrityDocs.nl);

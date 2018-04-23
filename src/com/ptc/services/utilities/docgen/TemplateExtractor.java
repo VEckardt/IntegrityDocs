@@ -104,12 +104,14 @@ public class TemplateExtractor {
         List<IntegrityField> iFields = new ArrayList<>();
         List<IntegrityObject> iTestVerdicts = new ArrayList<>();
         List<IntegrityObject> iTestResultFields = new ArrayList<>();
-        List<IntegrityObject> iDashboards= new ArrayList<>();
-        List<IntegrityObject> iCPTypes= new ArrayList<>();
-        List<IntegrityObject> iIMProjects= new ArrayList<>();
-        List<IntegrityObject> iSIProjects= new ArrayList<>();
+        List<IntegrityObject> iDashboards = new ArrayList<>();
+        List<IntegrityObject> iCPTypes = new ArrayList<>();
+        List<IntegrityObject> iIMProjects = new ArrayList<>();
+        List<IntegrityObject> iSIProjects = new ArrayList<>();
+        List<IntegrityObject> iGatewayImportConfigs = new ArrayList<>();
+        List<IntegrityObject> iGatewayExportConfigs = new ArrayList<>();
+        List<IntegrityObject> iGatewayMappings = new ArrayList<>();
 
-        
         try {
             // Construct the Integrity Application
             i = new Integrity();
@@ -178,10 +180,11 @@ public class TemplateExtractor {
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
-                DocWriter doc = new DocWriter(i, 
+                DocWriter doc = new DocWriter(i,
                         iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
                         iStates, iReports, iFields, iTestVerdicts, iTestResultFields,
-                        iDashboards, iCPTypes, iIMProjects, iSIProjects
+                        iDashboards, iCPTypes, iIMProjects, iSIProjects,
+                        iGatewayImportConfigs, iGatewayExportConfigs, iGatewayMappings
                 );
                 // Generate the report resources
                 generateResources();

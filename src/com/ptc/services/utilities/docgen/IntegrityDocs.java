@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 
 public class IntegrityDocs {
 
-    public static final String iDOCS_REV = "$Revision: 11.0. $";
+    public static final String iDOCS_REV = "$Revision: 11.0.4 $";
     public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
     private static final String os = System.getProperty("os.name");
     public static final String nl = System.getProperty("line.separator");
@@ -50,6 +50,8 @@ public class IntegrityDocs {
     private boolean doCPTypes = true;
     private boolean doIMProjects = true;
     private boolean doSIProjects = true;
+    private boolean doGatewayConfigs = true;
+    private boolean doGatewayMappings = true;
     // convert to XML 
     private boolean doXML = false;
 
@@ -58,7 +60,7 @@ public class IntegrityDocs {
      */
     public static void main(String[] args) {
         // Only supporting Integrity 10 and newer releases
-        out.println("Integrity Docs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        out.println("IntegrityDocs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
         out.println("API Version: " + APISession.VERSION);
         out.println("Usage:");
         out.println("--xml: Generates an XML represenation of the Integrity data (not well maintained)");
@@ -76,6 +78,8 @@ public class IntegrityDocs {
         out.println("--noTestVerdicts:     disable TestVerdict scan and output");
         out.println("--noTestResultFields: disable TestResultFields scan and output");
         out.println("--noCPTypes:          disable CPTypes scan and output");
+        out.println("--noGatewayConfigs:   disable GatewayConfigs scan and output");
+        out.println("--noGatewayMappings:  disable GatewayMappings scan and output");
 
         try {
             IntegrityDocs iDocs = new IntegrityDocs();
@@ -111,6 +115,9 @@ public class IntegrityDocs {
         List<IntegrityObject> iCPTypes = new ArrayList<>();
         List<IntegrityObject> iIMProjects = new ArrayList<>();
         List<IntegrityObject> iSIProjects = new ArrayList<>();
+        List<IntegrityObject> iGatewayImportConfigs = new ArrayList<>();
+        List<IntegrityObject> iGatewayExportConfigs = new ArrayList<>();
+        List<IntegrityObject> iGatewayMappings = new ArrayList<>();
 
 //        try {
         // Construct the Integrity Application
@@ -154,6 +161,10 @@ public class IntegrityDocs {
                     doIMProjects = false;
                 } else if (arg.compareToIgnoreCase("--noSIProjects") == 0) {
                     doSIProjects = false;
+                } else if (arg.compareToIgnoreCase("--noGatewayConfigs") == 0) {
+                    doGatewayConfigs = false;
+                } else if (arg.compareToIgnoreCase("--noGatewayMappings") == 0) {
+                    doGatewayMappings = false;
                 } else {
                     typeList.add(arg);
                 }
@@ -223,6 +234,9 @@ public class IntegrityDocs {
 
         // dashboards
         retrieveObjects(doDashboards, i, iDashboards, "dashboard", null);
+        retrieveObjects(doGatewayConfigs, i, iGatewayImportConfigs, "gatewayconfig-import", "GatewayImportConfig");
+        retrieveObjects(doGatewayConfigs, i, iGatewayExportConfigs, "gatewayconfig-export", "GatewayExportConfig");
+        retrieveObjects(doGatewayMappings, i, iGatewayMappings, "gatewaymapping", "GatewayMapping");
 
         // Get a list of Fields, if asked for
         if (doFields) {
@@ -248,7 +262,8 @@ public class IntegrityDocs {
             DocWriter doc = new DocWriter(i, iTypes, iTriggers, iQueries,
                     iViewsets, iCharts, iGroups, iDynGroups,
                     iStates, iReports, iFields, iTestVerdicts,
-                    iTestResultFields, iDashboards, iCPTypes, iIMProjects, iSIProjects);
+                    iTestResultFields, iDashboards, iCPTypes, iIMProjects, iSIProjects,
+                    iGatewayImportConfigs, iGatewayExportConfigs, iGatewayMappings);
             // Generate the report resources
             generateResources();
 

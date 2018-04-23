@@ -15,16 +15,16 @@ public class GroupFactory {
             while (wii.hasNext()) {
                 WorkItem wi = wii.next();
                 // Only process admin queries
-                    Group q = new Group();
-                    q.setName(Integrity.getStringFieldValue(wi.getField("name")));
-                    System.out.println("Processing Group: " + q.getName());
-                    q.setID(Integrity.getStringFieldValue(wi.getField("id")));
-                    q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
+                Group q = new Group();
+                q.setName(Integrity.getStringFieldValue(wi.getField("name")));
+                System.out.println("Processing Group: " + q.getName());
+                q.setID(Integrity.getStringFieldValue(wi.getField("id")));
+                q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
                     // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
-                    // q.setLastModifiedDate(wi.getField("lastModified").getDateTime());
-                    q.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
-                    queryList.add(q);
-                
+                // q.setLastModifiedDate(wi.getField("lastModified").getDateTime());
+                q.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
+                queryList.add(q);
+
             }
         }
         return queryList;
@@ -70,4 +70,3 @@ public class GroupFactory {
 //        return sb.toString();
 //    }
 }
-

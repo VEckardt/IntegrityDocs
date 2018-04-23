@@ -90,7 +90,7 @@ public class RelationshipJGoNode extends JGoArea {
         myShadow.setWidth(visibleObj.getWidth());
         getPort().setWidth(visibleObj.getWidth());
 
-    	// Leave the ellipse where it is, and place the
+        // Leave the ellipse where it is, and place the
         // other stuff relative to the ellipse.
         myPort.setSpotLocation(JGoObject.Center, visibleObj, JGoObject.Center);
         myShadow.setLeft(visibleObj.getLeft() + 4);

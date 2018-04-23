@@ -220,15 +220,16 @@ public class TestVerdict extends IntegrityAdminObject {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
-        sb.addFieldValue( "Verdict Type", this.getVerdictType());
-        sb.addFieldValue( "Name", this.getName());
-        sb.addFieldValue( "Display Name", this.getDisplayName());
-        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
+        sb.addFieldValue("Verdict Type", this.getVerdictType());
+        sb.addFieldValue("Name", this.getName());
+        sb.addFieldValue("Display Name", this.getDisplayName());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
         // Close out the triggers details table
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();

@@ -30,7 +30,7 @@ public class IntegrityStateFactory {
                 System.out.println("Processing State: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 // q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
-                    // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
+                // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
                 // q.setLastModifiedDate(wi.getField("lastModified").getDateTime());
                 q.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
                 queryList.add(q);

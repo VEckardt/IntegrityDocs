@@ -78,7 +78,7 @@ public class WorkflowJGoModel extends JGoDocument {
                         nodeTo = getWorkflowJGoNode(targetState.getId());
                     }
 
-	                // Finally create the link between the source and target state
+                    // Finally create the link between the source and target state
                     // Since this is for a documentation, we don't care for self transitions
                     if (!stateTransition.getId().equals(targetState.getId())) {
                         WorkflowJGoLink link = WorkflowJGoFactory.createLink(nodeFrom.getPort(), nodeTo.getPort());

@@ -42,8 +42,8 @@ public class Chart extends IntegrityAdminObject {
         directory = "Charts";
         objectType = "Chart";
     }
-    
-    public String getObjectType () {
+
+    public String getObjectType() {
         return objectType;
     }
 
@@ -187,14 +187,14 @@ public class Chart extends IntegrityAdminObject {
         if (name.length() > 0) {
             command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
         }
-        
+
         return command;
     }
-    
+
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
-    
+    }
+
     public String getID() {
         return id;
     }

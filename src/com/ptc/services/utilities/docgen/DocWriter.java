@@ -31,7 +31,10 @@ public class DocWriter extends DocWriterTools {
             List<IntegrityObject> iDashboardsFieldList,
             List<IntegrityObject> iCPTypesList,
             List<IntegrityObject> iIMProjectsList,
-            List<IntegrityObject> iSIProjectsList
+            List<IntegrityObject> iSIProjectsList,
+            List<IntegrityObject> gatewayImportConfigsList,
+            List<IntegrityObject> gatewayExportConfigsList,
+            List<IntegrityObject> gatewayMappingsList
     ) {
         super(i);
 
@@ -51,6 +54,9 @@ public class DocWriter extends DocWriterTools {
         iCPTypes = iCPTypesList;
         iIMProjects = iIMProjectsList;
         iSIProjects = iSIProjectsList;
+        iGatewayImportConfigs = gatewayImportConfigsList;
+        iGatewayExportConfigs = gatewayExportConfigsList;
+        iGatewayMappings = gatewayMappingsList;
     }
 
     public void publish() throws IOException {
@@ -90,7 +96,7 @@ public class DocWriter extends DocWriterTools {
         // Projects
         naviHtm.publishObject(iIMProjects);
         naviHtm.publishObject(iSIProjects);
-        
+
         // Part 1: Publish Viewset, if appropriate...
         naviHtm.publishObject(iViewsets);
 
@@ -101,7 +107,6 @@ public class DocWriter extends DocWriterTools {
         naviHtm.publishObject(iDynGroups);
 
         // Part 4: Publish Dynamic Groups, if appropriate...
-
         // Part 5: Publish States, if appropriate...
         naviHtm.publishObject(iStates);
 
@@ -219,6 +224,11 @@ public class DocWriter extends DocWriterTools {
 
         // Part 15: Publish Query, if appropriate...
         naviHtm.publishObject(iDashboards);
+
+        // Part 16: Gateway Configs, if appropriate...
+        naviHtm.publishObject(iGatewayImportConfigs);
+        naviHtm.publishObject(iGatewayExportConfigs);
+        naviHtm.publishObject(iGatewayMappings);
 
         // whtdata0xml.write(appendNewLine("</book>"));
         // whtdata0xml.write(appendNewLine("</tocdata>"));

@@ -89,10 +89,10 @@ public class IntegrityObject extends IntegrityAdminObject {
         }
         try {
             isActive = workitem.getField("isActive").getValueAsString();
-        }catch (NoSuchElementException ex) {
-            
+        } catch (NoSuchElementException ex) {
+
         }
-        
+
     }
 
     @Override
@@ -103,7 +103,7 @@ public class IntegrityObject extends IntegrityAdminObject {
     protected String getType() {
         return type;
     }
-    
+
     public String getIsActive() {
         return isActive;
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.utils;
 
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
@@ -16,12 +16,12 @@ import javax.swing.ImageIcon;
  *
  * @author veckardt
  */
-public class SimpleField implements Field {
+public class StringField implements Field {
 
     String name;
     String value;
 
-    SimpleField(String name, String value) {
+    public StringField(String name, String value) {
         this.name = name;
         this.value = value;
     }
@@ -43,7 +43,7 @@ public class SimpleField implements Field {
 
     @Override
     public String getDataType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "String";
     }
 
     @Override
@@ -113,12 +113,12 @@ public class SimpleField implements Field {
 
     @Override
     public String getDisplayName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return name;
     }
 
     @Override
     public boolean hasDisplayValue() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return !name.isEmpty();
     }
 
 }

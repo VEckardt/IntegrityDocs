@@ -34,9 +34,9 @@ public class IntegrityState extends IntegrityAdminObject {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append("<table class='display'>");
-        sb.addFieldValue( "Name", getName());
-        sb.addFieldValue( "Display Name", getDisplayName());
-        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue("Name", getName());
+        sb.addFieldValue("Display Name", getDisplayName());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
         // Close out the triggers details table
         sb.append("</table>");
 
@@ -223,6 +223,7 @@ public class IntegrityState extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();

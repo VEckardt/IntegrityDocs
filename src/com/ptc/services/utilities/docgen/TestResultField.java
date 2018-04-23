@@ -29,7 +29,7 @@ public class TestResultField extends IntegrityAdminObject {
     private String createdBy;
     private String displayName;
     private String type;
-    
+
     public TestResultField() {
         modelType = IMModelTypeName.TEST_VERDICT;
         id = "";
@@ -43,25 +43,22 @@ public class TestResultField extends IntegrityAdminObject {
         directory = "TestResultFields";
         objectType = "TestResult";
     }
-    
+
     @Override
     public String getDetails() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
-        sb.addFieldValue( "Type", type);
-        sb.addFieldValue( "Name", this.getName());
-        sb.addFieldValue( "Display Name", this.getDisplayName());
-        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
+        sb.addFieldValue("Type", type);
+        sb.addFieldValue("Name", this.getName());
+        sb.addFieldValue("Display Name", this.getDisplayName());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(this.getDescription()));
         // Close out the triggers details table
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
     }
 
-      
-
-    
     // All setter functions
     public void setID(String id) {
         this.id = id;
@@ -78,14 +75,14 @@ public class TestResultField extends IntegrityAdminObject {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public void setType(String verdicyType) {
         this.type = verdicyType;
     }
-    
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }    
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -107,17 +104,16 @@ public class TestResultField extends IntegrityAdminObject {
 //    public void setSortField(String sortField) {
 //        this.sortField = sortField;
 //    }
-
     // All getter/access functions...
     @Override
     public String getModelType() {
         return modelType;
     }
-    
+
     @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }    
+    }
 
     @Override
     public Element getXML(Document job, Element command) {
@@ -169,7 +165,6 @@ public class TestResultField extends IntegrityAdminObject {
 //        if (name.length() > 0) {
 //            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 //        }
-
         return command;
     }
 
@@ -193,7 +188,6 @@ public class TestResultField extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
-
     @Override
     public String getName() {
         return name;
@@ -223,19 +217,18 @@ public class TestResultField extends IntegrityAdminObject {
     public String getDirectory() {
         return directory;
     }
-    
+
     public String getDisplayName() {
         return displayName;
     }
-    
+
     @Override
     public String getObjectType() {
         return objectType;
-    }    
+    }
+
     @Override
     protected String getGlobalID() {
         return getPosition();
     }
 }
-
-

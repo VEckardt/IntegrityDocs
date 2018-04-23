@@ -22,8 +22,6 @@ public class ChartFactory {
             String fieldValue;
             if (line.length() > 10 && line.indexOf(":") > 2) {
 
-                
-                
                 fieldName = line.substring(0, line.indexOf(":")).replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
                 if (!Arrays.asList(chartAttributes2).contains(fieldName)) {
                     fieldValue = line.substring(line.indexOf(":") + 1);

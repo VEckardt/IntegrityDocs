@@ -23,16 +23,24 @@ import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItemIterator;
-import com.mks.api.util.ResponseUtil;
 import com.ptc.services.utilities.CmdException;
 import com.ptc.services.utilities.CmdExecutor;
 import static com.ptc.services.utilities.docgen.ChartFactory.parseChart;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.REPORT_DIR;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.CONTENT_DIR;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
+import com.ptc.services.utilities.docgen.utils.FileUtils;
 import com.ptc.services.utilities.docgen.utils.OSCommandHandler;
+import java.io.ByteArrayInputStream;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.NoSuchElementException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class Integrity {
 
@@ -267,7 +275,7 @@ public class Integrity {
 
     public static String getXMLParamFieldValue(String textFormat) {
         // Only process if we've got something to resolve...
-        if (null != textFormat && textFormat.indexOf("{") >= 0) {
+        if (null != textFormat && textFormat.contains("{")) {
             StringBuilder resolvedString = new StringBuilder();
             int startIndx = 0;
             int curIndx = textFormat.indexOf("{", startIndx);
@@ -459,7 +467,7 @@ public class Integrity {
         return api.runCommandWithInterim(imViewTrigger).getWorkItems();
     }
 
-    public WorkItemIterator getMainProjects() throws APIException {
+    public WorkItemIterator getIMMainProjects() throws APIException {
         // CmdExecutor shell = new CmdExecutor();
         ArrayList<String> lines = new ArrayList<>();
         MultiValue mv = new MultiValue(",");
@@ -709,28 +717,26 @@ public class Integrity {
         return fieldDetails;
     }
 
-    public WorkItemIterator getGroups() throws APIException {
-        Command command = new Command(Command.IM, "groups");
-        // Construct the --fields=value,value,value option
-        MultiValue mv = new MultiValue(",");
-        for (String attribute : Integrity.groupAttributes) {
-            mv.add(attribute);
-        }
-        command.addOption(new Option("fields", mv));
-        return api.runCommandWithInterim(command).getWorkItems();
-    }
-
-    public WorkItemIterator getDynGroups() throws APIException {
-        Command command = new Command(Command.IM, "dynamicgroups");
-        // Construct the --fields=value,value,value option
-        MultiValue mv = new MultiValue(",");
-        for (String attribute : Integrity.dynGroupAttributes) {
-            mv.add(attribute);
-        }
-        command.addOption(new Option("fields", mv));
-        return api.runCommandWithInterim(command).getWorkItems();
-    }
-
+//    public WorkItemIterator getGroups() throws APIException {
+//        Command command = new Command(Command.IM, "groups");
+//        // Construct the --fields=value,value,value option
+//        MultiValue mv = new MultiValue(",");
+//        for (String attribute : Integrity.groupAttributes) {
+//            mv.add(attribute);
+//        }
+//        command.addOption(new Option("fields", mv));
+//        return api.runCommandWithInterim(command).getWorkItems();
+//    }
+//    public WorkItemIterator getDynGroups() throws APIException {
+//        Command command = new Command(Command.IM, "dynamicgroups");
+//        // Construct the --fields=value,value,value option
+//        MultiValue mv = new MultiValue(",");
+//        for (String attribute : Integrity.dynGroupAttributes) {
+//            mv.add(attribute);
+//        }
+//        command.addOption(new Option("fields", mv));
+//        return api.runCommandWithInterim(command).getWorkItems();
+//    }
     /**
      * Read the object list and if requested, also the individual objects
      *
@@ -741,7 +747,16 @@ public class Integrity {
     public WorkItemIterator getObjects(String objectName) throws APIException {
         System.out.println("Reading " + objectName + "s ...");
         if (objectName.equals("improject")) {
-            return getMainProjects();
+            return getIMMainProjects();
+        }
+        if (objectName.equals("gatewayconfig-export")) {
+            return getGatewayConfigs("export", "exporter", CONTENT_DIR + fs + "GatewayExportConfigs");
+        }
+        if (objectName.equals("gatewayconfig-import")) {
+            return getGatewayConfigs("parser", "parser", CONTENT_DIR + fs + "GatewayImportConfigs");
+        }
+        if (objectName.equals("gatewaymapping")) {
+            return getGatewayMappings(CONTENT_DIR + fs + "GatewayMappings");
         }
 
         String cmd = objectName.equals("verdict") ? Command.TM : (objectName.equals("resultfield") ? Command.TM : Command.IM);
@@ -779,84 +794,184 @@ public class Integrity {
         return api.runCommandWithInterim(command).getWorkItems();
     }
 
-    public WorkItemIterator getTestVerdicts() throws APIException {
-        Command command = new Command(Command.TM, "verdicts");
-        // Construct the --fields=value,value,value option
-        MultiValue mv = new MultiValue(",");
-        for (String attribute : Integrity.testVerdictAttributes) {
-            mv.add(attribute);
-        }
-        command.addOption(new Option("fields", mv));
-        return api.runCommandWithInterim(command).getWorkItems();
-    }
-
-    public Response getWordTemplates(String typeName) throws APIException {
-        Command cmd = new Command(Command.IM, "extractwordtemplates");
-        cmd.addOption(new Option("overwriteExisting"));
-        
-        cmd.addOption(new Option("type", typeName));
-        return api.runCommand(cmd);
-    }
-
-    public WorkItemIterator getReports() {
-        Command command = new Command(Command.IM, "reports");
-        // Construct the --fields=value,value,value option
-        MultiValue mv = new MultiValue(",");
-        for (String attribute : Integrity.reportAttributes) {
-            mv.add(attribute);
-        }
-        command.addOption(new Option("fields", mv));
-        System.out.println("Executing IM.Reports ...");
-        WorkItemIterator wit = null;
-        try {
-            // WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
-            wit = api.runCommandWithInterim(command).getWorkItems();
-        } catch (APIException ex) {
-            Logger.getLogger(Integrity.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return wit;
-    }
-
-//    public WorkItemIterator getStates() throws APIException {
-//        Command command = new Command(Command.IM, "states");
+//    public WorkItemIterator getTestVerdicts() throws APIException {
+//        Command command = new Command(Command.TM, "verdicts");
 //        // Construct the --fields=value,value,value option
 //        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.stateAttributes) {
+//        for (String attribute : Integrity.testVerdictAttributes) {
 //            mv.add(attribute);
 //        }
 //        command.addOption(new Option("fields", mv));
 //        return api.runCommandWithInterim(command).getWorkItems();
 //    }
-//    
-//    public WorkItemIterator getQueries() throws APIException {
-//        Command imQueries = new Command(Command.IM, "queries");
+    public Response getWordTemplates(String typeName) throws APIException {
+        Command cmd = new Command(Command.IM, "extractwordtemplates");
+        cmd.addOption(new Option("overwriteExisting"));
+
+        cmd.addOption(new Option("type", typeName));
+        return api.runCommand(cmd);
+    }
+
+//    public WorkItemIterator getReports() {
+//        Command command = new Command(Command.IM, "reports");
 //        // Construct the --fields=value,value,value option
 //        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.queryAttributes) {
+//        for (String attribute : Integrity.reportAttributes) {
 //            mv.add(attribute);
 //        }
-//        imQueries.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(imQueries).getWorkItems();
-//    }
-//    public WorkItemIterator getTestResultFields() throws APIException {
-//        Command cmd = new Command(Command.TM, "resultfields");
-//        // Construct the --fields=value,value,value option
-//        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.resultFieldsAttributes) {
-//            mv.add(attribute);
+//        command.addOption(new Option("fields", mv));
+//        System.out.println("Executing IM.Reports ...");
+//        WorkItemIterator wit = null;
+//        try {
+//            // WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
+//            wit = api.runCommandWithInterim(command).getWorkItems();
+//        } catch (APIException ex) {
+//            Logger.getLogger(Integrity.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-//        cmd.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(cmd).getWorkItems();
+//        return wit;
 //    }
-//    
-//    public WorkItemIterator viewQueries(List<String> queryList) throws APIException {
-//        Command cmd = new Command(Command.IM, "viewquery");
-//        // Add each query selection to the view query command
-//        for (Iterator<String> it = queryList.iterator(); it.hasNext();) {
-//            cmd.addSelection(it.next());
-//        }
-//        return api.runCommandWithInterim(cmd).getWorkItems();
-//    }
+    public GatewayConfigs getGatewayConfigs(String type, String elem, String path) throws APIException {
+        GatewayConfigs lgc = new GatewayConfigs();
+
+        // this runs on server
+        Response response = api.runCommand(new Command("im", "gatewaywizardconfigurations"));
+        // ResponseUtil.printResponse(response, 1, System.out);
+        int cnt = 0;
+        for (WorkItemIterator wii = response.getWorkItems(); wii.hasNext();) {
+            WorkItem wi = wii.next();
+            try {
+                cnt++;
+                String encoding = null;
+                try {
+                    encoding = wi.getField("Encoding").getString();
+                } catch (NoSuchElementException ignored) {
+                }
+                if (encoding == null) {
+                    encoding = "UTF-8";
+                }
+                Field field = wi.getField("Content");
+                java.io.InputStream xmlReader = new ByteArrayInputStream(field.getString().getBytes(encoding));
+                // registerConfig("<remote>", (new ItemMapperParser(xmlReader)).process());
+
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+                Document doc = docBuilder.parse(xmlReader);
+                doc.getDocumentElement().normalize();
+                // System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                NodeList nList = doc.getElementsByTagName(type + "-config");
+
+                for (int temp = 0; temp < nList.getLength(); temp++) {
+                    Node nNode = nList.item(temp);
+                    // System.out.println("\nCurrent Element :" + nNode.getNodeName());
+
+                    if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eElement = (Element) nNode;
+
+                        GatewayConfig gc = new GatewayConfig();
+                        gc.addField("name", eElement.getElementsByTagName("name").item(0).getTextContent());
+                        gc.addField("description", eElement.getElementsByTagName("description").item(0).getTextContent());
+                        gc.addField("position", String.valueOf(temp + 1));
+                        for (int ext = 0; ext < eElement.getElementsByTagName("extension").getLength(); ext++) {
+                            gc.addField("extensions (" + (ext + 1) + ")", eElement.getElementsByTagName("extension").item(ext).getTextContent());
+                        }
+                        String exporterClass = "";
+                        try {
+                            exporterClass = eElement.getElementsByTagName(elem).item(0).getAttributes().getNamedItem("class").getTextContent();
+                        } catch (NullPointerException skip) {
+
+                        }
+
+                        gc.addField("type", exporterClass.length() > 10 ? "custom" : "standard");
+                        gc.addField("isActive", "true");
+                        gc.addField("gateway-configuration-name", eElement.getElementsByTagName("gateway-configuration-name").item(0).getTextContent());
+                        gc.addField(elem + " class", exporterClass);
+
+                        NodeList pList = eElement.getElementsByTagName(elem).item(0).getChildNodes();
+                        for (int propId = 0; propId < pList.getLength(); propId++) {
+                            Node pNode = pList.item(propId);
+                            if (pNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element pElement = (Element) pNode;
+
+                                if (pElement.getAttribute("name").equals("template")) {
+                                    FileUtils.inputStreamToFile(pElement.getTextContent(), path);
+                                    String fileName = pElement.getTextContent().substring(pElement.getTextContent().lastIndexOf('/') + 1);
+                                    gc.addField(elem + " property '" + pElement.getAttribute("name") + "'", "<a href=\"" + fileName + "\">" + pElement.getTextContent() + "</a>");
+                                } else {
+                                    gc.addField(elem + " property '" + pElement.getAttribute("name") + "'", pElement.getTextContent());
+                                }
+                            }
+                        }
+                        lgc.add(gc);
+                    }
+                }
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                log("ERROR: " + (new StringBuilder()).append("Skipping remote configuration due to error: ").append(e.getMessage()).toString(), 10);
+                log("DEBUG", 10, e);
+            }
+        }
+        return lgc;
+    }
+
+    public GatewayMappings getGatewayMappings(String path) throws APIException {
+        GatewayMappings lgc = new GatewayMappings();
+
+        // this runs on server
+        Response response = api.runCommand(new Command("im", "gatewayconfigurations"));
+        // ResponseUtil.printResponse(response, 1, System.out);
+        int cnt = 0;
+        for (WorkItemIterator wii = response.getWorkItems(); wii.hasNext();) {
+            WorkItem wi;
+            try {
+                wi = wii.next();
+                cnt++;
+                String encoding = null;
+                try {
+                    encoding = wi.getField("Encoding").getString();
+                } catch (NoSuchElementException ignored) {
+                }
+                if (encoding == null) {
+                    encoding = "UTF-8";
+                }
+                Field field = wi.getField("Content");
+                java.io.InputStream xmlReader = new ByteArrayInputStream(field.getString().getBytes(encoding));
+                // registerConfig("<remote>", (new ItemMapperParser(xmlReader)).process());
+
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+                Document doc = docBuilder.parse(xmlReader);
+                doc.getDocumentElement().normalize();
+                NodeList nList = doc.getElementsByTagName("mapping");
+
+                Node nNode = nList.item(0);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+
+                    GatewayMapping gc = new GatewayMapping();
+                    gc.addField("name", eElement.getAttribute("name"));
+                    try {
+                        gc.addField("description", eElement.getElementsByTagName("description").item(0).getTextContent());
+                    } catch (NullPointerException ex) {
+                        gc.addField("description", "-");
+                    }
+                    gc.addField("position", String.valueOf(cnt));
+                    gc.addField("type", "mapping");
+                    gc.addField("isActive", "true");
+
+                    String fileName = eElement.getAttribute("name") + ".xml";
+
+                    FileUtils.resourceToFile(new ByteArrayInputStream(field.getString().getBytes(encoding)), path, fileName);
+                    gc.addField("Mapping File", "<a href=\"" + fileName + "\" download=\"" + fileName + ".txt\">" + fileName + "</a>");
+                    lgc.add(gc);
+                }
+
+            } catch (APIException | ParserConfigurationException | SAXException | IOException e) {
+                log("ERROR: " + (new StringBuilder()).append("Skipping remote configuration due to error: ").append(e.getMessage()).toString(), 10);
+                log("DEBUG", 10, e);
+            }
+        }
+        return lgc;
+    }
+
     public String getCharts() throws CmdException {
         // Open a command shell to execute the im charts command
         CmdExecutor shell = new CmdExecutor();
@@ -1105,5 +1220,14 @@ public class Integrity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void log(String text, int level) {
+        System.out.println(text);
+    }
+
+    public void log(String text, int level, Exception e) {
+        System.out.println(text);
+        System.out.println(e.getMessage());
     }
 }

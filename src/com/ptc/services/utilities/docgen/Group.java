@@ -219,14 +219,15 @@ public class Group extends IntegrityAdminObject {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append(appendNewLine("     <table class='display'>"));
-        sb.addFieldValue( "Name", getName());
-        sb.addFieldValue( "Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        sb.addFieldValue( "Is Active", String.valueOf(isActive()));
+        sb.addFieldValue("Name", getName());
+        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
+        sb.addFieldValue("Is Active", String.valueOf(isActive()));
         // Close out the triggers details table
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
     }
+
     @Override
     protected String getGlobalID() {
         return getPosition();

@@ -15,9 +15,9 @@ public abstract class IntegrityAdminObject {
     protected String globalID;
 
     protected abstract String getGlobalID();
-    
+
     protected abstract String getName();
-    
+
     protected abstract String getDirectory();
 
     protected abstract String getDescription();
@@ -27,13 +27,12 @@ public abstract class IntegrityAdminObject {
     protected abstract Element getXML(Document job, Element command);
 
     protected abstract String getModelType();
-    
+
     protected abstract String getObjectType();
-    
+
     protected abstract String getPosition();
-    
+
     // protected abstract String getOverview();
-    
     protected abstract String getDetails();
 
     public String getAdminObjectType() {
