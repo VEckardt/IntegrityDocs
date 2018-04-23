@@ -26,7 +26,7 @@ In IntegrityClient folder
 ```
 SET IC_HOME=C:\Integrity\ILMClient11
 ```
-- In case of any performance issue based on too many data in Integrity, you can also disable certain object types from beeing scanned, such as   
+- In case of any performance issue based on too many data in Integrity, you can also disable certain object types from being scanned, such as   
 ```
 --noIMProjects:       disable Workflows & Documents Main Projects scan and output
 --noSIProjects:       disable Config Management Main Projects scan and output
