@@ -2,7 +2,7 @@
 Creates a set of HTML pages documenting the PTC Integrity Lifecycle Manager configuration.
 
 ## Version
-11.0.4: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
+11.0.5: Created for Integrity 10.9/11.x and with full support of Firefox / Chrome / IE
 
 ## Development Status 
 Under Construction
@@ -66,6 +66,7 @@ SET IC_HOME=C:\Integrity\ILMClient11
 - 11.0.3: Edit-In-Word Templates download now possible (links provided in the Type form)
 - 11.0.3: Added Main Project for CM
 - 11.0.4: Added Gateway details
+- 11.0.5: Images added
 
 ##  Development Environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
