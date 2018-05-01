@@ -5,7 +5,10 @@
  */
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.getList;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,6 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,30 +28,14 @@ import java.util.List;
  */
 public class DocWriterTools {
 
-    static List<IntegrityObject> iViewsets = null;
     static List<IntegrityType> iTypes = null;
     static List<IntegrityField> iFields = null;
     static List<Trigger> iTriggers = null;
-    static List<IntegrityObject> iCharts = null;
-
-    static List<IntegrityObject> iGroups = null;
-    static List<IntegrityObject> iDynGroups = null;
-    static List<IntegrityObject> iStates = null;
-    static List<IntegrityObject> iTestVerdicts = null;
-    static List<IntegrityObject> iTestResultFields = null;
-    static List<IntegrityObject> iDashboards = null;
-    static List<IntegrityObject> iQueries = null;
-    static List<IntegrityObject> iReports = null;
-    static List<IntegrityObject> iCPTypes = null;
-    static List<IntegrityObject> iIMProjects = null;
-    static List<IntegrityObject> iSIProjects = null;
-    static List<IntegrityObject> iGatewayImportConfigs = null;
-    static List<IntegrityObject> iGatewayExportConfigs = null;
-    static List<IntegrityObject> iGatewayMappings = null;
+    static ArrayList<List<IntegrityObject>> iObjectList = null;
 
     static Integrity i;
-    private static Date now;
-    static SimpleDateFormat sdf;
+    private static final Date now = new Date();
+    static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a z");
 
     public static final File objectTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "ObjectTemplate.txt");
     public static final File titleTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "title.txt");
@@ -55,9 +43,7 @@ public class DocWriterTools {
     public static final File overviewTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "OverviewTemplate.txt");
 
     public DocWriterTools(Integrity i) {
-        this.i = i;
-        this.now = new Date();
-        this.sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a z");
+        DocWriterTools.i = i;
     }
 
     public String getNow() {
@@ -115,39 +101,9 @@ public class DocWriterTools {
                             sb.append(getTriggersOverview());
                         } else if (adminObj instanceof IntegrityField) {
                             sb.append(getFieldOverview());
-                        } else if (adminObj.getObjectType().equals("Report")) {
-                            sb.append(getObjectOverview(iReports, ""));
-                        } else if (adminObj.getObjectType().equals("MainW&DProject")) {
-                            sb.append(getObjectOverview(iIMProjects, ""));
-                        } else if (adminObj.getObjectType().equals("MainCMProject")) {
-                            sb.append(getObjectOverview(iSIProjects, ""));
-                        } else if (adminObj.getObjectType().equals("State")) {
-                            sb.append(getObjectOverview(iStates, ""));
-                        } else if (adminObj.getObjectType().equals("Group")) {
-                            sb.append(getObjectOverview(iGroups, "isActive"));
-                        } else if (adminObj.getObjectType().equals("DynamicGroup")) {
-                            sb.append(getObjectOverview(iDynGroups, ""));
-                        } else if (adminObj.getObjectType().equals("Query")) {
-                            sb.append(getObjectOverview(iQueries, ""));
-                        } else if (adminObj.getObjectType().equals("Chart")) {
-                            // sb.append(getChartOverview());
-                            sb.append(getObjectOverview(iCharts, ""));
-                        } else if (adminObj.getObjectType().equals("Viewset")) {
-                            sb.append(getObjectOverview(iViewsets, ""));
-                        } else if (adminObj.getObjectType().equals("ChangePackageType")) {
-                            sb.append(getObjectOverview(iCPTypes, ""));
-                        } else if (adminObj.getObjectType().equals("TestVerdict")) {
-                            sb.append(getObjectOverview(iTestVerdicts, "Type,isActive"));
-                        } else if (adminObj.getObjectType().equals("TestResultField")) {
-                            sb.append(getObjectOverview(iTestResultFields, "Type"));
-                        } else if (adminObj.getObjectType().equals("Dashboard")) {
-                            sb.append(getObjectOverview(iDashboards, ""));
-                        } else if (adminObj.getObjectType().equals("GatewayImportConfig")) {
-                            sb.append(getObjectOverview(iGatewayImportConfigs, "Type"));
-                        } else if (adminObj.getObjectType().equals("GatewayExportConfig")) {
-                            sb.append(getObjectOverview(iGatewayExportConfigs, "Type"));
-                        } else if (adminObj.getObjectType().equals("GatewayMapping")) {
-                            sb.append(getObjectOverview(iGatewayMappings, ""));
+                        } else {
+                            // for all other types
+                            sb.append(getObjectOverview(adminObj.objectType));
                         }
                     }
 
@@ -181,34 +137,34 @@ public class DocWriterTools {
     private static String getSummary() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append("     <table class='sortable'>");
+        sb.append("<table class='sortable'>");
         sb.addHeadings("Object,Count");
         sb.append("<tbody>");
 
-        sb.addFieldValue("Main W&D Projects", (iIMProjects.size()));
-        sb.addFieldValue("Main CM Projects", (iSIProjects.size()));
+        sb.addFieldValue("Main W&D Projects", getList(Types.IMProject).size());
+        sb.addFieldValue("Main CM Projects", getList(Types.SIProject).size());
         sb.addFieldValue("", "");
-        sb.addFieldValue("View Sets", (iViewsets.size()));
-        sb.addFieldValue("Groups", (iGroups.size()));
-        sb.addFieldValue("Dynamic Groups", (iDynGroups.size()));
+        sb.addFieldValue("View Sets", getList(Types.Viewset).size());
+        sb.addFieldValue("Groups", getList(Types.Group).size());
+        sb.addFieldValue("Dynamic Groups", getList(Types.DynamicGroup).size());
         sb.addFieldValue("", "");
-        sb.addFieldValue("States", (iStates.size()));
-        sb.addFieldValue("Types", (iTypes.size()));
-        sb.addFieldValue("Fields", (iFields.size()));
-        sb.addFieldValue("Triggers", (iTriggers.size()));
+        sb.addFieldValue("States", getList(Types.State).size());
+        sb.addFieldValue("Types", iTypes.size());
+        sb.addFieldValue("Fields", iFields.size());
+        sb.addFieldValue("Triggers", iTriggers.size());
         sb.addFieldValue("", "");
-        sb.addFieldValue("Change Package Types", (iCPTypes.size()));
-        sb.addFieldValue("Test Verdicts", (iTestVerdicts.size()));
-        sb.addFieldValue("Test Result Fields", (iTestResultFields.size()));
+        sb.addFieldValue("Change Package Types", getList(Types.CPType).size());
+        sb.addFieldValue("Test Verdicts", getList(Types.Verdict).size());
+        sb.addFieldValue("Test Result Fields", getList(Types.ResultField).size());
         sb.addFieldValue("", "");
-        sb.addFieldValue("Charts", (iCharts.size()));
-        sb.addFieldValue("Queries", (iQueries.size()));
-        sb.addFieldValue("Reports", (iReports.size()));
-        sb.addFieldValue("Dashboards", (iDashboards.size()));
+        sb.addFieldValue("Charts", getList(Types.Chart).size());
+        sb.addFieldValue("Queries", getList(Types.Query).size());
+        sb.addFieldValue("Reports", getList(Types.Report).size());
+        sb.addFieldValue("Dashboards", getList(Types.Dashboard).size());
         sb.addFieldValue("", "");
-        sb.addFieldValue("Gateway Import Configurations", (iGatewayImportConfigs.size()));
-        sb.addFieldValue("Gateway Export Configurations", (iGatewayExportConfigs.size()));
-        sb.addFieldValue("Gateway Mappings", (iGatewayMappings.size()));
+        sb.addFieldValue("Gateway Mappings", getList(Types.GatewayMapping).size());
+        sb.addFieldValue("Gateway Import Configurations", getList(Types.GatewayImportConfig).size());
+        sb.addFieldValue("Gateway Export Configurations", getList(Types.GatewayExportConfig).size());
 
         // Close out the table
         sb.append("</tbody></table>");
@@ -221,12 +177,13 @@ public class DocWriterTools {
 
         // Summary heading line
         sb.append("<table class='sortable'>");
-        sb.addHeadings("Name,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree,Branch,Label");
+        sb.addHeadings("Icon,Name,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree,Branch,Label");
         sb.append("<tbody>");
 
         // Print out the summary about each item type
         for (IntegrityType iType : iTypes) {
             sb.append((" <tr>"));
+            sb.addTDborder("<img src=\"Types/" + iType.getName().replaceAll(" ", "_") + ".png\" alt=\"-\">");
             sb.addTDborder("<a href='Types/" + iType.getPosition() + ".htm'>" + iType.getName() + "</a>");
             sb.addTDborder(HyperLinkFactory.convertHyperLinks(iType.getDescription()));
             sb.addTDborder((iType.getAllowChangePackages() ? "&#10003;" : "&nbsp;"));
@@ -285,18 +242,25 @@ public class DocWriterTools {
         return sb.toString();
     }
 
-    private static String getObjectOverview(List<IntegrityObject> objectList, String additionalColumns) {
+    private static String getObjectOverview(Types type) {
+        String additionalColumns = type.getAddColumns();
+        List<IntegrityObject> objectList = iObjectList.get(type.getID());
         StringObj sb = new StringObj();
         // Summary heading line
         sb.append(("<table class='sortable'>"));
-        String headings = "ID,Name,Description" + (additionalColumns.isEmpty() ? "" : "," + additionalColumns);
+        Boolean showImage = additionalColumns.contains("Image");
+        additionalColumns = additionalColumns.replace(",Image", "").replace("Image", "");
+        String headings = "ID,Name," + (showImage ? "Image," : "") + "Description" + (additionalColumns.isEmpty() ? "" : "," + additionalColumns);
         sb.addHeadings(headings);
         sb.append(("<tbody>"));
         // Print out the summary about each trigger
         for (IntegrityObject object : objectList) {
-            sb.append((" <tr>"));
+            sb.append(("<tr>"));
             sb.addTDborder(object.getPosition());
             sb.addTDborder("<a href='" + object.getDirectory() + "/" + object.getPosition() + ".htm'>" + object.getName() + "</a>");
+            if (showImage) {
+                sb.addTDborder("<img src=\"" + object.getDirectory() + "/" + object.getName().replaceAll(" ", "_") + ".png\" alt=\"-\" onerror=\"this.src='images/" + object.getObjectType() + ".png'\">");
+            }
             sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
             if (additionalColumns.contains("Type")) {
                 sb.addTDborder(object.getType());
@@ -304,7 +268,7 @@ public class DocWriterTools {
             if (additionalColumns.contains("isActive")) {
                 sb.addTDborder(object.getIsActive());
             }
-            sb.append((" </tr>"));
+            sb.append(("</tr>"));
         }
         sb.append(("</tbody></table>"));
 
@@ -313,6 +277,7 @@ public class DocWriterTools {
 
     // Delete all the template files
     public void cleanupTempFiles() {
+        log("Finishing publishing ...");
         titleTemplate.delete();
         overviewTemplate.delete();
         objectTemplate.delete();

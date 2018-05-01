@@ -13,6 +13,7 @@ import com.ptc.services.utilities.docgen.IntegrityField;
 import com.ptc.services.utilities.docgen.IntegrityState;
 import com.ptc.services.utilities.docgen.IntegrityType;
 import com.ptc.services.utilities.docgen.XMLWriter;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class FieldRelationships {
 
@@ -20,11 +21,11 @@ public class FieldRelationships {
     private String strFieldRelationships;
 
     public FieldRelationships(Hashtable<String, IntegrityField> fieldsHash, Field fldRelationships) {
-        // System.out.println("1");
+        // log("1");
         fieldRelationships = fldRelationships;
-        // System.out.println("2");
+        // log("2");
         strFieldRelationships = new String();
-        // System.out.println("3");
+        // log("3");
         initStringFieldRelationships(fieldsHash);
     }
 
@@ -47,34 +48,34 @@ public class FieldRelationships {
 
     @SuppressWarnings("unchecked")
     private void initStringFieldRelationships(Hashtable<String, IntegrityField> fieldsHash) {
-        // System.out.println("4");
+        // log("4");
         StringBuilder sb = new StringBuilder();
         if (null != fieldRelationships && null != fieldRelationships.getList()) {
-            // System.out.println("5");
+            // log("5");
             List<Item> fieldRelList = fieldRelationships.getList();
             // Loop thru all the field relationships
-            // System.out.println("6");
+            // log("6");
             for (Iterator<Item> lit = fieldRelList.iterator(); lit.hasNext();) {
                 // Get the "Source Field" names
-                // System.out.println("7");
+                // log("7");
                 Item sourceField = lit.next();
                 String rule = getRule(sourceField);
-                // System.out.println("8");
+                // log("8");
                 try {
                     if (rule.length() > 0) {
                         // Append the rule based relationship to the list of field relationships
-                        // System.out.println("9a");
+                        // log("9a");
                         sb.append("rule=" + rule);
                         sb.append(Integrity.getFieldValue(sourceField.getField("targetField"), ""));
-                        // System.out.println("9b");
+                        // log("9b");
                     } else {
                         // Get the "Target Fields"
                         Field targetFields = sourceField.getField("targetFields");
-                        // System.out.println("10");
+                        // log("10");
                         List<Item> targetFieldList = targetFields.getList();
-                        // System.out.println("11a");
+                        // log("11a");
                         for (Iterator<Item> tlit = targetFieldList.iterator(); tlit.hasNext();) {
-                            // System.out.println("12a");
+                            // log("12a");
                             // Get the value for "Target Field" name
                             Item targetField = tlit.next();
                             // Get the values for "Source Values" and "Target Values"
@@ -88,11 +89,11 @@ public class FieldRelationships {
                             sb.append(XMLWriter.padXMLParamName(xmlSourceParam) + "=");
 
                             // Check to see if this source value is a Type, State, User, or Group objects
-                            // System.out.println("13a => " + sourceField.getId());
+                            // log("13a => " + sourceField.getId());
                             IntegrityField iField = fieldsHash.get(sourceField.getId());
-                            // System.out.println("13b");
+                            // log("13b");
                             if (iField == null) {
-                                System.out.println("iField == null => sourceField.getId() = " + sourceField.getId());
+                                log("iField == null => sourceField.getId() = " + sourceField.getId());
                             }
                             switch (iField.getFieldType()) {
                                 case TYPE:
@@ -129,16 +130,16 @@ public class FieldRelationships {
 
                             sb.append(tlit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
                         }
-                        // System.out.println("11b");
+                        // log("11b");
                     }
 
                     sb.append(lit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
                 } catch (NoSuchElementException nsee) {
-                    System.out.println("Failed to parse Field Relationship: " + sourceField.getId());
+                    log("Failed to parse Field Relationship: " + sourceField.getId());
                 }
             }
         }
-        // System.out.println("8");
+        // log("8");
         strFieldRelationships = sb.toString();
     }
 
@@ -205,7 +206,7 @@ public class FieldRelationships {
                         }
                     }
                 } catch (NoSuchElementException nsee) {
-                    System.out.println("Failed to parse Field Relationship: " + sourceField.getId());
+                    log("Failed to parse Field Relationship: " + sourceField.getId());
                     nsee.printStackTrace();
                 }
             }

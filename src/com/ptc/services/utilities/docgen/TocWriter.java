@@ -8,6 +8,8 @@ package com.ptc.services.utilities.docgen;
 import static com.ptc.services.utilities.docgen.DocWriterTools.getFormattedContent;
 import static com.ptc.services.utilities.docgen.DocWriterTools.objectTemplate;
 import static com.ptc.services.utilities.docgen.DocWriterTools.overviewTemplate;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,11 +48,13 @@ public class TocWriter extends BufferedWriter {
         this.write(appendNewLine("</li>"));
     }
 
-    public void publishObject(List<IntegrityObject> aol) throws IOException {
+    public void publishObject(Types type) throws IOException {
         // Part 1: Publish Viewset, if appropriate...
+        List<IntegrityObject> aol = IntegrityDocs.getList(type);
         if (null != aol && aol.size() > 0) {
+            log("Publishing " + type.name() + " with " + aol.size() + " objects ...");
             this.addBook(aol.get(0));
-            this.addOverview(aol.get(0));
+            this.addOverviewSectionAndFile(aol.get(0));
             this.addOverviewCloser();
             for (IntegrityObject object : aol) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
@@ -63,7 +67,7 @@ public class TocWriter extends BufferedWriter {
         }
     }
 
-    public void addOverview(IntegrityAdminObject ao) throws IOException {
+    public void addOverviewSectionAndFile(IntegrityAdminObject ao) throws IOException {
         String name = ao.getObjectType();
         this.write(appendNewLine("<ul><li title=\"" + name + " Overview\" data-context=\"20\"><a href=\"WorkflowDocs/" + name + "_overview.htm\" target=\"topic\">Overview</a></li>"));
 
@@ -110,5 +114,4 @@ public class TocWriter extends BufferedWriter {
             }
         }
     }
-
 }

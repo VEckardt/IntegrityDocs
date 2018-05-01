@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
@@ -18,7 +19,6 @@ public class Trigger extends IntegrityAdminObject {
 
     // Trigger's members
     public static final String XML_PREFIX = "TRIGGER_";
-    private String position;
     private String type;
     private String runAs;
     private String query;
@@ -30,7 +30,7 @@ public class Trigger extends IntegrityAdminObject {
     private String scriptTiming;
 
     public Trigger() {
-        modelType = IMModelTypeName.TRIGGER;
+        // modelType = IMModelTypeName.TRIGGER;
         name = "undefined";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         position = "undefined";
@@ -44,8 +44,7 @@ public class Trigger extends IntegrityAdminObject {
         script = "";
         scriptParams = "";
         scriptTiming = "";
-        directory = "Triggers";
-        objectType = "Trigger";
+        objectType = Types.Trigger;
     }
 
     @Override
@@ -62,6 +61,7 @@ public class Trigger extends IntegrityAdminObject {
             sb.addFieldValue("Query", this.getQuery());
             sb.addFieldValue("Frequency", this.getFrequency());
         }
+
         sb.addFieldValue("Script", this.getScript());
         sb.addFieldValue("Script Timing", this.getScriptTiming());
         sb.addFieldValue("Script Parameters", this.getScriptParams());
@@ -124,11 +124,6 @@ public class Trigger extends IntegrityAdminObject {
     }
 
     // All getter/access functions...
-    @Override
-    public String getModelType() {
-        return modelType;
-    }
-
     // typeClassGroup
     public String getTypeClassGroup() {
         return (getType().substring(0, 1).toUpperCase() + getType().substring(1)).replaceAll("([A-Z])", " $1");
@@ -263,20 +258,5 @@ public class Trigger extends IntegrityAdminObject {
 
     public String getScriptTiming() {
         return scriptTiming;
-    }
-
-    @Override
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
-    }
-
-    @Override
-    protected String getObjectType() {
-        return objectType;
     }
 }

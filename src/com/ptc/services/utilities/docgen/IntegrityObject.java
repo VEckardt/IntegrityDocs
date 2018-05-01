@@ -8,7 +8,13 @@ package com.ptc.services.utilities.docgen;
 import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
 import static com.ptc.services.utilities.docgen.Integrity.globalId;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.CONTENT_DIR;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
+import static com.ptc.services.utilities.docgen.utils.ImageUtils.extractImage;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,23 +28,14 @@ import org.w3c.dom.Element;
  */
 public class IntegrityObject extends IntegrityAdminObject {
 
-    Iterator fields;
-    String type;  // object individual type!
     WorkItem object;
+    Iterator fields;
+    String type;  // object individual type, not objectType!
     String isActive = "";
-    int id = 0;
+    String imageFileName = "";
 
-    public IntegrityObject(WorkItem workitem) {
-        this(workitem, workitem.getModelType());
-        // out.println("iProjects: 2");
-        modelType = workitem.getModelType();
-        if (modelType.indexOf('.') > 0) {
-            modelType = modelType.substring(modelType.indexOf('.') + 1);
-        }
-    }
-
-    public IntegrityObject(WorkItem workitem, List<Field> fieldListFromText) {
-        this(workitem, workitem.getModelType().replaceAll("im.", ""));
+    public IntegrityObject(WorkItem workitem, Types objectType, List<Field> fieldListFromText) {
+        this(workitem, objectType);
         List<Field> fieldlistneu = new ArrayList<>();
         // take what we already have
         while (fields.hasNext()) {
@@ -51,18 +48,18 @@ public class IntegrityObject extends IntegrityAdminObject {
         this.fields = fieldlistneu.iterator();
     }
 
-    public IntegrityObject(WorkItem workitem, String modelType) {
+    public IntegrityObject(WorkItem workitem, Types objectType) {
         object = workitem;
         // out.println("iProjects: 3");
         fields = workitem.getFields();
-        id = globalId++;
+        id = String.valueOf(globalId++);
         name = workitem.getId();
-        if (modelType.equals("Viewset")) {
+        this.objectType = objectType;
+        if (objectType.equals(Types.Viewset)) {
             name = workitem.getField("name").getString();
         }
-        this.modelType = modelType;
 
-        System.out.println("  Processing " + modelType + " '" + name + "' ...");
+        log("  Processing " + this.getObjectType() + " '" + name + "' ...");
 
         try {
             position = workitem.getField("position").getValueAsString();
@@ -92,7 +89,17 @@ public class IntegrityObject extends IntegrityAdminObject {
         } catch (NoSuchElementException ex) {
 
         }
+        try {
+            Field image = workitem.getField("image");
 
+            if (image.getItem().getId().contentEquals("custom")) {
+                imageFileName = CONTENT_DIR + "/" + this.getDirectory() + "/" + workitem.getId().replaceAll(" ", "_").replaceAll("\\W", "") + ".png";
+                File imageFile = new File(imageFileName);
+                extractImage(image, imageFile);
+            }
+        } catch (Exception ex) {
+            imageFileName = CONTENT_DIR + "/images/" + this.getObjectType() + ".png";
+        }
     }
 
     @Override
@@ -106,23 +113,6 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     public String getIsActive() {
         return isActive;
-    }
-
-    @Override
-    protected String getDirectory() {
-        directory = modelType.replaceAll("im.", "") + "s";
-        directory = directory.equals("Querys") ? "Queries" : directory;
-        return directory;
-    }
-
-    @Override
-    protected String getObjectType() {
-        return modelType;
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return String.valueOf(id);
     }
 
     @Override
@@ -141,11 +131,6 @@ public class IntegrityObject extends IntegrityAdminObject {
     }
 
     @Override
-    protected String getModelType() {
-        return modelType;
-    }
-
-    @Override
     protected String getPosition() {
         return position;
     }
@@ -156,7 +141,10 @@ public class IntegrityObject extends IntegrityAdminObject {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append("<table class='display'>");
-        sb.setPath(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + modelType + "s");
+        sb.setPath(CONTENT_DIR + fs + this.getDirectory());
+        if (!imageFileName.isEmpty()) {
+            sb.addFieldValue("Image", "<img src=\"" + imageFileName + "\" alt=\"-\">");
+        }
         while (fields.hasNext()) {
             Field fld = (Field) fields.next();
             sb.addFieldValue(fld.getName(), fld.getValueAsString());

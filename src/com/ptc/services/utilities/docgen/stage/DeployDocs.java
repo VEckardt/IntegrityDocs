@@ -1,6 +1,5 @@
 package com.ptc.services.utilities.docgen.stage;
 
-import com.ptc.services.utilities.docgen.stage.StagingSystem;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.FileWriter;
@@ -12,6 +11,7 @@ import com.mks.api.Command;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.Integrity;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.Arrays;
 
 public class DeployDocs {
@@ -64,7 +64,7 @@ public class DeployDocs {
             List<StagingSystem> sdStagingSystems = new ArrayList<>();
             // For each Staging System, abstract all relevant information
             for (String stagingSystem : stagingSystemsList) {
-                System.out.println("Processing Staging System: " + stagingSystem);
+                log("Processing Staging System: " + stagingSystem);
                 StagingSystem ss = new StagingSystem(i, stagingSystem);
                 sdStagingSystems.add(ss);
             }
@@ -82,15 +82,15 @@ public class DeployDocs {
             }
         } catch (APIException e) {
             ExceptionHandler eh = new ExceptionHandler(e);
-            System.out.println(eh.getMessage());
-            System.out.println(eh.getCommand());
+            log(eh.getMessage());
+            log(eh.getCommand());
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + eh.getMessage(),
                     "Staging and Deploy Configuration Report - Error",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } catch (IOException ioe) {
-            System.out.println("Caught I/O Exception!");
+            log("Caught I/O Exception!");
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + ioe.getMessage(),
                     "Staging and Deploy Configuration Report - Error",

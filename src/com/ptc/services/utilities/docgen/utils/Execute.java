@@ -1,6 +1,7 @@
 package com.ptc.services.utilities.docgen.utils;
 
 import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class Execute {
         int exitValue = 128;
 
         try {
-            //System.out.println("Executing Command: " + cmd);
+            //log("Executing Command: " + cmd);
             Process process = Runtime.getRuntime().exec(cmd);
             StreamReadThread errorReadingThread = new StreamReadThread(new InputStreamReader(process.getErrorStream()));
             StreamReadThread inputReadingThread = new StreamReadThread(new InputStreamReader(process.getInputStream()));
@@ -33,9 +34,9 @@ public class Execute {
                 // Wait for the process to complete
                 process.waitFor();
                 exitValue = process.exitValue();
-                //System.out.println("Command Executed With Exit Value: " + exitValue);
+                //log("Command Executed With Exit Value: " + exitValue);
             } catch (InterruptedException ex) {
-                System.out.println("ReadThread: " + ex.getMessage());
+                log("ReadThread: " + ex.getMessage());
             }
 
             inputReadingThread.interrupt();
@@ -51,7 +52,7 @@ public class Execute {
                 szResult = inputReadingThread.getResult();
             }
         } catch (IOException ioEx) {
-            System.out.println("ReadThread: " + ioEx.getMessage());
+            log("ReadThread: " + ioEx.getMessage());
         }
 
         return exitValue;
@@ -83,7 +84,7 @@ public class Execute {
                     szResult += line + IntegrityDocs.nl;
                 }
             } catch (Exception ex) {
-                System.out.println("ReadThread: " + ex.getMessage());
+                log("ReadThread: " + ex.getMessage());
             }
         }
 

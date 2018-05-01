@@ -4,6 +4,8 @@
  */
 package com.ptc.services.utilities.docgen.utils;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +79,7 @@ public class OSCommandHandler {
             isc.join();
             ise.join();
             if (exitCode != 0) {
-                System.out.println("OS Process terminated with " + exitCode);
+                log("OS Process terminated with " + exitCode);
             }
             return exitCode;
         } catch (IOException ex) {
@@ -110,7 +112,7 @@ public class OSCommandHandler {
                 String line = null;
                 while ((line = br.readLine()) != null) {
                     if (!line.isEmpty()) {
-                        // System.out.println(type + "> " + line);
+                        // log(type + "> " + line);
                         if (outputFilter != null) {
                             for (int i = 0; i < outputFilter.length; i++) {
                                 if (line.contains(outputFilter[i])) {

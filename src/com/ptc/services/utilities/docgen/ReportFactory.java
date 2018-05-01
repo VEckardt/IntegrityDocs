@@ -7,13 +7,14 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 import static com.ptc.services.utilities.docgen.QueryFactory.summarizeItemList;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class ReportFactory {
 
     public static List<Report> parseReports(WorkItemIterator wii, boolean doXML) throws APIException {
         List<Report> objects = new ArrayList<>();
 
-        System.out.println("Parsing Reports ... ");
+        log("Parsing Reports ... ");
 
         if (null != wii && wii.hasNext()) {
             while (wii.hasNext()) {
@@ -21,7 +22,7 @@ public class ReportFactory {
                 // Only process admin queries
                 Report q = new Report();
                 q.setName(Integrity.getStringFieldValue(wi.getField("name")));
-                System.out.println("Processing Report: " + q.getName());
+                log("Processing Report: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 // q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
                 // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));

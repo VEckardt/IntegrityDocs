@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
@@ -24,31 +24,19 @@ public class DynamicGroup extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "DYNGROUP_";
-    private String id;
     private Date lastModified;
     private String createdBy;
 
     public DynamicGroup() {
-        modelType = IMModelTypeName.DYNAMIC_GROUP;
-        id = "";
         name = "";
         createdBy = "";
         lastModified = new Date();
         description = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        directory = "DynamicGroups";
-        objectType = "DynamicGroup";
-    }
-
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.DynamicGroup;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -82,10 +70,7 @@ public class DynamicGroup extends IntegrityAdminObject {
 //        this.sortField = sortField;
 //    }
     // All getter/access functions...
-    public String getModelType() {
-        return modelType;
-    }
-
+    @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
     }
@@ -142,10 +127,6 @@ public class DynamicGroup extends IntegrityAdminObject {
         return command;
     }
 
-    public String getID() {
-        return id;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -154,6 +135,7 @@ public class DynamicGroup extends IntegrityAdminObject {
         return Integrity.getDateString(sdf, lastModified);
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -161,10 +143,12 @@ public class DynamicGroup extends IntegrityAdminObject {
 //    public String getFields() {
 //        return fields;
 //    }
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
@@ -184,10 +168,6 @@ public class DynamicGroup extends IntegrityAdminObject {
 //    public String getSortField() {
 //        return sortField;
 //    }
-    public String getDirectory() {
-        return directory;
-    }
-
     @Override
     public String getDetails() {
         StringObj sb = new StringObj();
@@ -199,10 +179,5 @@ public class DynamicGroup extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

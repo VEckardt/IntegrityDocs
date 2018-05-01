@@ -8,11 +8,11 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
-import com.mks.api.response.WorkItem;
-import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
+import static com.ptc.services.utilities.docgen.Copyright.iDOCS_REV;
+import com.ptc.services.utilities.docgen.utils.Logger;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.FileOutputStream;
-import static java.lang.System.out;
 import java.util.LinkedHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -21,8 +21,6 @@ import org.xml.sax.SAXException;
 
 public class IntegrityDocs {
 
-    public static final String iDOCS_REV = "$Revision: 11.0.4 $";
-    public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
     private static final String os = System.getProperty("os.name");
     public static final String nl = System.getProperty("line.separator");
     public static final String fs = System.getProperty("file.separator");
@@ -33,25 +31,65 @@ public class IntegrityDocs {
     public static final File XML_CONTENT_DIR = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs-XML");
     public static final File XML_VIEWSETS_DIR = new File(XML_CONTENT_DIR.getAbsolutePath() + fs + "viewsets");
 
-    // Activate specific lines for individual testing only
-    private boolean doTypes = true;
-    private boolean doQueries = true;
-    private boolean doTriggers = true;
-    private boolean doGroups = true;
-    private boolean doStates = true;
-    private boolean doDynGroups = true;
-    private boolean doCharts = true;
-    private boolean doReports = true;
-    private boolean doViewsets = true;
-    private boolean doFields = true;
-    private boolean doTestVerdicts = true;
-    private boolean doTestResultFields = true;
-    private boolean doDashboards = true;
-    private boolean doCPTypes = true;
-    private boolean doIMProjects = true;
-    private boolean doSIProjects = true;
-    private boolean doGatewayConfigs = true;
-    private boolean doGatewayMappings = true;
+    public enum Types {
+
+        Type(0, 0, true, null, ""),
+        Field(1, 0, true, null, ""),
+        Trigger(2, 0, true, null, ""),
+        IMProject(3, 1, true, "MainW&DProject", ""),
+        SIProject(4, 1, true, "MainCMProject", ""),
+        Viewset(5, 1, true, "Viewset", ""),
+        Group(6, 1, true, null, "isActive"),
+        DynamicGroup(7, 1, true, null, ""),
+        State(8, 1, true, null, "Image"),
+        CPType(9, 2, true, "ChangePackageType", ""),
+        Verdict(10, 2, true, "TestVerdict", "Type,isActive"),
+        ResultField(11, 2, true, "TestResultField", "Type"),
+        Chart(12, 2, true, null, ""),
+        Query(13, 2, true, null, "Image"),
+        Dashboard(14, 2, true, null, ""),
+        Report(15, 2, true, null, ""),
+        GatewayMapping(18, 2, true, "GatewayMapping", ""),
+        GatewayImportConfig(16, 2, true, "GatewayImportConfig", "Type"),
+        GatewayExportConfig(17, 2, true, "GatewayExportConfig", "Type");
+
+        int id;
+        int grp;
+        boolean export;
+        String modelType;
+        String addColumns;
+
+        Types(int p, int grp, boolean export, String modelType, String addColumns) {
+            this.id = p;
+            this.grp = grp;
+            this.export = export;
+            this.modelType = modelType;
+            this.addColumns = addColumns;
+        }
+
+        int getID() {
+            return id;
+        }
+
+        int getGrp() {
+            return grp;
+        }
+
+        String getModelType() {
+            return modelType == null ? name() : modelType;
+        }
+
+        String getDirectory() {
+            return (modelType == null ? name() : modelType).replace("ery", "erie") + "s";
+        }
+
+        String getAddColumns() {
+            return addColumns;
+        }
+    }
+    public static ArrayList<List<IntegrityObject>> iObjectList = new ArrayList<>();
+    public static boolean[] doExport = new boolean[20];
+
     // convert to XML 
     private boolean doXML = false;
 
@@ -59,69 +97,55 @@ public class IntegrityDocs {
      * @param args
      */
     public static void main(String[] args) {
+        Logger.init();
+
         // Only supporting Integrity 10 and newer releases
-        out.println("IntegrityDocs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
-        out.println("API Version: " + APISession.VERSION);
-        out.println("Usage:");
-        out.println("--xml: Generates an XML represenation of the Integrity data (not well maintained)");
-        out.println("--noIMProjects:       disable IMProjects scan and output");
-        out.println("--noSIProjects:       disable SIProjects scan and output");
-        out.println("--noViewsets:         disable Viewsets scan and output");
-        out.println("--noQueries:          disable Queries scan and output");
-        out.println("--noTriggers:         disable Triggers scan and output");
-        out.println("--noCharts:           disable Charts scan and output");
-        out.println("--noGroups:           disable Groups scan and output");
-        out.println("--noDynGroups:        disable DynGroups scan and output");
-        out.println("--noStates:           disable States scan and output");
-        out.println("--noReports:          disable Reports scan and output");
-        out.println("--noFields:           disable Fields scan and output");
-        out.println("--noTestVerdicts:     disable TestVerdict scan and output");
-        out.println("--noTestResultFields: disable TestResultFields scan and output");
-        out.println("--noCPTypes:          disable CPTypes scan and output");
-        out.println("--noGatewayConfigs:   disable GatewayConfigs scan and output");
-        out.println("--noGatewayMappings:  disable GatewayMappings scan and output");
+        log("IntegrityDocs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        log("API Version: " + APISession.VERSION);
+        log("Writing to logfile " + Logger.getLogFile());
+        log("Usage:");
+        log("  --xml: Generates an XML represenation of the Integrity data (not well maintained)");
+
+        for (Types value : Types.values()) {
+            String object = value.toString().replace("ery", "erie") + "s";
+            log("  --no" + object + ":       disable " + object + " scan and output");
+        }
 
         try {
             IntegrityDocs iDocs = new IntegrityDocs();
             iDocs.generateDocs(args);
+            log("Logfile " + Logger.getLogFile() + " written.");
             System.exit(0);
         } catch (APIException | ParserConfigurationException | IOException | SAXException | CmdException e) {
-            e.printStackTrace();
+            log(e.getMessage(), 1, e);
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + e.getMessage(),
                     "Integrity Docs - Generation Error",
                     JOptionPane.ERROR_MESSAGE);
+            log("Logfile " + Logger.getLogFile() + " written.");
             System.exit(128);
         }
     }
 
+    public static List<IntegrityObject> getList(Types type) {
+        return iObjectList.get(type.getID());
+    }
+
     public void generateDocs(String[] args) throws APIException, ParserConfigurationException, IOException, SAXException, CmdException {
 
+        // Basis objects
         List<IntegrityType> iTypes = new ArrayList<>();
         List<IntegrityField> iFields = new ArrayList<>();
         List<Trigger> iTriggers = new ArrayList<>();
 
-        // List<List<IntegrityObject>> iObjects = new ArrayList();
-        List<IntegrityObject> iCharts = new ArrayList<>();
-        List<IntegrityObject> iViewsets = new ArrayList<>();
-        List<IntegrityObject> iGroups = new ArrayList<>();
-        List<IntegrityObject> iDynGroups = new ArrayList<>();
-        List<IntegrityObject> iStates = new ArrayList<>();
-        List<IntegrityObject> iTestVerdicts = new ArrayList<>();
-        List<IntegrityObject> iTestResultFields = new ArrayList<>();
-        List<IntegrityObject> iQueries = new ArrayList<>();
-        List<IntegrityObject> iDashboards = new ArrayList<>();
-        List<IntegrityObject> iReports = new ArrayList<>();
-        List<IntegrityObject> iCPTypes = new ArrayList<>();
-        List<IntegrityObject> iIMProjects = new ArrayList<>();
-        List<IntegrityObject> iSIProjects = new ArrayList<>();
-        List<IntegrityObject> iGatewayImportConfigs = new ArrayList<>();
-        List<IntegrityObject> iGatewayExportConfigs = new ArrayList<>();
-        List<IntegrityObject> iGatewayMappings = new ArrayList<>();
+        // init list of other integrity objects
+        for (Types value : Types.values()) {
+            iObjectList.add(new ArrayList());
+            doExport[value.getID()] = value.export;
+        }
 
-//        try {
         // Construct the Integrity Application
-        Integrity i = new Integrity();
+        Integrity i = new Integrity(iTypes, iFields);
 
         // Get a string list of types
         List<String> typeList = new ArrayList<>();
@@ -129,42 +153,12 @@ public class IntegrityDocs {
             for (String arg : args) {
                 if (arg.compareToIgnoreCase("--xml") == 0) {
                     doXML = true;
-                } else if (arg.compareToIgnoreCase("--noTypes") == 0) {
-                    doTypes = false;
-                } else if (arg.compareToIgnoreCase("--noQueries") == 0) {
-                    doQueries = false;
-                } else if (arg.compareToIgnoreCase("--noTriggers") == 0) {
-                    doTriggers = false;
-                } else if (arg.compareToIgnoreCase("--noCharts") == 0) {
-                    doCharts = false;
-                } else if (arg.compareToIgnoreCase("--noViewsets") == 0) {
-                    doViewsets = false;
-                } else if (arg.compareToIgnoreCase("--noGroups") == 0) {
-                    doGroups = false;
-                } else if (arg.compareToIgnoreCase("--noDynGroups") == 0) {
-                    doDynGroups = false;
-                } else if (arg.compareToIgnoreCase("--noStates") == 0) {
-                    doStates = false;
-                } else if (arg.compareToIgnoreCase("--noReports") == 0) {
-                    doReports = false;
-                } else if (arg.compareToIgnoreCase("--noFields") == 0) {
-                    doFields = false;
-                } else if (arg.compareToIgnoreCase("--noTestVerdicts") == 0) {
-                    doTestVerdicts = false;
-                } else if (arg.compareToIgnoreCase("--noTestResultFields") == 0) {
-                    doTestResultFields = false;
-                } else if (arg.compareToIgnoreCase("--noDashboards") == 0) {
-                    doDashboards = false;
-                } else if (arg.compareToIgnoreCase("--noCPTypes") == 0) {
-                    doCPTypes = false;
-                } else if (arg.compareToIgnoreCase("--noIMProjects") == 0) {
-                    doIMProjects = false;
-                } else if (arg.compareToIgnoreCase("--noSIProjects") == 0) {
-                    doSIProjects = false;
-                } else if (arg.compareToIgnoreCase("--noGatewayConfigs") == 0) {
-                    doGatewayConfigs = false;
-                } else if (arg.compareToIgnoreCase("--noGatewayMappings") == 0) {
-                    doGatewayMappings = false;
+                } else if (arg.startsWith("--no")) {
+                    for (Types value : Types.values()) {
+                        if (arg.compareToIgnoreCase("--no" + (value.toString().replace("ery", "erie")) + "s") == 0) {
+                            doExport[value.getID()] = false;
+                        }
+                    }
                 } else {
                     typeList.add(arg);
                 }
@@ -175,38 +169,46 @@ public class IntegrityDocs {
         LinkedHashMap<String, IntegrityField> sysFieldsHash = i.getFields();
 
         // In case no types are specified, then run the report for all types
-        if (typeList.isEmpty() && doTypes) {
+        if (typeList.isEmpty() && doExport[Types.Type.getID()]) {
             typeList = i.getAdminList("types");
         }
 
         // For each type, abstract all relevant information
-        if (doTypes) {
+        if (Do(Types.Type)) {
             for (String typeName : typeList) {
-                System.out.println("Processing Type: " + typeName);
+                log("Processing Type: " + typeName);
                 iTypes.add(new IntegrityType(i, i.viewType(typeName), doXML));
             }
+        }
+        // Get a list of Fields, if asked for
+        if (Do(Types.Field)) {
+            LinkedHashMap<String, IntegrityField> fields = i.getFields();
+            // For each type, abstract all relevant information
+            for (String fieldName : fields.keySet()) {
+                log("Processing Field: " + fieldName);
+                iFields.add(fields.get(fieldName));
+            }
+        }
+        // Get a list of triggers, if asked for
+        if (Do(Types.Trigger)) {
+            iTriggers = TriggerFactory.parseTriggers(sysFieldsHash, i.viewTriggers(i.getAdminList("triggers")), doXML);
         }
 
         // Get a list of queries, if asked for
         // iQueries = QueryFactory.parseQueries(i.getQueries(), doXML);
-        retrieveObjects(doQueries, i, iQueries, "query", null);
+        i.retrieveObjects(Types.Query);
 
         //iGroups = GroupFactory.parseGroups(i.getGroups(), doXML);
-        retrieveObjects(doGroups, i, iGroups, "group", null);
+        i.retrieveObjects(Types.Group);
 
         // Get a list of queries, if asked for
         // iDynGroups = DynamicGroupFactory.parseDynGroups(i.getDynGroups(), doXML);
-        retrieveObjects(doDynGroups, i, iDynGroups, "dynamicgroup", null);
-
-        // Get a list of triggers, if asked for
-        if (doTriggers) {
-            iTriggers = TriggerFactory.parseTriggers(sysFieldsHash, i.viewTriggers(i.getAdminList("triggers")), doXML);
-        }
+        i.retrieveObjects(Types.DynamicGroup);
 
         // Get a list of charts, if asked for
-        if (doCharts) {
+        if (Do(Types.Chart)) {
 //                iCharts = ChartFactory.parseCharts(i.getCharts());
-            iCharts = i.getCharts2();
+            iObjectList.set(Types.Chart.getID(), i.getCharts2());
 //                WorkItemIterator objects = i.getObjects("chart");
 //                while (objects.hasNext()) {
 //                    WorkItem object = objects.next();
@@ -215,55 +217,41 @@ public class IntegrityDocs {
         }
 
         // iStates = IntegrityStateFactory.parseStates(i.getStates(), doXML);
-        retrieveObjects(doStates, i, iStates, "state", null);
+        i.retrieveObjects(Types.State);
         // Get a list of viewsets, if asked for
-        retrieveObjects(doViewsets, i, iViewsets, "viewset", "Viewset");
+        i.retrieveObjects(Types.Viewset);
         // iReports = ReportFactory.parseReports(i.getReports(), doXML);
-        retrieveObjects(doReports, i, iReports, "report", null);
+        i.retrieveObjects(Types.Report);
 
-        retrieveObjects(doCPTypes, i, iCPTypes, "cptype", "ChangePackageType");
+        i.retrieveObjects(Types.CPType);
 
         // iTestVerdicts = TestVerdictFactory.parseTestVerdicts(i.getTestVerdicts(), doXML);
-        retrieveObjects(doTestVerdicts, i, iTestVerdicts, "verdict", null);
+        i.retrieveObjects(Types.Verdict);
         // doTestResultFields
-        retrieveObjects(doTestResultFields, i, iTestResultFields, "resultfield", "TestResultField");
+        i.retrieveObjects(Types.ResultField);
 
-        retrieveObjects(doIMProjects, i, iIMProjects, "improject", "MainW&DProject");
+        i.retrieveObjects(Types.IMProject);
 
-        retrieveObjects(doSIProjects, i, iSIProjects, "project", "MainCMProject");
+        i.retrieveObjects(Types.SIProject);
 
         // dashboards
-        retrieveObjects(doDashboards, i, iDashboards, "dashboard", null);
-        retrieveObjects(doGatewayConfigs, i, iGatewayImportConfigs, "gatewayconfig-import", "GatewayImportConfig");
-        retrieveObjects(doGatewayConfigs, i, iGatewayExportConfigs, "gatewayconfig-export", "GatewayExportConfig");
-        retrieveObjects(doGatewayMappings, i, iGatewayMappings, "gatewaymapping", "GatewayMapping");
-
-        // Get a list of Fields, if asked for
-        if (doFields) {
-            LinkedHashMap<String, IntegrityField> fields = i.getFields();
-            // For each type, abstract all relevant information
-            for (String fieldName : fields.keySet()) {
-                System.out.println("Processing Field: " + fieldName);
-                iFields.add(fields.get(fieldName));
-            }
-        }
+        i.retrieveObjects(Types.Dashboard);
+        i.retrieveObjects(Types.GatewayImportConfig);
+        i.retrieveObjects(Types.GatewayExportConfig);
+        i.retrieveObjects(Types.GatewayMapping);
 
         // Generate Transaction XML files for the Load Test Harness
         if (doXML) {
-            XMLWriter xWriter = new XMLWriter(iTypes, new List<?>[]{iQueries, iTriggers, iCharts, iViewsets});
-            xWriter.generate(sysFieldsHash);
-            // Open the folder containing the files
-            if (os.startsWith("Windows")) {
-                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + XML_CONTENT_DIR.getAbsolutePath());
-            }
+//            XMLWriter xWriter = new XMLWriter(iTypes, new List<?>[]{iTyQueries, iTriggers, iCharts, iViewsets});
+//            xWriter.generate(sysFieldsHash);
+//            // Open the folder containing the files
+//            if (os.startsWith("Windows")) {
+//                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + XML_CONTENT_DIR.getAbsolutePath());
+//            }
         } else // Publish a report, if --xml is not specified
         {
             // Pass the abstraction to the DocWriter
-            DocWriter doc = new DocWriter(i, iTypes, iTriggers, iQueries,
-                    iViewsets, iCharts, iGroups, iDynGroups,
-                    iStates, iReports, iFields, iTestVerdicts,
-                    iTestResultFields, iDashboards, iCPTypes, iIMProjects, iSIProjects,
-                    iGatewayImportConfigs, iGatewayExportConfigs, iGatewayMappings);
+            DocWriter doc = new DocWriter(i, iTypes, iFields, iTriggers, iObjectList);
             // Generate the report resources
             generateResources();
 
@@ -277,42 +265,10 @@ public class IntegrityDocs {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + REPORT_FILE.getAbsolutePath());
             }
         }
-//        } catch (APIException e) {
-//            ExceptionHandler eh = new ExceptionHandler(e);
-//            System.out.println(eh.getMessage());
-//            System.out.println(eh.getCommand());
-//            JOptionPane.showMessageDialog(null,
-//                    "Failed to generate report!" + nl + eh.getMessage(),
-//                    "Integrity Workflow Report - Error",
-//                    JOptionPane.ERROR_MESSAGE);
-//            e.printStackTrace();
-//        } catch (CmdException | ParserConfigurationException | SAXException | IOException ex) {
-//            System.out.println("Caught " + ex.getClass().getName() + "!");
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(null,
-//                    "Failed to generate report!" + nl + ex.getMessage(),
-//                    "Integrity Workflow Report - Error",
-//                    JOptionPane.ERROR_MESSAGE);
-//        } finally {
-//            if (null != i) {
-//                i.exit();
-//            }
-//        }
     }
 
-    private void retrieveObjects(Boolean doIt, Integrity i, List<IntegrityObject> iO, String name, String modelType) throws APIException {
-        if (doIt) {
-            // iTestResultFields = TestResultFieldFactory.parseTestResultFields(i.getTestResultFields(), doXML);
-            WorkItemIterator objects = i.getObjects(name);
-            while (objects.hasNext()) {
-                WorkItem object = objects.next();
-                if (modelType != null) {
-                    iO.add(new IntegrityObject(object, modelType));
-                } else {
-                    iO.add(new IntegrityObject(object));
-                }
-            }
-        }
+    private boolean Do(Types type) {
+        return doExport[type.getID()];
     }
 
     public void generateResources() throws IOException {
@@ -345,4 +301,5 @@ public class IntegrityDocs {
             }
         }
     }
+
 }

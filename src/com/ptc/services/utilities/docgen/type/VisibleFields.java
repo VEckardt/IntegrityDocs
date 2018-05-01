@@ -14,6 +14,7 @@ import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.Integrity;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityField;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class VisibleFields {
 
@@ -43,8 +44,8 @@ public class VisibleFields {
             strVisibleFields = sb.toString();
         } catch (APIException aex) {
             ExceptionHandler eh = new ExceptionHandler(aex);
-            System.out.println(eh.getMessage());
-            System.out.println(eh.getCommand());
+            log(eh.getMessage());
+            log(eh.getCommand());
             aex.printStackTrace();
         }
     }
@@ -97,7 +98,7 @@ public class VisibleFields {
             IntegrityField field = iFields.nextElement();
             // Write out the new table row and write all information about the field
             report.append("  <tr>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getID() + "</td>" + IntegrityDocs.nl);
+            report.append("    <td>" + field.getId() + "</td>" + IntegrityDocs.nl);
             report.append("    <td>" + field.getType() + "</td>" + IntegrityDocs.nl);
             report.append("    <td>" + field.getName() + "</td>" + IntegrityDocs.nl);
             report.append("    <td>" + field.getDisplayName() + "</td>" + IntegrityDocs.nl);

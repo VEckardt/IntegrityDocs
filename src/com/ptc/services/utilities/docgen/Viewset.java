@@ -24,10 +24,10 @@ import com.mks.api.Command;
 import com.ptc.services.utilities.IterableNodeList;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.XMLUtils;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.util.LinkedHashMap;
 
 /**
@@ -41,14 +41,13 @@ public class Viewset extends IntegrityAdminObject {
 
     // Viewset's members
     public static final String XML_PREFIX = "VIEWSET_";
-    private String id;
     private String publishedState;
     private String creator;
     private Date modifiedDate;
     private boolean mandatory;
     private boolean customizable;
     private Document vsDoc;
-    public static final List<String> adminRefs = new ArrayList<String>();
+    public static final List<String> adminRefs = new ArrayList<>();
 
     static {
         adminRefs.add("CIQuery:");
@@ -60,7 +59,6 @@ public class Viewset extends IntegrityAdminObject {
 
     public Viewset(String id) throws ParserConfigurationException {
         this.id = id;
-        modelType = "ViewSet";
         publishedState = "Published (Server)";
         creator = "";
         modifiedDate = new Date();
@@ -70,19 +68,10 @@ public class Viewset extends IntegrityAdminObject {
         name = "";
         vsDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        directory = "Viewsets";
-        objectType = "Viewset";
-    }
-
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.Viewset;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setPublishedState(String publishedState) {
         this.publishedState = publishedState;
     }
@@ -377,6 +366,7 @@ public class Viewset extends IntegrityAdminObject {
         }
     }
 
+    @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
     }
@@ -386,7 +376,7 @@ public class Viewset extends IntegrityAdminObject {
         String fieldName = fieldID;
         for (String field : fieldsHash.keySet()) {
             IntegrityField iField = fieldsHash.get(field);
-            if (iField.getID().equals(fieldID)) {
+            if (iField.getId().equals(fieldID)) {
                 fieldName = iField.getName();
                 break;
             }
@@ -460,10 +450,6 @@ public class Viewset extends IntegrityAdminObject {
 
     }
 
-    public String getID() {
-        return id;
-    }
-
     public String getPublishedState() {
         return publishedState;
     }
@@ -504,16 +490,6 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     @Override
-    public String getModelType() {
-        return modelType;
-    }
-
-    @Override
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
     public String getDetails() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
@@ -524,10 +500,5 @@ public class Viewset extends IntegrityAdminObject {
         sb.append("</table>");
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

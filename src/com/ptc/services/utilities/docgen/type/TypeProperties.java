@@ -101,7 +101,9 @@ public class TypeProperties {
         report.append("    <th>Description</th>" + IntegrityDocs.nl);
         report.append("  </tr>" + IntegrityDocs.nl);
         // Ensure we're dealing with the right data type
-        if (null != typeProperties && null != typeProperties.getDataType() && typeProperties.getDataType().equals(Field.ITEM_LIST_TYPE)) {
+        if (null != typeProperties && null != typeProperties.getDataType()
+                && typeProperties.getDataType().equals(Field.ITEM_LIST_TYPE)
+                && typeProperties.getList().size() > 0) {
             List<Item> propertiesList = typeProperties.getList();
             // Loop thru all the type properties
             for (Iterator<Item> lit = propertiesList.iterator(); lit.hasNext();) {
@@ -113,13 +115,15 @@ public class TypeProperties {
                 String propertyValue = (null == propValueFld || null == propValueFld.getValueAsString() ? "" : propValueFld.getValueAsString());
                 String propertyDesc = (null == propDescFld || null == propDescFld.getValueAsString() ? "" : propDescFld.getValueAsString());
                 // Write out the new table row
-                report.append("  <tr>" + IntegrityDocs.nl);
+                report.append("  <tr>");
                 report.append("    <td>" + format(propertyName.getId()) + "</td>" + IntegrityDocs.nl);
                 report.append("    <td>" + format(propertyValue) + "</td>" + IntegrityDocs.nl);
                 report.append("    <td>" + format(propertyDesc) + "</td>" + IntegrityDocs.nl);
                 // Close out the table row
                 report.append("  </tr>" + IntegrityDocs.nl);
             }
+        } else {
+            report.append("<tr><td>* none *</td></tr>");
         }
         // Close the table tag
         report.append("</table>" + IntegrityDocs.nl);

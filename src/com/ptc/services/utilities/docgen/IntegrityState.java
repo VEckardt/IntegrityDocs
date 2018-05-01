@@ -6,13 +6,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * Object represents an Integrity State The following attributes are supported:
@@ -24,8 +23,6 @@ public class IntegrityState extends IntegrityAdminObject {
     private String capabilities;
     private String globalDescription;
     private String displayName;
-    private String id;
-    private String position;
     private String iTypeName;
     private String xmlTypeName;
 
@@ -45,15 +42,13 @@ public class IntegrityState extends IntegrityAdminObject {
 
     public IntegrityState(String typeName, WorkItem wi) {
         // Initialize the variables
-        modelType = IMModelTypeName.STATE;
+        // modelType = IMModelTypeName.STATE;
         capabilities = "";
         description = "";
         globalDescription = "";
-        id = "";
         name = "";
         position = "";
         iTypeName = typeName;
-        directory = "States";
         displayName = "";
 
         // Now set them to the correct values
@@ -66,19 +61,10 @@ public class IntegrityState extends IntegrityAdminObject {
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         xmlTypeName = XMLWriter.padXMLParamName(IntegrityType.XML_PREFIX + XMLWriter.getXMLParamName(iTypeName));
         position = wi.getField("position").getValueAsString();
-        objectType = "State";
-    }
-
-    @Override
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.State;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
         this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
@@ -145,18 +131,17 @@ public class IntegrityState extends IntegrityAdminObject {
         return globalDescription;
     }
 
-    public String getID() {
-        return id;
-    }
-
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
 
+    @Override
     public String getPosition() {
         return position;
     }
@@ -192,6 +177,7 @@ public class IntegrityState extends IntegrityAdminObject {
         return command;
     }
 
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this field to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -214,18 +200,5 @@ public class IntegrityState extends IntegrityAdminObject {
         command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
 
         return command;
-    }
-
-    public String getModelType() {
-        return modelType;
-    }
-
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

@@ -12,6 +12,7 @@ import java.util.zip.ZipEntry;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
 
 public class TemplateExtractor {
@@ -39,8 +40,8 @@ public class TemplateExtractor {
      */
     public static void main(String[] args) {
         // Only supporting Integrity 10 and newer releases
-        System.out.println("API Version: " + APISession.VERSION);
-        System.out.println("Template Extractor Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        log("API Version: " + APISession.VERSION);
+        log("Template Extractor Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
 
         try {
             TemplateExtractor iDocs = new TemplateExtractor();
@@ -93,24 +94,9 @@ public class TemplateExtractor {
     public void generateDocs(String[] args) {
         Integrity i = null;
         List<IntegrityType> iTypes = new ArrayList<>();
-        List<IntegrityObject> iQueries = new ArrayList<>();
-        List<Trigger> iTriggers = new ArrayList<>();
-        List<IntegrityObject> iCharts = new ArrayList<>();
-        List<IntegrityObject> iGroups = new ArrayList<>();
-        List<IntegrityObject> iDynGroups = new ArrayList<>();
-        List<IntegrityObject> iViewsets = new ArrayList<>();
-        List<IntegrityObject> iStates = new ArrayList<>();
-        List<IntegrityObject> iReports = new ArrayList<>();
         List<IntegrityField> iFields = new ArrayList<>();
-        List<IntegrityObject> iTestVerdicts = new ArrayList<>();
-        List<IntegrityObject> iTestResultFields = new ArrayList<>();
-        List<IntegrityObject> iDashboards = new ArrayList<>();
-        List<IntegrityObject> iCPTypes = new ArrayList<>();
-        List<IntegrityObject> iIMProjects = new ArrayList<>();
-        List<IntegrityObject> iSIProjects = new ArrayList<>();
-        List<IntegrityObject> iGatewayImportConfigs = new ArrayList<>();
-        List<IntegrityObject> iGatewayExportConfigs = new ArrayList<>();
-        List<IntegrityObject> iGatewayMappings = new ArrayList<>();
+        List<Trigger> iTriggers = new ArrayList<>();
+        ArrayList<List<IntegrityObject>> iObjectList = new ArrayList<>();
 
         try {
             // Construct the Integrity Application
@@ -144,7 +130,7 @@ public class TemplateExtractor {
 
             // For each type, abstract all relevant information
             for (String typeName : typeList) {
-                System.out.println("Processing Type: " + typeName);
+                log("Processing Type: " + typeName);
                 IntegrityType t = new IntegrityType(i, i.viewType(typeName), doXML);
                 iTypes.add(t);
             }
@@ -171,20 +157,17 @@ public class TemplateExtractor {
 
             // Generate Transaction XML files for the Load Test Harness
             if (doXML) {
-                XMLWriter xWriter = new XMLWriter(iTypes, new List<?>[]{iQueries, iTriggers, iCharts, iViewsets});
-                xWriter.generate(sysFieldsHash);
-                // Open the folder containing the files
-                if (os.startsWith("Windows")) {
-                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + XML_CONTENT_DIR.getAbsolutePath());
-                }
+//                XMLWriter xWriter = new XMLWriter(iTypes, new List<?>[]{iQueries, iTriggers, iCharts, iViewsets});
+//                xWriter.generate(sysFieldsHash);
+//                // Open the folder containing the files
+//                if (os.startsWith("Windows")) {
+//                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + XML_CONTENT_DIR.getAbsolutePath());
+//                }
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
                 DocWriter doc = new DocWriter(i,
-                        iTypes, iTriggers, iQueries, iViewsets, iCharts, iGroups, iDynGroups,
-                        iStates, iReports, iFields, iTestVerdicts, iTestResultFields,
-                        iDashboards, iCPTypes, iIMProjects, iSIProjects,
-                        iGatewayImportConfigs, iGatewayExportConfigs, iGatewayMappings
+                        iTypes, iFields, iTriggers, iObjectList
                 );
                 // Generate the report resources
                 generateResources();
@@ -200,8 +183,8 @@ public class TemplateExtractor {
             }
         } catch (APIException e) {
             ExceptionHandler eh = new ExceptionHandler(e);
-            System.out.println(eh.getMessage());
-            System.out.println(eh.getCommand());
+            log(eh.getMessage());
+            log(eh.getCommand());
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + eh.getMessage(),
                     "Integrity Workflow Report - Error",
@@ -209,7 +192,7 @@ public class TemplateExtractor {
             e.printStackTrace();
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("Caught " + ex.getClass().getName() + "!");
+            log("Caught " + ex.getClass().getName() + "!");
             JOptionPane.showMessageDialog(null,
                     "Failed to generate report!" + nl + ex.getMessage(),
                     "Integrity Workflow Report - Error",

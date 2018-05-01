@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.util.List;
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class DocWriter extends DocWriterTools {
 
@@ -17,46 +19,16 @@ public class DocWriter extends DocWriterTools {
 
     public DocWriter(Integrity i,
             List<IntegrityType> typeList,
-            List<Trigger> triggersList,
-            List<IntegrityObject> queriesList,
-            List<IntegrityObject> viewSetsList,
-            List<IntegrityObject> chartsList,
-            List<IntegrityObject> groupsList,
-            List<IntegrityObject> dynGroupsList,
-            List<IntegrityObject> statesList,
-            List<IntegrityObject> reportsList,
             List<IntegrityField> fieldList,
-            List<IntegrityObject> testVerdictList,
-            List<IntegrityObject> testResultFieldList,
-            List<IntegrityObject> iDashboardsFieldList,
-            List<IntegrityObject> iCPTypesList,
-            List<IntegrityObject> iIMProjectsList,
-            List<IntegrityObject> iSIProjectsList,
-            List<IntegrityObject> gatewayImportConfigsList,
-            List<IntegrityObject> gatewayExportConfigsList,
-            List<IntegrityObject> gatewayMappingsList
+            List<Trigger> triggerList,
+            ArrayList<List<IntegrityObject>> iObjectList
     ) {
         super(i);
 
-        iTypes = typeList;
-        iTriggers = triggersList;
-        iQueries = queriesList;
-        iViewsets = viewSetsList;
-        iCharts = chartsList;
-        iGroups = groupsList;
-        iDynGroups = dynGroupsList;
-        iStates = statesList;
-        iReports = reportsList;
-        iFields = fieldList;
-        iTestVerdicts = testVerdictList;
-        iTestResultFields = testResultFieldList;
-        iDashboards = iDashboardsFieldList;
-        iCPTypes = iCPTypesList;
-        iIMProjects = iIMProjectsList;
-        iSIProjects = iSIProjectsList;
-        iGatewayImportConfigs = gatewayImportConfigsList;
-        iGatewayExportConfigs = gatewayExportConfigsList;
-        iGatewayMappings = gatewayMappingsList;
+        DocWriter.iTypes = typeList;
+        DocWriter.iFields = fieldList;
+        DocWriter.iTriggers = triggerList;
+        DocWriter.iObjectList = iObjectList;
     }
 
     public void publish() throws IOException {
@@ -93,22 +65,12 @@ public class DocWriter extends DocWriterTools {
 
         writeSummary();
 
-        // Projects
-        naviHtm.publishObject(iIMProjects);
-        naviHtm.publishObject(iSIProjects);
-
-        // Part 1: Publish Viewset, if appropriate...
-        naviHtm.publishObject(iViewsets);
-
-        // Part 2: Publish Group, if appropriate...
-        naviHtm.publishObject(iGroups);
-
-        // Part 3: Publish Dynamic Groups, if appropriate...
-        naviHtm.publishObject(iDynGroups);
-
-        // Part 4: Publish Dynamic Groups, if appropriate...
-        // Part 5: Publish States, if appropriate...
-        naviHtm.publishObject(iStates);
+        // Publish the first part of the Types
+        for (Types type : Types.values()) {
+            if (type.getGrp() == 1) {
+                naviHtm.publishObject(type);
+            }
+        }
 
         // Part 7: Publish Types , if appropriate...
         if (null != iTypes && iTypes.size() > 0) {
@@ -119,7 +81,7 @@ public class DocWriter extends DocWriterTools {
             naviHtm.addBook(iTypes.get(0));
 
             // overview.htm
-            naviHtm.addOverview(iTypes.get(0));
+            naviHtm.addOverviewSectionAndFile(iTypes.get(0));
             String typeClassGroup = "";
 
             for (IntegrityType object : iTypes) {
@@ -150,7 +112,7 @@ public class DocWriter extends DocWriterTools {
 
             naviHtm.addBook(iFields.get(0));
 
-            naviHtm.addOverview(iFields.get(0));
+            naviHtm.addOverviewSectionAndFile(iFields.get(0));
             String typeClassGroup = "";
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
             for (IntegrityField object : iFields) {
@@ -181,7 +143,7 @@ public class DocWriter extends DocWriterTools {
 
             naviHtm.addBook(iTriggers.get(0));
 
-            naviHtm.addOverview(iTriggers.get(0));
+            naviHtm.addOverviewSectionAndFile(iTriggers.get(0));
             String typeClassGroup = "";
             // whtdata0xml.write(appendNewLine("  <book name=\"Triggers\" >"));
             for (Trigger object : iTriggers) {
@@ -204,31 +166,12 @@ public class DocWriter extends DocWriterTools {
             // Next lets publish the types overview
         }
 
-        // Part 10: Publish CPTypes, if appropriate...
-        naviHtm.publishObject(iCPTypes);
-
-        // Part 11: Publish TestVerdict, if appropriate...
-        naviHtm.publishObject(iTestVerdicts);
-
-        // Part 12: Publish TestResultFields, if appropriate...
-        naviHtm.publishObject(iTestResultFields);
-
-        // Part 13: Publish Chart, if appropriate...
-        naviHtm.publishObject(iCharts);
-
-        // Part 15: Publish Query, if appropriate...
-        naviHtm.publishObject(iQueries);
-
-        // Part 15: Publish Query, if appropriate...
-        naviHtm.publishObject(iReports);
-
-        // Part 15: Publish Query, if appropriate...
-        naviHtm.publishObject(iDashboards);
-
-        // Part 16: Gateway Configs, if appropriate...
-        naviHtm.publishObject(iGatewayImportConfigs);
-        naviHtm.publishObject(iGatewayExportConfigs);
-        naviHtm.publishObject(iGatewayMappings);
+        // Publish the second part of the Types
+        for (Types type : Types.values()) {
+            if (type.getGrp() == 2) {
+                naviHtm.publishObject(type);
+            }
+        }
 
         // whtdata0xml.write(appendNewLine("</book>"));
         // whtdata0xml.write(appendNewLine("</tocdata>"));

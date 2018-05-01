@@ -8,6 +8,7 @@ import java.io.IOException;
 import com.mks.api.response.Field;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityType;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 /**
  * @author dsouza
@@ -39,7 +40,7 @@ public class WorkflowModel extends Frame {
             fos.flush();
             fos.close();
         } catch (IOException ioe) {
-            System.out.println("Caught I/O Exception!");
+            log("Caught I/O Exception!");
             ioe.printStackTrace();
         }
     }

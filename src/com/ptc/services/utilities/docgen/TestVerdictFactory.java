@@ -11,6 +11,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class TestVerdictFactory {
                 TestVerdict q = new TestVerdict();
                 q.setName(Integrity.getStringFieldValue(wi.getField("name")));
                 q.setDisplayName(Integrity.getStringFieldValue(wi.getField("displayName")));
-                System.out.println("Processing TestVerdict: " + q.getName());
+                log("Processing TestVerdict: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
                 // q.setLastModifiedDate(wi.getField("lastModified").getDateTime());

@@ -1,5 +1,7 @@
 package com.ptc.services.utilities;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -39,10 +41,10 @@ public class XMLPrettyPrinter {
             serializer.transform(new DOMSource(doc), new StreamResult(sw));
             xmlFileWriter.write(sw.toString());
         } catch (TransformerException te) {
-            System.out.println("TransformerException: " + te.getMessage());
+            log("TransformerException: " + te.getMessage());
             te.printStackTrace();
         } catch (IOException ioe) {
-            System.out.println("IOException: " + ioe.getMessage());
+            log("IOException: " + ioe.getMessage());
             ioe.printStackTrace();
         } finally {
             try {
@@ -55,7 +57,7 @@ public class XMLPrettyPrinter {
                     xmlFileWriter.close();
                 }
             } catch (IOException ioe) {
-                System.out.println("IOException: " + ioe.getMessage());
+                log("IOException: " + ioe.getMessage());
                 ioe.printStackTrace();
             }
         }

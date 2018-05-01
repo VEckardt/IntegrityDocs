@@ -15,6 +15,7 @@ import java.util.List;
 import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class IntegrityStateFactory {
 
@@ -27,7 +28,7 @@ public class IntegrityStateFactory {
                 IntegrityState q = new IntegrityState(null, wi);
                 q.setName(Integrity.getStringFieldValue(wi.getField("name")));
                 q.setDisplayName(Integrity.getStringFieldValue(wi.getField("displayName")));
-                System.out.println("Processing State: " + q.getName());
+                log("Processing State: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 // q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
                 // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));

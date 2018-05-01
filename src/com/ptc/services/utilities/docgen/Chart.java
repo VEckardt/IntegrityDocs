@@ -4,7 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 
@@ -19,7 +19,6 @@ public class Chart extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "CHART_";
-    private String id;
     private String chartType;
     private String createdBy;
     private String graphStyle;
@@ -28,8 +27,7 @@ public class Chart extends IntegrityAdminObject {
     private String shareWith;
 
     public Chart() {
-        modelType = IMModelTypeName.CHART;
-        id = "";
+        // modelType = IMModelTypeName..CHART;
         chartType = "";
         createdBy = "";
         description = "";
@@ -39,19 +37,10 @@ public class Chart extends IntegrityAdminObject {
         query = "";
         shareWith = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        directory = "Charts";
-        objectType = "Chart";
-    }
-
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.Chart;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -86,14 +75,7 @@ public class Chart extends IntegrityAdminObject {
     }
 
     // All getter/access functions...
-    public String getModelType() {
-        return modelType;
-    }
-
-    public String getDirectory() {
-        return directory;
-    }
-
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this chart to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -191,12 +173,9 @@ public class Chart extends IntegrityAdminObject {
         return command;
     }
 
+    @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
-    }
-
-    public String getID() {
-        return id;
     }
 
     public String getCreatedBy() {
@@ -207,6 +186,7 @@ public class Chart extends IntegrityAdminObject {
         return chartType;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -219,6 +199,7 @@ public class Chart extends IntegrityAdminObject {
         return isAdmin;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -231,6 +212,7 @@ public class Chart extends IntegrityAdminObject {
         return shareWith;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
@@ -249,10 +231,5 @@ public class Chart extends IntegrityAdminObject {
         sb.append("</table>");
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

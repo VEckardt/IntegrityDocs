@@ -26,9 +26,15 @@ import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
 import com.ptc.services.utilities.CmdExecutor;
 import static com.ptc.services.utilities.docgen.ChartFactory.parseChart;
+import static com.ptc.services.utilities.docgen.Copyright.copyright;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.CONTENT_DIR;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.doExport;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.iObjectList;
 import com.ptc.services.utilities.docgen.utils.FileUtils;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import static com.ptc.services.utilities.docgen.utils.ImageUtils.extractImage;
+import static com.ptc.services.utilities.docgen.utils.Logger.print;
 import com.ptc.services.utilities.docgen.utils.OSCommandHandler;
 import java.io.ByteArrayInputStream;
 import java.util.LinkedHashMap;
@@ -97,6 +103,13 @@ public class Integrity {
 
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
+
+    public static List<IntegrityType> iTypes = new ArrayList<>();
+    public static List<IntegrityField> iFields = new ArrayList<>();
+
+    public APISession getAPI() {
+        return api;
+    }
 
     /**
      * Utility function that escapes an equals or semicolon within a string
@@ -247,6 +260,18 @@ public class Integrity {
         return values.toString();
     }
 
+    public void retrieveObjects(IntegrityDocs.Types type) throws APIException {
+        if (doExport[type.getID()]) {
+            List<IntegrityObject> iO = iObjectList.get(type.getID());
+            String name = type.name().toLowerCase();
+            WorkItemIterator objects = getObjects(name);
+            while (objects.hasNext()) {
+                WorkItem object = objects.next();
+                iO.add(new IntegrityObject(object, type));
+            }
+        }
+    }
+
     public static final String getXMLParamFieldValue(Field fld, String xmlPrefix, String delimiter) {
         StringBuilder values = new StringBuilder();
         for (Iterator<?> vlit = getListOfStrings(fld, delimiter).iterator(); vlit.hasNext();) {
@@ -346,8 +371,22 @@ public class Integrity {
      * @throws APIException
      */
     public Integrity() throws APIException {
-        api = new APISession();
+        this.api = new APISession();
     }
+
+    public Integrity(List<IntegrityType> iTypes, List<IntegrityField> iFields) throws APIException {
+        this.api = new APISession();
+        this.iTypes = iTypes;
+        this.iFields = iFields;
+    }
+
+    public List<IntegrityType> getTypeList() {
+        return iTypes;
+    }
+//
+//    public List<IntegrityField> getFieldList() {
+//        return iFields;
+//    }
 
     /**
      * Override connection to specific Integrity Application
@@ -417,9 +456,9 @@ public class Integrity {
             WorkItem wi = res.getWorkItem(typeName);
             for (Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
                 Field field = fit.next();
-                System.out.print("\t... " + field.getName());
+                print("\t... " + field.getName());
                 typeDetails.put(field.getName(), field);
-                System.out.println(" done.");
+                log(" done.");
             }
         }
 
@@ -435,24 +474,30 @@ public class Integrity {
             //	... lastModified
             //	... modifiedBy
             Field created = wi.getField("created");
-            System.out.print("\t... " + created.getName());
+            print("\t... " + created.getName());
             typeDetails.put(created.getName(), created);
-            System.out.println(" done.");
+            log(" done.", 1);
 
             Field createdBy = wi.getField("createdBy");
-            System.out.print("\t... " + createdBy.getName());
+            print("\t... " + createdBy.getName());
             typeDetails.put(createdBy.getName(), createdBy);
-            System.out.println(" done.");
+            log(" done.", 1);
 
             Field lastModified = wi.getField("lastModified");
-            System.out.print("\t... " + lastModified.getName());
+            print("\t... " + lastModified.getName());
             typeDetails.put(lastModified.getName(), lastModified);
-            System.out.println(" done.");
+            log(" done.", 1);
 
             Field modifiedBy = wi.getField("modifiedBy");
-            System.out.print("\t... " + modifiedBy.getName());
+            print("\t... " + modifiedBy.getName());
             typeDetails.put(modifiedBy.getName(), modifiedBy);
-            System.out.println(" done.");
+            log(" done.", 1);
+
+            Field image = wi.getField("image");
+            if (image.getItem().getId().contentEquals("custom")) {
+                File imageFile = new File(CONTENT_DIR + "/Types/" + wi.getId().replaceAll(" ", "_") + ".png");
+                extractImage(image, imageFile);
+            }
 
         }
         return typeDetails;
@@ -543,7 +588,7 @@ public class Integrity {
                 while (wii.hasNext()) {
                     WorkItem wi = wii.next();
                     String stateName = wi.getId();
-                    System.out.println("\t\tAnalyzing state: " + stateName);
+                    log("\t\tAnalyzing state: " + stateName, 1);
                     IntegrityState iState = new IntegrityState(typeName, wi);
                     stateDetails.put(stateName, iState);
                 }
@@ -629,8 +674,8 @@ public class Integrity {
         Command imFields = new Command(Command.IM, "fields");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (int i = 0; i < Integrity.fieldAttributes.length; i++) {
-            mv.add(Integrity.fieldAttributes[i]);
+        for (String fieldAttribute : Integrity.fieldAttributes) {
+            mv.add(fieldAttribute);
         }
         imFields.addOption(new Option("fields", mv));
 
@@ -659,7 +704,7 @@ public class Integrity {
                 while (wii.hasNext()) {
                     WorkItem wi = wii.next();
                     String fieldName = wi.getId();
-                    System.out.println("\t\tAnalyzing visible field: " + fieldName);
+                    log("\t\tAnalyzing visible field: " + fieldName, 1);
                     IntegrityField iField = new IntegrityField(typeName, wi);
                     fieldDetails.put(fieldName, iField);
                 }
@@ -701,8 +746,7 @@ public class Integrity {
                     @SuppressWarnings("unchecked")
                     List<String> overrideFieldList = overrideForType.getField("overriddenFields").getList();
                     // For each overridden attribute update the field details hash
-                    for (Iterator<String> it = overrideFieldList.iterator(); it.hasNext();) {
-                        String orFieldAttribute = it.next();
+                    for (String orFieldAttribute : overrideFieldList) {
                         try {
                             iField.setFieldAttribute(orFieldAttribute, wi.getField(orFieldAttribute));
                         } catch (java.util.NoSuchElementException ex) {
@@ -717,26 +761,6 @@ public class Integrity {
         return fieldDetails;
     }
 
-//    public WorkItemIterator getGroups() throws APIException {
-//        Command command = new Command(Command.IM, "groups");
-//        // Construct the --fields=value,value,value option
-//        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.groupAttributes) {
-//            mv.add(attribute);
-//        }
-//        command.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(command).getWorkItems();
-//    }
-//    public WorkItemIterator getDynGroups() throws APIException {
-//        Command command = new Command(Command.IM, "dynamicgroups");
-//        // Construct the --fields=value,value,value option
-//        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.dynGroupAttributes) {
-//            mv.add(attribute);
-//        }
-//        command.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(command).getWorkItems();
-//    }
     /**
      * Read the object list and if requested, also the individual objects
      *
@@ -745,14 +769,14 @@ public class Integrity {
      * @throws APIException
      */
     public WorkItemIterator getObjects(String objectName) throws APIException {
-        System.out.println("Reading " + objectName + "s ...");
+        log("Reading " + objectName + "s ...", 1);
         if (objectName.equals("improject")) {
             return getIMMainProjects();
         }
-        if (objectName.equals("gatewayconfig-export")) {
+        if (objectName.equals("gatewayexportconfig")) {
             return getGatewayConfigs("export", "exporter", CONTENT_DIR + fs + "GatewayExportConfigs");
         }
-        if (objectName.equals("gatewayconfig-import")) {
+        if (objectName.equals("gatewayimportconfig")) {
             return getGatewayConfigs("parser", "parser", CONTENT_DIR + fs + "GatewayImportConfigs");
         }
         if (objectName.equals("gatewaymapping")) {
@@ -765,16 +789,17 @@ public class Integrity {
         }
         Command command = new Command(cmd, objectName.equals("query") ? "queries" : objectName + "s");
 
-        if (objectName.equals("project")) {
+        if (objectName.equals("siproject")) {
             command.setApp(Command.SI);
             command.addOption(new Option("nodisplaySubs"));
+            command.setCommandName("projects");
         }
 
         // run first command
         WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
 
         // stop here for ViewSet and SI Projects
-        if (objectName.equals("viewset") || objectName.equals("project")) {
+        if (objectName.equals("viewset") || objectName.equals("siproject")) {
             return wit;
         }
 
@@ -794,16 +819,6 @@ public class Integrity {
         return api.runCommandWithInterim(command).getWorkItems();
     }
 
-//    public WorkItemIterator getTestVerdicts() throws APIException {
-//        Command command = new Command(Command.TM, "verdicts");
-//        // Construct the --fields=value,value,value option
-//        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.testVerdictAttributes) {
-//            mv.add(attribute);
-//        }
-//        command.addOption(new Option("fields", mv));
-//        return api.runCommandWithInterim(command).getWorkItems();
-//    }
     public Response getWordTemplates(String typeName) throws APIException {
         Command cmd = new Command(Command.IM, "extractwordtemplates");
         cmd.addOption(new Option("overwriteExisting"));
@@ -812,24 +827,6 @@ public class Integrity {
         return api.runCommand(cmd);
     }
 
-//    public WorkItemIterator getReports() {
-//        Command command = new Command(Command.IM, "reports");
-//        // Construct the --fields=value,value,value option
-//        MultiValue mv = new MultiValue(",");
-//        for (String attribute : Integrity.reportAttributes) {
-//            mv.add(attribute);
-//        }
-//        command.addOption(new Option("fields", mv));
-//        System.out.println("Executing IM.Reports ...");
-//        WorkItemIterator wit = null;
-//        try {
-//            // WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
-//            wit = api.runCommandWithInterim(command).getWorkItems();
-//        } catch (APIException ex) {
-//            Logger.getLogger(Integrity.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return wit;
-//    }
     public GatewayConfigs getGatewayConfigs(String type, String elem, String path) throws APIException {
         GatewayConfigs lgc = new GatewayConfigs();
 
@@ -857,12 +854,12 @@ public class Integrity {
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
                 Document doc = docBuilder.parse(xmlReader);
                 doc.getDocumentElement().normalize();
-                // System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                // log("Root element :" + doc.getDocumentElement().getNodeName());
                 NodeList nList = doc.getElementsByTagName(type + "-config");
 
                 for (int temp = 0; temp < nList.getLength(); temp++) {
                     Node nNode = nList.item(temp);
-                    // System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                    // log("\nCurrent Element :" + nNode.getNodeName());
 
                     if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element eElement = (Element) nNode;
@@ -992,7 +989,7 @@ public class Integrity {
 
     public List<IntegrityObject> getCharts2() throws CmdException, APIException {
         List<IntegrityObject> result = new ArrayList<>();
-        System.out.println("Reading " + "charts ...");
+        log("Reading " + "charts ...", 1);
         Command cmd = new Command(Command.IM, "charts");
         // Add each query selection to the view query command
         String fields = "";
@@ -1038,7 +1035,7 @@ public class Integrity {
             WorkItem wi = res.getWorkItems().next();
             vsFile = new File(exportDir, wi.getId() + ".vs");
         } else {
-            System.out.println("Failed to export viewset " + viewset);
+            log("Failed to export viewset " + viewset, 1);
         }
         return vsFile;
     }
@@ -1179,7 +1176,7 @@ public class Integrity {
 
         String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
                 + sectionName + "<br>Current User: " + getUserName()
-                + "<br>" + IntegrityDocs.copyright + "<br>";
+                + "<br>" + copyright + "<br>";
         Command cmd = new Command("im", "about");
         try {
             Response response = api.runCommand(cmd);
@@ -1220,14 +1217,5 @@ public class Integrity {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void log(String text, int level) {
-        System.out.println(text);
-    }
-
-    public void log(String text, int level, Exception e) {
-        System.out.println(text);
-        System.out.println(e.getMessage());
     }
 }

@@ -21,7 +21,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.mks.api.Command;
-import com.mks.api.Option;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
@@ -31,6 +30,7 @@ import com.mks.api.response.Response;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import static com.ptc.services.utilities.docgen.DocWriterTools.sdf;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.REPORT_DIR;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
 import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
 import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
@@ -44,6 +44,8 @@ import com.ptc.services.utilities.docgen.type.FieldRelationships;
 import com.ptc.services.utilities.docgen.type.StateTransitions;
 import com.ptc.services.utilities.docgen.type.TypeProperties;
 import com.ptc.services.utilities.docgen.type.VisibleFields;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import static com.ptc.services.utilities.docgen.utils.Logger.print;
 
 public class IntegrityType extends IntegrityAdminObject {
 
@@ -93,7 +95,7 @@ public class IntegrityType extends IntegrityAdminObject {
                     xmlParamPolicy = tokens[0] + '=' + XMLWriter.padXMLParamName(groupParam);
                 }
             } else {
-                System.out.println("WARNING: Unknown policy encountered: " + tokens[0]);
+                log("WARNING: Unknown policy encountered: " + tokens[0]);
             }
         }
         return xmlParamPolicy;
@@ -101,7 +103,7 @@ public class IntegrityType extends IntegrityAdminObject {
 
     public IntegrityType(Integrity i, Hashtable<String, Field> typeDetails, boolean doXML) throws APIException {
         this.i = i;
-        modelType = IMModelTypeName.TYPE;
+        // modelType = IMModelTypeName.TYPE;
         iType = typeDetails;
         name = Integrity.getStringFieldValue(iType.get("name"));
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
@@ -109,33 +111,32 @@ public class IntegrityType extends IntegrityAdminObject {
         allFieldsHash = new LinkedHashMap<>();
         fieldsHash = new Hashtable<>();
         statesHash = new Hashtable<>();
-        directory = "Types";
 
         try {
             // Parsing for Mandatory Fields
-            System.out.print("\tParsing... mandatoryFields... ");
+            print("\tParsing... mandatoryFields... ");
             MandatoryFields mf = new MandatoryFields(iType.get("mandatoryFields"));
             mandatoryFields = (doXML ? mf.getStringMandatoryFields() : mf.getFormattedReport());
-            System.out.println("done.");
+            log("done.");
 
             // Parsing for Visible Fields
-            System.out.println("\tParsing... visibleFields... ");
+            log("\tParsing... visibleFields... ");
             VisibleFields vf = new VisibleFields(getName(), i, iType.get("visibleFields"), iType.get("visibleFieldsForMe"));
             visibleFields = (doXML ? vf.getStringVisibleFields() : vf.getFormattedReport());
             fieldsHash = vf.getList();
-            System.out.println("\tParsing... visibleFields... done.");
+            log("\tParsing... visibleFields... done.");
 
             // Generate Relationship diagrams
             if (!doXML) {
-                System.out.print("\tParsing... relationshipFields... ");
+                print("\tParsing... relationshipFields... ");
                 relationshipFields = vf.getRelationshipFields();
                 RelationshipModel rm = new RelationshipModel();
                 rm.display(this, relationshipFields);
-                System.out.println("done.");
+                log("done.");
             }
 
             // Parsing for State Transitions
-            System.out.println("\tParsing... stateTransitions... ");
+            log("\tParsing... stateTransitions... ");
             if (!doXML) {
                 // Generate Workflow diagrams
                 WorkflowModel wm = new WorkflowModel();
@@ -144,19 +145,19 @@ public class IntegrityType extends IntegrityAdminObject {
             StateTransitions st = new StateTransitions(getName(), i, iType.get("stateTransitions"));
             stateTransitions = (doXML ? st.getStringTransitions() : st.getFormattedReport());
             statesHash = (doXML ? st.getList() : statesHash);
-            System.out.println("\tParsing... stateTransitions... done.");
+            log("\tParsing... stateTransitions... done.");
 
             // Parsing for Field Relationships
-            System.out.print("\tParsing... fieldRelationships... ");
+            print("\tParsing... fieldRelationships... ");
             FieldRelationships fr = new FieldRelationships(fieldsHash, iType.get("fieldRelationships"));
             fieldRelationships = (doXML ? fr.getStringFieldRelationships() : fr.getFormattedReport());
-            System.out.println("done.");
+            log("done.");
 
             // Parsing for Type Properties
-            System.out.print("\tParsing... properties... ");
+            print("\tParsing... properties... ");
             TypeProperties tp = new TypeProperties(iType.get("properties"));
             typeProperties = (doXML ? tp.getStringTypeProperties() : tp.getFormattedReport());
-            System.out.println("done.");
+            log("done.");
 
             String pos = Integrity.getStringFieldValue(iType.get("position"));
             String wordPath = REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs" + fs + "Types" + fs + pos;
@@ -178,10 +179,10 @@ public class IntegrityType extends IntegrityAdminObject {
             // wordTemplates ", new Field(wordTemplates));
 
         } catch (ItemNotFoundException e) {
-            System.out.println(e.getMessage());
+            log(e.getMessage());
             e.printStackTrace();
         }
-        objectType = "Type";
+        objectType = Types.Type;
     }
 
     public static boolean setCurrentDirectory(String directory_name) {
@@ -194,10 +195,6 @@ public class IntegrityType extends IntegrityAdminObject {
         }
 
         return result;
-    }
-
-    public String getObjectType() {
-        return objectType;
     }
 
     public String getWordTemplates() {
@@ -245,7 +242,7 @@ public class IntegrityType extends IntegrityAdminObject {
         sb.addFieldValue("Type Properties", getTypeProperties());
 
         // Close out the type details table
-        sb.append(appendNewLine("     </table>"));
+        sb.append(appendNewLine("</table>"));
 
         return sb.toString();
     }
@@ -552,7 +549,7 @@ public class IntegrityType extends IntegrityAdminObject {
         String fieldName = fieldID;
         for (String field : allFieldsHash.keySet()) {
             IntegrityField iField = allFieldsHash.get(field);
-            if (iField.getID().equals(fieldID)) {
+            if (iField.getId().equals(fieldID)) {
                 fieldName = iField.getName();
                 break;
             }
@@ -945,21 +942,5 @@ public class IntegrityType extends IntegrityAdminObject {
     // duplicateDetectionSearchField
     public String getDuplicateDetectionSearchField() {
         return Integrity.getStringFieldValue(iType.get("duplicateDetectionSearchField"));
-    }
-
-    // Model Type
-    @Override
-    public String getModelType() {
-        return modelType;
-    }
-
-    @Override
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

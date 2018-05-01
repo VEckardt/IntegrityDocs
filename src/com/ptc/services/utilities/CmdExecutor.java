@@ -1,5 +1,7 @@
 package com.ptc.services.utilities;
 
+import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -26,7 +28,7 @@ public class CmdExecutor implements Runnable {
         for (int i = 0; i < args.length; i++) {
             cmdStr += args[i] + ' ';
         }
-        System.out.println("Command: " + cmdStr + "executed with return code " + cmd.execute(cmdStr) + '.');
+        log("Command: " + cmdStr + "executed with return code " + cmd.execute(cmdStr) + '.');
     }
 
     public int execute(String cmd) throws CmdException {

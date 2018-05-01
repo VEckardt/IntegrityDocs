@@ -9,6 +9,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
 
 public class TriggerFactory {
@@ -51,7 +52,7 @@ public class TriggerFactory {
                 // Create a new trigger object for this trigger
                 Trigger iTrigger = new Trigger();
                 iTrigger.setName(wi.getField("name").getValueAsString());
-                System.out.println("Processing Trigger: " + iTrigger.getName());
+                log("Processing Trigger: " + iTrigger.getName());
                 iTrigger.setPosition(Integrity.getStringFieldValue(wi.getField("position")));
                 iTrigger.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
                 iTrigger.setType(Integrity.getStringFieldValue(wi.getField("type")));

@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
@@ -24,15 +25,13 @@ public class TestVerdict extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "TEST_VERDICT_";
-    private String id;
     private Date lastModified;
     private String createdBy;
     private String displayName;
     private String verdicyType;
 
     public TestVerdict() {
-        modelType = IMModelTypeName.TEST_VERDICT;
-        id = "";
+        // modelType = IMModelTypeName.TEST_VERDICT;
         name = "";
         createdBy = "";
         lastModified = new Date();
@@ -40,19 +39,10 @@ public class TestVerdict extends IntegrityAdminObject {
         displayName = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         verdicyType = "";
-        directory = "TestVerdicts";
-        objectType = "TestVerdict";
-    }
-
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.Verdict;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -94,11 +84,6 @@ public class TestVerdict extends IntegrityAdminObject {
 //        this.sortField = sortField;
 //    }
     // All getter/access functions...
-    @Override
-    public String getModelType() {
-        return modelType;
-    }
-
     @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
@@ -157,10 +142,6 @@ public class TestVerdict extends IntegrityAdminObject {
         return command;
     }
 
-    public String getID() {
-        return id;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -202,11 +183,6 @@ public class TestVerdict extends IntegrityAdminObject {
 //    public String getSortField() {
 //        return sortField;
 //    }
-    @Override
-    public String getDirectory() {
-        return directory;
-    }
-
     public String getDisplayName() {
         return displayName;
     }
@@ -228,10 +204,5 @@ public class TestVerdict extends IntegrityAdminObject {
         sb.append(appendNewLine("     </table>"));
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

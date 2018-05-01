@@ -8,9 +8,9 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 
 /**
  * The Query class contains the following information about an Integrity Query:
@@ -24,7 +24,6 @@ public class Report extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "REPORT_";
-    private String id;
     private Date lastModified;
     private String createdBy;
     private String query;
@@ -33,26 +32,17 @@ public class Report extends IntegrityAdminObject {
     private String sharedGroups;
 
     public Report() {
-        modelType = IMModelTypeName.REPORT;
+        // modelType = IMModelTypeName.REPORT;
         id = "";
         name = "";
         createdBy = "";
         lastModified = new Date();
         description = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        directory = "Reports";
-        objectType = "Report";
-    }
-
-    public String getObjectType() {
-        return objectType;
+        objectType = Types.Report;
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -94,10 +84,7 @@ public class Report extends IntegrityAdminObject {
 //        this.sortField = sortField;
 //    }
     // All getter/access functions...
-    public String getModelType() {
-        return modelType;
-    }
-
+    @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
     }
@@ -110,6 +97,7 @@ public class Report extends IntegrityAdminObject {
         return shareWith;
     }
 
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -162,10 +150,6 @@ public class Report extends IntegrityAdminObject {
         return command;
     }
 
-    public String getID() {
-        return id;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -207,10 +191,6 @@ public class Report extends IntegrityAdminObject {
 //    public String getSortField() {
 //        return sortField;
 //    }
-    public String getDirectory() {
-        return directory;
-    }
-
     @Override
     public String getDetails() {
         StringObj sb = new StringObj();
@@ -224,10 +204,5 @@ public class Report extends IntegrityAdminObject {
         sb.append("     </table>");
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }

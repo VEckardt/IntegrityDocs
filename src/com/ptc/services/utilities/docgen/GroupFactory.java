@@ -6,6 +6,7 @@ import java.util.List;
 import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class GroupFactory {
 
@@ -17,10 +18,10 @@ public class GroupFactory {
                 // Only process admin queries
                 Group q = new Group();
                 q.setName(Integrity.getStringFieldValue(wi.getField("name")));
-                System.out.println("Processing Group: " + q.getName());
+                log("Processing Group: " + q.getName());
                 q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                 q.setIsActive(Integrity.getBooleanFieldValue(wi.getField("isActive")));
-                    // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
+                // q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));
                 // q.setLastModifiedDate(wi.getField("lastModified").getDateTime());
                 q.setDescription(Integrity.getStringFieldValue(wi.getField("description")));
                 queryList.add(q);

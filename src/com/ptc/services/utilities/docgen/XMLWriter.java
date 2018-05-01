@@ -1,6 +1,5 @@
 package com.ptc.services.utilities.docgen;
 
-import com.ptc.services.utilities.docgen.XMLErrorHandler;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,11 +23,6 @@ import org.xml.sax.SAXException;
 import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.XMLPrettyPrinter;
-import com.ptc.services.utilities.docgen.IntegrityAdminObject;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
-import com.ptc.services.utilities.docgen.IntegrityField;
-import com.ptc.services.utilities.docgen.IntegrityState;
-import com.ptc.services.utilities.docgen.IntegrityType;
 import java.util.LinkedHashMap;
 
 public class XMLWriter {
@@ -78,12 +72,12 @@ public class XMLWriter {
 
             IntegrityAdminObject o = (IntegrityAdminObject) list.nextElement();
             if (overrides) {
-                if (o.getModelType().equals(IMModelTypeName.FIELD)) {
-                    command = ((IntegrityField) o).getOverridesXML(job, command);
-                }
-                if (o.getModelType().equals(IMModelTypeName.STATE)) {
-                    command = ((IntegrityState) o).getOverridesXML(job, command);
-                }
+//                if (o.getModelType().equals(IMModelTypeName.FIELD)) {
+//                    command = ((IntegrityField) o).getOverridesXML(job, command);
+//                }
+//                if (o.getModelType().equals(IMModelTypeName.STATE)) {
+//                    command = ((IntegrityState) o).getOverridesXML(job, command);
+//                }
             } else {
                 command = o.getXML(job, command);
             }
@@ -228,7 +222,7 @@ public class XMLWriter {
             Iterator<IntegrityAdminObject> it = (Iterator<IntegrityAdminObject>) adminObjectList.iterator();
             // Get the first admin object so we know what admin object we're working with...
             IntegrityAdminObject adminObject = it.next();
-            String adminType = adminObject.getAdminObjectType();
+            String adminType = adminObject.getObjectType();
             // Create the xml document for this admin object list
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder xmlBuilder = domFactory.newDocumentBuilder();

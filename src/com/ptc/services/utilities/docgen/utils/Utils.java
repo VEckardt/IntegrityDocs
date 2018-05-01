@@ -26,4 +26,10 @@ public class Utils {
     public static String appendNewLine(String line) {
         return line + IntegrityDocs.nl;
     }
+
+    public static String cap1stChar(String userIdea) {
+        char[] stringArray = userIdea.toCharArray();
+        stringArray[0] = Character.toUpperCase(stringArray[0]);
+        return new String(stringArray);
+    }
 }

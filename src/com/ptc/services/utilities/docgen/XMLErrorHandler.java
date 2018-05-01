@@ -1,6 +1,7 @@
 package com.ptc.services.utilities.docgen;
 
 import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -41,6 +42,6 @@ public class XMLErrorHandler implements ErrorHandler {
         message.append("Message: " + e.getMessage() + IntegrityDocs.nl);
 
         // Log the error...
-        System.out.println(message.toString());
+        log(message.toString());
     }
 }

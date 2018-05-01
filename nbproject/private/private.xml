@@ -6,10 +6,6 @@
         <group name="IntegrityWAR"/>
         <group>
             <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityDocs.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriter.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriterTools.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Integrity.java</file>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/utils/FileUtils.java</file>
         </group>
     </open-files>
 </project-private>

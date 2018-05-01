@@ -1,8 +1,7 @@
 package com.ptc.services.utilities.docgen.stage;
 
+import static com.ptc.services.utilities.docgen.Copyright.copyright;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.copyright;
-import com.ptc.services.utilities.docgen.stage.StagingSystem;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Date;

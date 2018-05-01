@@ -10,6 +10,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class QueryFactory {
 
@@ -22,7 +23,7 @@ public class QueryFactory {
                 if (Integrity.getBooleanFieldValue(wi.getField("isAdmin"))) {
                     Query q = new Query();
                     q.setName(Integrity.getStringFieldValue(wi.getField("name")));
-                    System.out.println("Processing Query: " + q.getName());
+                    log("Processing Query: " + q.getName());
                     q.setID(Integrity.getStringFieldValue(wi.getField("id")));
                     q.setSharedAdmin(Integrity.getBooleanFieldValue(wi.getField("isAdmin")));
                     q.setCreatedBy(Integrity.getUserFullName(wi.getField("createdBy").getItem()));

@@ -8,12 +8,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import java.util.LinkedHashMap;
+import java.util.NoSuchElementException;
 
 /**
  * Object represents an Integrity Field The following attributes are supported:
@@ -77,11 +79,15 @@ public class IntegrityField extends IntegrityAdminObject {
     public static final int MODIFIED_DATE = -2;
     public static final int CREATED_DATE = -1;
 
+    private WorkItem wi;
     private String id;
     private String type;
     private String displayName;
     private String globalDescription;
-    private boolean isPlatformField;
+    private String pairedField;
+    private Boolean isMultiValued;
+    private Boolean isPlatformField;
+    private Boolean isForward;
     private List<String> allowedTypes; // NOTE:  This is calculated in context of the requested type
     private List<String> visibleGroups;
     private LinkedHashMap<String, Field> fieldDetailsHash;
@@ -234,7 +240,8 @@ public class IntegrityField extends IntegrityAdminObject {
     }
 
     IntegrityField(String typeName, WorkItem wi) {
-        modelType = IMModelTypeName.FIELD;
+        this.wi = wi;
+        // modelType = IMModelTypeName.FIELD;
         fieldDetailsHash = new LinkedHashMap<>();
         iTypeName = (null == typeName ? "" : typeName);
         id = wi.getField("id").getValueAsString();
@@ -247,19 +254,38 @@ public class IntegrityField extends IntegrityAdminObject {
         globalDescription = wi.getField("description").getValueAsString();
         allowedTypes = parseAllowedTypes(wi.getField("allowedTypes"));
         visibleGroups = new ArrayList<>();
-        directory = "Fields";
+
+        try {
+            pairedField = wi.getField("pairedField").getString();
+        } catch (NoSuchElementException ex) {
+            pairedField = "";
+        }
+        try {
+            isMultiValued = wi.getField("isMultiValued").getBoolean();
+        } catch (NoSuchElementException ex) {
+            isMultiValued = false;
+        }
+        try {
+            isForward = wi.getField("isForward").getBoolean();
+        } catch (NoSuchElementException ex) {
+            isForward = false;
+        }
 
         // Initialize the fieldDetailsHash with the information from the Work Item
         for (Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
             Field field = fit.next();
             fieldDetailsHash.put(field.getName(), field);
         }
-        objectType = "Field";
+        objectType = Types.Field;
     }
 
     // typeClass
     public String getTypeClassGroup() {
         return (type.substring(0, 1).toUpperCase() + type.substring(1)).replaceAll("([A-Z])", " $1");
+    }
+
+    public Field getField(String fieldName) {
+        return wi.getField(fieldName);
     }
 
     @Override
@@ -341,6 +367,18 @@ public class IntegrityField extends IntegrityAdminObject {
 
     public void setVisibleGroups(List<String> groupsList) {
         visibleGroups = groupsList;
+    }
+
+    public String getPairedField() {
+        return this.pairedField;
+    }
+
+    public Boolean getIsMultiValued() {
+        return isMultiValued;
+    }
+
+    public Boolean getIsForward() {
+        return this.isForward;
     }
 
     public String getFieldSummary() {
@@ -584,7 +622,7 @@ public class IntegrityField extends IntegrityAdminObject {
                         command.appendChild(XMLWriter.getOption(job, strAttribute, strAttributeValue));
                     }
                 } else {
-                    System.out.println("Ignoring attribute: " + strAttribute);
+                    log("Ignoring attribute: " + strAttribute);
                 }
             }
         }
@@ -604,7 +642,7 @@ public class IntegrityField extends IntegrityAdminObject {
     }
 
     // Setup all the return functions
-    public String getID() {
+    public String getId() {
         return id;
     }
 
@@ -674,25 +712,5 @@ public class IntegrityField extends IntegrityAdminObject {
             return defaultColumns.getList();
         }
         return defaultColumnsList;
-    }
-
-    @Override
-    public String getModelType() {
-        return modelType;
-    }
-
-    @Override
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
-    }
-
-    @Override
-    protected String getObjectType() {
-        return objectType;
     }
 }

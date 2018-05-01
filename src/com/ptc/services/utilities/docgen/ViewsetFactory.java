@@ -15,6 +15,7 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
 
 import org.w3c.dom.Document;
@@ -45,7 +46,7 @@ public class ViewsetFactory {
                 if (Integrity.getStringFieldValue(wi.getField("publishedState")).equalsIgnoreCase("Published (Server)")) {
                     Viewset v = new Viewset(wi.getId());
                     v.setName(Integrity.getStringFieldValue(wi.getField("name")));
-                    System.out.println("Processing Viewset: " + v.getName());
+                    log("Processing Viewset: " + v.getName());
                     v.setPublishedState(Integrity.getStringFieldValue(wi.getField("publishedState")));
                     v.setMandatory(Integrity.getBooleanFieldValue(wi.getField("mandatory")));
                     v.setCustomizable(Integrity.getBooleanFieldValue(wi.getField("customizable")));

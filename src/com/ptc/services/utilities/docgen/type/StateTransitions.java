@@ -14,6 +14,7 @@ import com.ptc.services.utilities.docgen.Integrity;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityState;
 import com.ptc.services.utilities.docgen.XMLWriter;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 
 public class StateTransitions {
 
@@ -33,8 +34,8 @@ public class StateTransitions {
             statesHash = i.getStates(typeName, statesList);
         } catch (APIException aex) {
             ExceptionHandler eh = new ExceptionHandler(aex);
-            System.out.println(eh.getMessage());
-            System.out.println(eh.getCommand());
+            log(eh.getMessage());
+            log(eh.getCommand());
             aex.printStackTrace();
         }
     }

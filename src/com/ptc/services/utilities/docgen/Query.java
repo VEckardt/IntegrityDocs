@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 
 import com.mks.api.Command;
 import com.mks.api.im.IMModelTypeName;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
@@ -24,7 +25,6 @@ public class Query extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "QUERY_";
-    private String id;
     private String createdBy;
     private Date lastModified;
     private String fields;
@@ -35,8 +35,7 @@ public class Query extends IntegrityAdminObject {
     private String sortField;
 
     public Query() {
-        modelType = IMModelTypeName.QUERY;
-        id = "";
+        // modelType = IMModelTypeName.QUERY;
         createdBy = "";
         lastModified = new Date();
         description = "";
@@ -48,19 +47,15 @@ public class Query extends IntegrityAdminObject {
         shareWith = "";
         sortDirection = "";
         sortField = "";
-        directory = "Queries";
-        objectType = "Query";
+        objectType = Types.Query;
     }
 
+    @Override
     public String getObjectType() {
-        return objectType;
+        return objectType.name();
     }
 
     // All setter functions
-    public void setID(String id) {
-        this.id = id;
-    }
-
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -103,14 +98,16 @@ public class Query extends IntegrityAdminObject {
     }
 
     // All getter/access functions...
-    public String getModelType() {
-        return modelType;
-    }
-
+//    @Override
+//    public String getModelType() {
+//        return modelType;
+//    }
+    @Override
     public String getPosition() {
         return this.getID().replaceAll(" ", "_");
     }
 
+    @Override
     public Element getXML(Document job, Element command) {
         // Add this query to the global resources hash
         XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
@@ -164,10 +161,6 @@ public class Query extends IntegrityAdminObject {
         return command;
     }
 
-    public String getID() {
-        return id;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -176,6 +169,7 @@ public class Query extends IntegrityAdminObject {
         return Integrity.getDateString(sdf, lastModified);
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -188,10 +182,12 @@ public class Query extends IntegrityAdminObject {
         return isAdmin;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getXMLName() {
         return xmlParamName;
     }
@@ -213,11 +209,6 @@ public class Query extends IntegrityAdminObject {
     }
 
     @Override
-    public String getDirectory() {
-        return directory;
-    }
-
-    @Override
     public String getDetails() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
@@ -231,10 +222,5 @@ public class Query extends IntegrityAdminObject {
         sb.append(appendNewLine("</table>"));
 
         return sb.toString();
-    }
-
-    @Override
-    protected String getGlobalID() {
-        return getPosition();
     }
 }
