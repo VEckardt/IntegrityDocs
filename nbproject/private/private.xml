@@ -5,7 +5,8 @@
         <group name="IntegrityFDOs"/>
         <group name="IntegrityWAR"/>
         <group>
-            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/IntegrityDocs.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/DocWriterTools.java</file>
+            <file>file:/C:/IntegrityFDOs/IntegrityDocs/src/com/ptc/services/utilities/docgen/Integrity.java</file>
         </group>
     </open-files>
 </project-private>

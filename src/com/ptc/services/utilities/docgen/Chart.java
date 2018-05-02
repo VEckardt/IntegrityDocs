@@ -19,7 +19,6 @@ public class Chart extends IntegrityAdminObject {
 
     // Query's members
     public static final String XML_PREFIX = "CHART_";
-    private String chartType;
     private String createdBy;
     private String graphStyle;
     private boolean isAdmin;
@@ -28,7 +27,7 @@ public class Chart extends IntegrityAdminObject {
 
     public Chart() {
         // modelType = IMModelTypeName..CHART;
-        chartType = "";
+        type = "";
         createdBy = "";
         description = "";
         graphStyle = "";
@@ -46,7 +45,7 @@ public class Chart extends IntegrityAdminObject {
     }
 
     public void setChartType(String chartType) {
-        this.chartType = chartType;
+        this.type = chartType;
     }
 
     public void setDescription(String description) {
@@ -90,8 +89,8 @@ public class Chart extends IntegrityAdminObject {
         command.appendChild(cmdName);
 
         // --chartType=[Distribution|Trend|Issue Fields|Issue Fields Trend]  The chart type.
-        if (chartType.length() > 0) {
-            command.appendChild(XMLWriter.getOption(job, "chartType", chartType));
+        if (type.length() > 0) {
+            command.appendChild(XMLWriter.getOption(job, "chartType", type));
         }
 
         // TODO --bgColor=value  The background color of the graph.
@@ -183,7 +182,7 @@ public class Chart extends IntegrityAdminObject {
     }
 
     public String getChartType() {
-        return chartType;
+        return type;
     }
 
     @Override

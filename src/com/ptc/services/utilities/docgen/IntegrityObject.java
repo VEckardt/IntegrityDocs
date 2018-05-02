@@ -30,7 +30,6 @@ public class IntegrityObject extends IntegrityAdminObject {
 
     WorkItem object;
     Iterator fields;
-    String type;  // object individual type, not objectType!
     String isActive = "";
     String imageFileName = "";
 
@@ -81,7 +80,11 @@ public class IntegrityObject extends IntegrityAdminObject {
             try {
                 type = workitem.getField("verdictType").getValueAsString();
             } catch (NoSuchElementException ex2) {
-                type = "-";
+                try {
+                    type = workitem.getField("chartType").getValueAsString();
+                } catch (NoSuchElementException ex3) {
+                    type = "-";
+                }
             }
         }
         try {
@@ -105,10 +108,6 @@ public class IntegrityObject extends IntegrityAdminObject {
     @Override
     protected String getName() {
         return name;
-    }
-
-    protected String getType() {
-        return type;
     }
 
     public String getIsActive() {

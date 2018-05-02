@@ -36,7 +36,7 @@ public class TocWriter extends BufferedWriter {
     }
 
     public void addBook(IntegrityAdminObject ao) throws IOException {
-        String name = ao.getDirectory().replaceAll("([A-Z])", " $1");
+        String name = ao.getObjectsDisplayName();
         this.write(appendNewLine("<li class=\"hs-book\" title=\"" + name + "\">" + name + ""));
     }
 
@@ -52,16 +52,33 @@ public class TocWriter extends BufferedWriter {
         // Part 1: Publish Viewset, if appropriate...
         List<IntegrityObject> aol = IntegrityDocs.getList(type);
         if (null != aol && aol.size() > 0) {
+            String typeClassGroup = "";
             log("Publishing " + type.name() + " with " + aol.size() + " objects ...");
             this.addBook(aol.get(0));
             this.addOverviewSectionAndFile(aol.get(0));
-            this.addOverviewCloser();
+            if (type.showSubStructure()) {
+                aol.sort((IntegrityObject m1, IntegrityObject m2) -> m1.getTypeClassGroup().compareTo(m2.getTypeClassGroup()));
+            } else {
+                this.addOverviewCloser();
+            }
             for (IntegrityObject object : aol) {
                 // whtdata0xml.write(appendNewLine("    <item name=\"" + trigger.getName()
                 //        + "\" url=\"WorkflowDocs/Triggers/" + trigger.getPosition() + ".htm\" />"));
+                if (type.showSubStructure() && !object.getTypeClassGroup().equals(typeClassGroup)) {
+                    if (!typeClassGroup.isEmpty()) {
+                        this.endBook();
+                    }
+                    this.addBook(object.getTypeClassGroup());
+                    typeClassGroup = object.getTypeClassGroup();
+                }
                 // Publish the individual trigger details
                 this.writeObjectHtml(object);
             }
+            if (type.showSubStructure()) {
+                this.endBook();
+                this.addOverviewCloser();
+            }
+
             this.endBook();
             // whtdata0xml.write(appendNewLine("  </book>"));
         }

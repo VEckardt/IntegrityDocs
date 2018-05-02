@@ -644,9 +644,7 @@ public class Integrity {
             WorkItemIterator wii = res.getWorkItems();
             while (wii.hasNext()) {
                 WorkItem wi = wii.next();
-                String fieldName = wi.getId();
-                IntegrityField iField = new IntegrityField(null, wi);
-                fieldDetails.put(fieldName, iField);
+                fieldDetails.put(wi.getId(), new IntegrityField(null, wi));
             }
         }
         return fieldDetails;
@@ -1175,8 +1173,8 @@ public class Integrity {
     public String getAbout(String sectionName) {
 
         String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
-                + sectionName + "<br>Current User: " + getUserName()
-                + "<br>" + copyright + "<br>";
+                + sectionName + "<br>" + copyright
+                + "<br>" + "Current User: " + getUserName() + "<br>";
         Command cmd = new Command("im", "about");
         try {
             Response response = api.runCommand(cmd);

@@ -9,7 +9,6 @@ import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.CmdException;
-import static com.ptc.services.utilities.docgen.Copyright.iDOCS_REV;
 import com.ptc.services.utilities.docgen.utils.Logger;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.FileOutputStream;
@@ -33,38 +32,41 @@ public class IntegrityDocs {
 
     public enum Types {
 
-        Type(0, 0, true, null, ""),
-        Field(1, 0, true, null, ""),
-        Trigger(2, 0, true, null, ""),
-        IMProject(3, 1, true, "MainW&DProject", ""),
-        SIProject(4, 1, true, "MainCMProject", ""),
-        Viewset(5, 1, true, "Viewset", ""),
-        Group(6, 1, true, null, "isActive"),
-        DynamicGroup(7, 1, true, null, ""),
-        State(8, 1, true, null, "Image"),
-        CPType(9, 2, true, "ChangePackageType", ""),
-        Verdict(10, 2, true, "TestVerdict", "Type,isActive"),
-        ResultField(11, 2, true, "TestResultField", "Type"),
-        Chart(12, 2, true, null, ""),
-        Query(13, 2, true, null, "Image"),
-        Dashboard(14, 2, true, null, ""),
-        Report(15, 2, true, null, ""),
-        GatewayMapping(18, 2, true, "GatewayMapping", ""),
-        GatewayImportConfig(16, 2, true, "GatewayImportConfig", "Type"),
-        GatewayExportConfig(17, 2, true, "GatewayExportConfig", "Type");
+        // Name(UID/Group/Retrieve/DisplayName/AddColumnsForSummary/HasSubStructure)
+        Type(0, 0, true, null, "", 0),
+        Field(1, 0, true, null, "", 1),
+        Trigger(2, 0, true, null, "", 1),
+        Viewset(3, 1, true, "Viewset", "", 0),
+        SIProject(4, 1, true, "Main CM Project", "", 0),
+        IMProject(5, 1, true, "Main W&D Project", "", 0),
+        Group(6, 1, true, null, "isActive", 0),
+        DynamicGroup(7, 1, true, null, "", 0),
+        State(8, 1, true, null, "Image", 0),
+        CPType(9, 2, true, "Change Package Type", "", 0),
+        Verdict(10, 2, true, "Test Verdict", "Type,isActive", 0),
+        ResultField(11, 2, true, "Test Result Field", "Type", 0),
+        Chart(12, 2, true, null, "Image", 1),
+        Query(13, 2, true, null, "Image", 0),
+        Dashboard(14, 2, true, null, "Image", 0),
+        Report(15, 2, true, null, "Image", 0),
+        GatewayMapping(18, 2, true, "Gateway Mapping", "", 0),
+        GatewayImportConfig(16, 2, true, "Gateway Import Config", "Type", 0),
+        GatewayExportConfig(17, 2, true, "Gateway Export Config", "Type", 0);
 
-        int id;
-        int grp;
-        boolean export;
-        String modelType;
-        String addColumns;
+        private final int id;
+        private final int grp;
+        private final boolean export;
+        private final String modelType;
+        private final String addColumns;
+        private final int subStructure;
 
-        Types(int p, int grp, boolean export, String modelType, String addColumns) {
+        Types(int p, int grp, boolean export, String modelType, String addColumns, int subStructure) {
             this.id = p;
             this.grp = grp;
             this.export = export;
             this.modelType = modelType;
             this.addColumns = addColumns;
+            this.subStructure = subStructure;
         }
 
         int getID() {
@@ -76,16 +78,25 @@ public class IntegrityDocs {
         }
 
         String getModelType() {
-            return modelType == null ? name() : modelType;
+            return (modelType == null ? name() : modelType).replaceAll(" ", "");
         }
 
         String getDirectory() {
-            return (modelType == null ? name() : modelType).replace("ery", "erie") + "s";
+            return ((modelType == null ? name() : modelType).replace("ery", "erie") + "s").replaceAll(" ", "");
+        }
+
+        String getDisplayName() {
+            return (modelType == null ? name() : modelType);
         }
 
         String getAddColumns() {
             return addColumns;
         }
+
+        Boolean showSubStructure() {
+            return (subStructure == 1);
+        }
+
     }
     public static ArrayList<List<IntegrityObject>> iObjectList = new ArrayList<>();
     public static boolean[] doExport = new boolean[20];
@@ -100,7 +111,8 @@ public class IntegrityDocs {
         Logger.init();
 
         // Only supporting Integrity 10 and newer releases
-        log("IntegrityDocs Version" + iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$')));
+        log("IntegrityDocs Version" + Copyright.version);
+        log("Copyright: " + Copyright.copyright);
         log("API Version: " + APISession.VERSION);
         log("Writing to logfile " + Logger.getLogFile());
         log("Usage:");
@@ -127,10 +139,24 @@ public class IntegrityDocs {
         }
     }
 
+    /**
+     * Returns the specified Object List, such as Charts, Queries etc.
+     * @param type
+     * @return
+     */
     public static List<IntegrityObject> getList(Types type) {
         return iObjectList.get(type.getID());
     }
 
+    /**
+     * Reads the Objects from Integrity and generates the output
+     * @param args
+     * @throws APIException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     * @throws CmdException
+     */
     public void generateDocs(String[] args) throws APIException, ParserConfigurationException, IOException, SAXException, CmdException {
 
         // Basis objects
@@ -144,7 +170,7 @@ public class IntegrityDocs {
             doExport[value.getID()] = value.export;
         }
 
-        // Construct the Integrity Application
+        // Construct the Integrity Application Connector
         Integrity i = new Integrity(iTypes, iFields);
 
         // Get a string list of types

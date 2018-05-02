@@ -22,7 +22,7 @@ public class Logger {
 
     private static final String tmpDir = System.getProperty("java.io.tmpdir");
     private static MKSLogger logger;
-    public static String LOGFILE = tmpDir + fs + "IntegrityDocs_" + getDate() + ".log";
+    public static String LOGFILE = tmpDir + "IntegrityDocs_" + getDate() + ".log";
 
     public final static void init() {
         logger = new MKSLogger(LOGFILE);

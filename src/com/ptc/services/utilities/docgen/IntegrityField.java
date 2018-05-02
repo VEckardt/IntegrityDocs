@@ -12,6 +12,7 @@ import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.field.PickField;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import java.util.LinkedHashMap;
@@ -292,12 +293,22 @@ public class IntegrityField extends IntegrityAdminObject {
     public String getDetails() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append("     <table class='display'>");
+        sb.append("<table class='display'>");
 
         for (String fieldName : fieldDetailsHash.keySet()) {
             Field field = fieldDetailsHash.get(fieldName);
             if (field.getValue() != null) {
-                sb.addFieldValue(fieldName, field.getValueAsString());
+
+                // if (field. != null && field.getModelType().endsWith("List")) {
+                if (field.getName().equals("picks")) {
+                    // log ("ITEM LIST found: " + field.getList());
+
+                    PickField pf = new PickField(field);
+                    sb.addFieldValue(fieldName, pf.getFormattedReport());
+                } else {
+                    sb.addFieldValue(fieldName, field.getValueAsString());
+                }
+
             }
         }
 

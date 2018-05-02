@@ -12,6 +12,7 @@ public abstract class IntegrityAdminObject {
     protected String xmlParamName;
     protected String description;
     protected String position;
+    protected String type; // object individual type, not objectType!
     protected Types objectType;
 
     protected abstract String getName();
@@ -19,8 +20,6 @@ public abstract class IntegrityAdminObject {
     protected String getDirectory() {
         return objectType.getDirectory();
     }
-
-    ;
 
     protected abstract String getDescription();
 
@@ -37,6 +36,10 @@ public abstract class IntegrityAdminObject {
         this.id = id;
     }
 
+    public void setType(String t) {
+        type = t;
+    }
+
     public String getID() {
         return id;
     }
@@ -45,7 +48,23 @@ public abstract class IntegrityAdminObject {
         return objectType.name();
     }
 
+    public String getObjectDisplayName() {
+        return objectType.getDisplayName();
+    }
+
+    public String getObjectsDisplayName() {
+        return objectType.getDisplayName().replace("ery", "erie") + "s";
+    }
+
+    public String getType() {
+        return type;
+    }
+
     public String getAdminXMLPrefix() {
         return objectType.name().toUpperCase() + "_";
+    }
+
+    public String getTypeClassGroup() {
+        return (getType().substring(0, 1).toUpperCase() + getType().substring(1)).replaceAll("([A-Z])", " $1");
     }
 }

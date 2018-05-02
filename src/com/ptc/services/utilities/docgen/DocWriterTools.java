@@ -91,7 +91,7 @@ public class DocWriterTools {
                     sb.append(sdf.format(now));
                 } else if ("objecttype".equals(paramName)) {
                     if (null != adminObj) {
-                        sb.append(adminObj.getObjectType());
+                        sb.append(adminObj.getObjectDisplayName());
                     }
                 } else if (paramName.endsWith("overview")) {
                     if (null != adminObj) {
@@ -118,7 +118,7 @@ public class DocWriterTools {
                 } else if ("summary".equals(paramName)) {
                     sb.append(getSummary());
                 } else if ("about".equals(paramName)) {
-                    sb.append(i.getAbout(""));
+                    sb.append(i.getAbout("IntegrityDocs" + Copyright.version));
                 } else {
                     // Unknown parameter
                     sb.append(paramName);
@@ -141,10 +141,10 @@ public class DocWriterTools {
         sb.addHeadings("Object,Count");
         sb.append("<tbody>");
 
-        sb.addFieldValue("Main W&D Projects", getList(Types.IMProject).size());
-        sb.addFieldValue("Main CM Projects", getList(Types.SIProject).size());
-        sb.addFieldValue("", "");
         sb.addFieldValue("View Sets", getList(Types.Viewset).size());
+        sb.addFieldValue("Main CM Projects", getList(Types.SIProject).size());
+        sb.addFieldValue("Main W&D Projects", getList(Types.IMProject).size());
+        sb.addFieldValue("", "");
         sb.addFieldValue("Groups", getList(Types.Group).size());
         sb.addFieldValue("Dynamic Groups", getList(Types.DynamicGroup).size());
         sb.addFieldValue("", "");
@@ -177,22 +177,23 @@ public class DocWriterTools {
 
         // Summary heading line
         sb.append("<table class='sortable'>");
-        sb.addHeadings("Icon,Name,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree,Branch,Label");
+        sb.addHeadings("ID,Name,Image,Description,Change Packages,Permitted Groups,Time Tracking,Show Workflow,Copy Tree");
         sb.append("<tbody>");
 
         // Print out the summary about each item type
         for (IntegrityType iType : iTypes) {
             sb.append((" <tr>"));
-            sb.addTDborder("<img src=\"Types/" + iType.getName().replaceAll(" ", "_") + ".png\" alt=\"-\">");
+            sb.addTDborder(iType.getPosition());
             sb.addTDborder("<a href='Types/" + iType.getPosition() + ".htm'>" + iType.getName() + "</a>");
+            sb.addTDborder("<img src=\"Types/" + iType.getName().replaceAll(" ", "_") + ".png\" alt=\"-\">");
             sb.addTDborder(HyperLinkFactory.convertHyperLinks(iType.getDescription()));
             sb.addTDborder((iType.getAllowChangePackages() ? "&#10003;" : "&nbsp;"));
             sb.addTDborder(iType.getPermittedGroups());
             sb.addTDborder((iType.getTimeTrackingEnabled() ? "&#10003;" : "&nbsp;"));
             sb.addTDborder((iType.getShowWorkflow() ? "&#10003;" : "&nbsp;"));
             sb.addTDborder((iType.getCopyTreeEnabled() ? "&#10003;" : "&nbsp;"));
-            sb.addTDborder((iType.getBranchEnabled() ? "&#10003;" : "&nbsp;"));
-            sb.addTDborder((iType.getLabelEnabled() ? "&#10003;" : "&nbsp;"));
+            //sb.addTDborder((iType.getBranchEnabled() ? "&#10003;" : "&nbsp;"));
+            //sb.addTDborder((iType.getLabelEnabled() ? "&#10003;" : "&nbsp;"));
             sb.append((" </tr>"));
         }
         sb.append("</tbody></table>");

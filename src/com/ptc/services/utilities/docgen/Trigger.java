@@ -4,7 +4,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
@@ -19,7 +18,6 @@ public class Trigger extends IntegrityAdminObject {
 
     // Trigger's members
     public static final String XML_PREFIX = "TRIGGER_";
-    private String type;
     private String runAs;
     private String query;
     private String rule;
@@ -78,10 +76,6 @@ public class Trigger extends IntegrityAdminObject {
         position = pos;
     }
 
-    public void setType(String t) {
-        type = t;
-    }
-
     public void setName(String n) {
         name = n;
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
@@ -124,11 +118,6 @@ public class Trigger extends IntegrityAdminObject {
     }
 
     // All getter/access functions...
-    // typeClassGroup
-    public String getTypeClassGroup() {
-        return (getType().substring(0, 1).toUpperCase() + getType().substring(1)).replaceAll("([A-Z])", " $1");
-    }
-
     @Override
     public Element getXML(Document job, Element command) {
         // Add this trigger to the global resources hash
@@ -207,10 +196,6 @@ public class Trigger extends IntegrityAdminObject {
     @Override
     public String getPosition() {
         return position;
-    }
-
-    public String getType() {
-        return type;
     }
 
     @Override
