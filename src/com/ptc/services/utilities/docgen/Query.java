@@ -223,4 +223,9 @@ public class Query extends IntegrityAdminObject {
 
         return sb.toString();
     }
+
+    @Override
+    protected String getFieldValue(String fieldName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

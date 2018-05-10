@@ -5,6 +5,7 @@
  */
 package com.ptc.services.utilities.docgen.utils;
 
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 
 /**
@@ -24,7 +25,7 @@ public class Utils {
 //        return className;
 //    }
     public static String appendNewLine(String line) {
-        return line + IntegrityDocs.nl;
+        return line + nl;
     }
 
     public static String cap1stChar(String userIdea) {

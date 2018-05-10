@@ -5,21 +5,21 @@
  */
 package com.ptc.services.utilities.docgen;
 
+import com.mks.api.response.Field;
+import static com.ptc.services.utilities.docgen.Constants.SUMMARY_FILE;
+import static com.ptc.services.utilities.docgen.Constants.getNow;
+import static com.ptc.services.utilities.docgen.Constants.summaryTemplate;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.getList;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,34 +28,20 @@ import java.util.List;
  */
 public class DocWriterTools {
 
-    static List<IntegrityType> iTypes = null;
-    static List<IntegrityField> iFields = null;
-    static List<Trigger> iTriggers = null;
-    static ArrayList<List<IntegrityObject>> iObjectList = null;
-
+    static ArrayList<List<IntegrityAdminObject>> iObjectList = null;
     static Integrity i;
-    private static final Date now = new Date();
-    static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a z");
 
-    public static final File objectTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "ObjectTemplate.txt");
-    public static final File titleTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "title.txt");
-    public static final File summaryTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "SummaryTemplate.txt");
-    public static final File overviewTemplate = new File(IntegrityDocs.CONTENT_DIR + IntegrityDocs.fs + "OverviewTemplate.txt");
-
-    public DocWriterTools(Integrity i) {
+    public DocWriterTools(Integrity i, ArrayList<List<IntegrityAdminObject>> iObjectList) {
         DocWriterTools.i = i;
-    }
-
-    public String getNow() {
-        return sdf.format(now);
+        DocWriterTools.iObjectList = iObjectList;
     }
 
     public void writeSummary() throws FileNotFoundException, IOException {
         try (BufferedReader triggerReader = new BufferedReader(new FileReader(summaryTemplate))) {
-            BufferedWriter triggerWriter = new BufferedWriter(new FileWriter(IntegrityDocs.REPORT_DIR + IntegrityDocs.fs + "summary.htm"));
+            BufferedWriter triggerWriter = new BufferedWriter(new FileWriter(SUMMARY_FILE));
             String line;
             while (null != (line = triggerReader.readLine())) {
-                triggerWriter.write((getFormattedContent(line, null)));
+                triggerWriter.write((getFormattedContent(line, null, 1)));
             }
             triggerWriter.flush();
             triggerWriter.close();
@@ -63,7 +49,7 @@ public class DocWriterTools {
     }
 
     // Resolves the parameterized report values
-    public static String getFormattedContent(String str, IntegrityAdminObject adminObj) {
+    public static String getFormattedContent(String str, IntegrityAdminObject adminObj, int id) {
         StringBuilder sb = new StringBuilder();
         int startIndex = 0;
         int currentIndex;
@@ -88,25 +74,28 @@ public class DocWriterTools {
                 if ("hostport".equals(paramName)) {
                     sb.append(i.getHostName()).append(":").append(i.getPort());
                 } else if ("now".equals(paramName)) {
-                    sb.append(sdf.format(now));
+                    sb.append(getNow());
                 } else if ("objecttype".equals(paramName)) {
                     if (null != adminObj) {
-                        sb.append(adminObj.getObjectDisplayName());
+                        sb.append(adminObj.getObjectTypeDisplayName());
+                    }
+                } else if ("description".equals(paramName)) {
+                    if (null != adminObj) {
+                        sb.append(adminObj.getObjectTypeDescription());
                     }
                 } else if (paramName.endsWith("overview")) {
                     if (null != adminObj) {
-                        if (adminObj instanceof IntegrityType) {
+                        if (adminObj instanceof IntegrityType && id == 1) {
                             sb.append(getTypesOverview());
+                        } else if (adminObj instanceof IntegrityType && id == 2) {
+                            sb.append(getTypeImageOverview());
                         } else if (adminObj instanceof Trigger) {
                             sb.append(getTriggersOverview());
-                        } else if (adminObj instanceof IntegrityField) {
-                            sb.append(getFieldOverview());
                         } else {
                             // for all other types
                             sb.append(getObjectOverview(adminObj.objectType));
                         }
                     }
-
                 } else if ("details".equals(paramName)) {
                     if (null != adminObj) {
                         sb.append(adminObj.getDetails());
@@ -116,7 +105,7 @@ public class DocWriterTools {
                         sb.append(adminObj.getName());
                     }
                 } else if ("summary".equals(paramName)) {
-                    sb.append(getSummary());
+                    sb.append(getObjectSummary());
                 } else if ("about".equals(paramName)) {
                     sb.append(i.getAbout("IntegrityDocs" + Copyright.version));
                 } else {
@@ -134,38 +123,20 @@ public class DocWriterTools {
         return sb.toString();
     }
 
-    private static String getSummary() {
+    private static String getObjectSummary() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
         sb.append("<table class='sortable'>");
-        sb.addHeadings("Object,Count");
+        sb.addHeadings("Object,Count,Description");
         sb.append("<tbody>");
 
-        sb.addFieldValue("View Sets", getList(Types.Viewset).size());
-        sb.addFieldValue("Main CM Projects", getList(Types.SIProject).size());
-        sb.addFieldValue("Main W&D Projects", getList(Types.IMProject).size());
-        sb.addFieldValue("", "");
-        sb.addFieldValue("Groups", getList(Types.Group).size());
-        sb.addFieldValue("Dynamic Groups", getList(Types.DynamicGroup).size());
-        sb.addFieldValue("", "");
-        sb.addFieldValue("States", getList(Types.State).size());
-        sb.addFieldValue("Types", iTypes.size());
-        sb.addFieldValue("Fields", iFields.size());
-        sb.addFieldValue("Triggers", iTriggers.size());
-        sb.addFieldValue("", "");
-        sb.addFieldValue("Change Package Types", getList(Types.CPType).size());
-        sb.addFieldValue("Test Verdicts", getList(Types.Verdict).size());
-        sb.addFieldValue("Test Result Fields", getList(Types.ResultField).size());
-        sb.addFieldValue("", "");
-        sb.addFieldValue("Charts", getList(Types.Chart).size());
-        sb.addFieldValue("Queries", getList(Types.Query).size());
-        sb.addFieldValue("Reports", getList(Types.Report).size());
-        sb.addFieldValue("Dashboards", getList(Types.Dashboard).size());
-        sb.addFieldValue("", "");
-        sb.addFieldValue("Gateway Mappings", getList(Types.GatewayMapping).size());
-        sb.addFieldValue("Gateway Import Configurations", getList(Types.GatewayImportConfig).size());
-        sb.addFieldValue("Gateway Export Configurations", getList(Types.GatewayExportConfig).size());
-
+        for (Types type : Types.values()) {
+            sb.append(" <tr>");
+            sb.addTDborder(type.getDisplayName());
+            sb.addTDborder(String.valueOf(getList(type).size()));
+            sb.addTDborder(type.getDescription().replace("This report lists all ", ""));
+            sb.append(" </tr>");
+        }
         // Close out the table
         sb.append("</tbody></table>");
 
@@ -181,20 +152,43 @@ public class DocWriterTools {
         sb.append("<tbody>");
 
         // Print out the summary about each item type
-        for (IntegrityType iType : iTypes) {
+        for (IntegrityAdminObject iType : getList(Types.Type)) {
             sb.append((" <tr>"));
             sb.addTDborder(iType.getPosition());
             sb.addTDborder("<a href='Types/" + iType.getPosition() + ".htm'>" + iType.getName() + "</a>");
-            sb.addTDborder("<img src=\"Types/" + iType.getName().replaceAll(" ", "_") + ".png\" alt=\"-\">");
+            sb.addTDborder("<img src=\"Types/" + iType.getName().replaceAll(" ", "_") + ".png\" alt=\"-\"/>");
             sb.addTDborder(HyperLinkFactory.convertHyperLinks(iType.getDescription()));
-            sb.addTDborder((iType.getAllowChangePackages() ? "&#10003;" : "&nbsp;"));
-            sb.addTDborder(iType.getPermittedGroups());
-            sb.addTDborder((iType.getTimeTrackingEnabled() ? "&#10003;" : "&nbsp;"));
-            sb.addTDborder((iType.getShowWorkflow() ? "&#10003;" : "&nbsp;"));
-            sb.addTDborder((iType.getCopyTreeEnabled() ? "&#10003;" : "&nbsp;"));
+            sb.addTDborder((iType.getFieldValue("allowChangePackages").equals("true") ? "&#10003;" : "&nbsp;"));
+            sb.addTDborder(iType.getFieldValue("permittedGroups"));
+            sb.addTDborder((iType.getFieldValue("timeTrackingEnabled").equals("true") ? "&#10003;" : "&nbsp;"));
+            sb.addTDborder((iType.getFieldValue("showWorkflow").equals("true") ? "&#10003;" : "&nbsp;"));
+            sb.addTDborder((iType.getFieldValue("copyTreeEnabled").equals("true") ? "&#10003;" : "&nbsp;"));
             //sb.addTDborder((iType.getBranchEnabled() ? "&#10003;" : "&nbsp;"));
             //sb.addTDborder((iType.getLabelEnabled() ? "&#10003;" : "&nbsp;"));
             sb.append((" </tr>"));
+        }
+        sb.append("</tbody></table>");
+
+        return sb.toString();
+    }
+
+    private static String getTypeImageOverview() {
+        StringObj sb = new StringObj();
+
+        // Summary heading line
+        sb.append("<table class='sortable'>");
+        sb.addHeadings("ID,Name,Image,Main Image,Description");
+        sb.append("<tbody>");
+
+        // Print out the summary about each item type
+        for (IntegrityAdminObject iType : IntegrityDocs.getList(Types.Type)) {
+            sb.append(("<tr>"));
+            sb.addTDborder(iType.getPosition());
+            sb.addTDborder("<a href='Types/" + iType.getPosition() + ".htm'>" + iType.getName() + "</a>");
+            sb.addTDborder("<img src=\"" + iType.getFieldValue("smallImagePath") + "\" alt=\"-\"/>");
+            sb.addTDborder("<img src=\"" + iType.getFieldValue("mainImagePath") + "\" alt=\"-\"/>");
+            sb.addTDborder(HyperLinkFactory.convertHyperLinks(iType.getDescription()));
+            sb.append(("</tr>"));
         }
         sb.append("</tbody></table>");
 
@@ -208,34 +202,14 @@ public class DocWriterTools {
         sb.addHeadings("Position,Name,Type,Description,Script,Script Timing");
         sb.append(("<tbody>"));
         // Print out the summary about each trigger
-        for (Trigger iTrigger : iTriggers) {
-            sb.append((" <tr>"));
-            sb.addTDborder(iTrigger.getPosition());
-            sb.addTDborder("<a href='Triggers/" + iTrigger.getPosition() + ".htm'>" + iTrigger.getName() + "</a>");
-            sb.addTDborder(iTrigger.getType());
-            sb.addTDborder(HyperLinkFactory.convertHyperLinks(iTrigger.getDescription()));
-            sb.addTDborder(iTrigger.getScript());
-            sb.addTDborder(iTrigger.getScriptTiming());
-            sb.append((" </tr>"));
-        }
-        sb.append(("</tbody></table>"));
-
-        return sb.toString();
-    }
-
-    private static String getFieldOverview() {
-        StringObj sb = new StringObj();
-        // Summary heading line
-        sb.append(("<table class='sortable'>"));
-        sb.addHeadings("ID,Name,Description,Type");
-        sb.append(("<tbody>"));
-        // Print out the summary about each trigger
-        for (IntegrityField object : iFields) {
+        for (IntegrityAdminObject object : IntegrityDocs.getList(Types.Trigger)) {
             sb.append((" <tr>"));
             sb.addTDborder(object.getPosition());
-            sb.addTDborder("<a href='Fields/" + object.getPosition() + ".htm'>" + object.getName() + "</a>");
-            sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
+            sb.addTDborder("<a href='Triggers/" + object.getPosition() + ".htm'>" + object.getName() + "</a>");
             sb.addTDborder(object.getType());
+            sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
+            sb.addTDborder(object.getFieldValue("script"));
+            sb.addTDborder(object.getFieldValue("scriptTiming"));
             sb.append((" </tr>"));
         }
         sb.append(("</tbody></table>"));
@@ -245,43 +219,55 @@ public class DocWriterTools {
 
     private static String getObjectOverview(Types type) {
         String additionalColumns = type.getAddColumns();
-        List<IntegrityObject> objectList = iObjectList.get(type.getID());
+        List<IntegrityAdminObject> objectList1 = iObjectList.get(type.getID());
+        List<IntegrityAdminObject> objectList2 = iObjectList.get(type.getID());
         StringObj sb = new StringObj();
         // Summary heading line
+        String headings;
+        Boolean showImage = false;
         sb.append(("<table class='sortable'>"));
-        Boolean showImage = additionalColumns.contains("Image");
-        additionalColumns = additionalColumns.replace(",Image", "").replace("Image", "");
-        String headings = "ID,Name," + (showImage ? "Image," : "") + "Description" + (additionalColumns.isEmpty() ? "" : "," + additionalColumns);
+        if (type.showAllFields()) {
+            headings = objectList1.get(0).getFieldListString();
+        } else {
+            showImage = additionalColumns.contains("Image");
+            additionalColumns = additionalColumns.replace(",Image", "").replace("Image", "");
+            headings = "ID,Name," + (showImage ? "Image," : "") + "Description" + (additionalColumns.isEmpty() ? "" : "," + additionalColumns);
+        }
         sb.addHeadings(headings);
         sb.append(("<tbody>"));
         // Print out the summary about each trigger
-        for (IntegrityObject object : objectList) {
+        for (IntegrityAdminObject object : objectList2) {
             sb.append(("<tr>"));
-            sb.addTDborder(object.getPosition());
-            sb.addTDborder("<a href='" + object.getDirectory() + "/" + object.getPosition() + ".htm'>" + object.getName() + "</a>");
-            if (showImage) {
-                sb.addTDborder("<img src=\"" + object.getDirectory() + "/" + object.getName().replaceAll(" ", "_") + ".png\" alt=\"-\" onerror=\"this.src='images/" + object.getObjectType() + ".png'\">");
-            }
-            sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
-            if (additionalColumns.contains("Type")) {
-                sb.addTDborder(object.getType());
-            }
-            if (additionalColumns.contains("isActive")) {
-                sb.addTDborder(object.getIsActive());
+            if (type.showAllFields()) {
+                while (object.fields.hasNext()) {
+                    Field fld = (Field) object.fields.next();
+                    if (fld.getName().equals("image")) {
+                        sb.addTDborder("<img src=\"" + fld.getValueAsString() + "\" alt=\"-\"/>");
+                        // 
+                    } else if (fld.getName().equals("view")) {
+                        sb.addTDborder("<a href='" + fld.getValueAsString() + "'>View</a>");
+                    } else {
+                        sb.addTDborder(fld.getValueAsString());
+                    }
+                }
+            } else {
+                sb.addTDborder(object.getPosition());
+                sb.addTDborder("<a href='" + object.getDirectory() + "/" + object.getPosition() + ".htm'>" + object.getName() + "</a>");
+                if (showImage) {
+                    sb.addTDborder("<img src=\"" + object.getDirectory() + "/" + object.getName().replaceAll(" ", "_") + ".png\" alt=\"-\" onerror=\"this.src='images/" + object.getObjectType() + ".png'\"/>");
+                }
+                sb.addTDborder(HyperLinkFactory.convertHyperLinks(object.getDescription()));
+                if (additionalColumns.contains("Type")) {
+                    sb.addTDborder(object.getType());
+                }
+                if (additionalColumns.contains("isActive")) {
+                    sb.addTDborder(object.isActive().toString());
+                }
             }
             sb.append(("</tr>"));
         }
         sb.append(("</tbody></table>"));
 
         return sb.toString();
-    }
-
-    // Delete all the template files
-    public void cleanupTempFiles() {
-        log("Finishing publishing ...");
-        titleTemplate.delete();
-        overviewTemplate.delete();
-        objectTemplate.delete();
-        summaryTemplate.delete();
     }
 }

@@ -12,18 +12,20 @@ import java.util.zip.ZipEntry;
 import javax.swing.JOptionPane;
 
 import com.mks.api.response.APIException;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_DIR;
+import static com.ptc.services.utilities.docgen.Constants.INDEX_FILE;
+import static com.ptc.services.utilities.docgen.Constants.REPORT_DIR;
+import static com.ptc.services.utilities.docgen.Constants.cleanupTempFiles;
+import static com.ptc.services.utilities.docgen.Constants.fs;
+import static com.ptc.services.utilities.docgen.Constants.nl;
+import static com.ptc.services.utilities.docgen.Constants.os;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
 
 public class TemplateExtractor {
 
-    public static final String iDOCS_REV = "$Revision: 1.1 $";
-    private static final String os = System.getProperty("os.name");
-    public static final String nl = System.getProperty("line.separator");
-    public static final String fs = System.getProperty("file.separator");
-    public static final File REPORT_DIR = new File(System.getProperty("user.home") + fs + "Desktop" + fs + "IntegrityDocs");
-    public static final File REPORT_FILE = new File(REPORT_DIR.getAbsolutePath() + fs + "index.htm");
-    public static final File CONTENT_DIR = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs");
+    public static final String iDOCS_REV = "$Revision: 1.2 $";
     public static final File TYPES_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Types");
     public static final File TRIGGERS_DIR = new File(CONTENT_DIR.getAbsolutePath() + fs + "Triggers");
     public static final File XML_CONTENT_DIR = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs-XML");
@@ -93,10 +95,10 @@ public class TemplateExtractor {
 
     public void generateDocs(String[] args) {
         Integrity i = null;
-        List<IntegrityType> iTypes = new ArrayList<>();
-        List<IntegrityField> iFields = new ArrayList<>();
-        List<Trigger> iTriggers = new ArrayList<>();
-        ArrayList<List<IntegrityObject>> iObjectList = new ArrayList<>();
+        // List<IntegrityType> iTypes = new ArrayList<>();
+        // List<IntegrityField> iFields = new ArrayList<>();
+        // List<Trigger> iTriggers = new ArrayList<>();
+        ArrayList<List<IntegrityAdminObject>> iObjectList = new ArrayList<>();
 
         try {
             // Construct the Integrity Application
@@ -125,14 +127,14 @@ public class TemplateExtractor {
 
             // In case no types are specified, then run the report for all types
             if (typeList.isEmpty()) {
-                typeList = i.getAdminList("types");
+                typeList = i.getAdminList("types", "", "");
             }
 
             // For each type, abstract all relevant information
             for (String typeName : typeList) {
                 log("Processing Type: " + typeName);
                 IntegrityType t = new IntegrityType(i, i.viewType(typeName), doXML);
-                iTypes.add(t);
+                iObjectList.get(Types.Type.getID()).add(t);
             }
 
             // Get a list of queries, if asked for
@@ -142,7 +144,7 @@ public class TemplateExtractor {
 
             // Get a list of triggers, if asked for
             if (doTriggers) {
-                iTriggers = TriggerFactory.parseTriggers(sysFieldsHash, i.viewTriggers(i.getAdminList("triggers")), doXML);
+                // iTriggers = TriggerFactory.parseTriggers(sysFieldsHash, i.viewTriggers(i.getAdminList("triggers", "", "")), doXML);
             }
 
             // Get a list of charts, if asked for
@@ -161,24 +163,24 @@ public class TemplateExtractor {
 //                xWriter.generate(sysFieldsHash);
 //                // Open the folder containing the files
 //                if (os.startsWith("Windows")) {
-//                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + XML_CONTENT_DIR.getAbsolutePath());
+//                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + CONTENT_XML_DIR.getAbsolutePath());
 //                }
             } else // Publish a report, if --xml is not specified
             {
                 // Pass the abstraction to the DocWriter
                 DocWriter doc = new DocWriter(i,
-                        iTypes, iFields, iTriggers, iObjectList
+                        iObjectList
                 );
                 // Generate the report resources
                 generateResources();
                 // Publish the report content
                 doc.publish();
                 // Clean up the temporary files
-                doc.cleanupTempFiles();
+                cleanupTempFiles();
 
                 // Open the report, if this is a windows client
                 if (os.startsWith("Windows")) {
-                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + REPORT_FILE.getAbsolutePath());
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + INDEX_FILE.getAbsolutePath());
                 }
             }
         } catch (APIException e) {

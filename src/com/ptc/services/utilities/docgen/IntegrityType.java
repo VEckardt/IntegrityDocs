@@ -1,51 +1,54 @@
 package com.ptc.services.utilities.docgen;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
+import com.mks.api.Command;
+import com.mks.api.im.IMModelTypeName;
+import com.mks.api.response.APIException;
+import com.mks.api.response.Field;
+import com.mks.api.response.Item;
+import com.mks.api.response.ItemList;
+import com.mks.api.response.ItemNotFoundException;
+import com.ptc.services.utilities.XMLPrettyPrinter;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_IMAGES_DIR;
+import static com.ptc.services.utilities.docgen.Constants.REPORT_DIR;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_XML_DIR;
+import static com.ptc.services.utilities.docgen.Constants.fs;
+import static com.ptc.services.utilities.docgen.Constants.nl;
+import static com.ptc.services.utilities.docgen.Constants.sdf;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
+import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
+import com.ptc.services.utilities.docgen.type.FieldRelationships;
+import com.ptc.services.utilities.docgen.type.MandatoryFields;
+import com.ptc.services.utilities.docgen.type.StateTransitions;
+import com.ptc.services.utilities.docgen.type.TypeProperties;
+import com.ptc.services.utilities.docgen.type.VisibleFields;
+import com.ptc.services.utilities.docgen.utils.FileUtils;
+import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
+import com.ptc.services.utilities.docgen.utils.Logger;
+import static com.ptc.services.utilities.docgen.utils.Logger.exception;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import static com.ptc.services.utilities.docgen.utils.Logger.print;
+import com.ptc.services.utilities.docgen.utils.StringObj;
+import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.mks.api.Command;
-import com.mks.api.response.APIException;
-import com.mks.api.response.Field;
-import com.mks.api.response.Item;
-import com.mks.api.response.ItemNotFoundException;
-import com.mks.api.im.IMModelTypeName;
-import com.mks.api.response.Response;
-import com.ptc.services.utilities.XMLPrettyPrinter;
-import static com.ptc.services.utilities.docgen.DocWriterTools.sdf;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.REPORT_DIR;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
-import com.ptc.services.utilities.docgen.models.relationship.RelationshipModel;
-import com.ptc.services.utilities.docgen.models.workflow.WorkflowModel;
-import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import com.ptc.services.utilities.docgen.utils.StringObj;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
-import java.util.LinkedHashMap;
-
-import com.ptc.services.utilities.docgen.type.MandatoryFields;
-import com.ptc.services.utilities.docgen.type.FieldRelationships;
-import com.ptc.services.utilities.docgen.type.StateTransitions;
-import com.ptc.services.utilities.docgen.type.TypeProperties;
-import com.ptc.services.utilities.docgen.type.VisibleFields;
-import static com.ptc.services.utilities.docgen.utils.Logger.log;
-import static com.ptc.services.utilities.docgen.utils.Logger.print;
 
 public class IntegrityType extends IntegrityAdminObject {
 
@@ -54,17 +57,18 @@ public class IntegrityType extends IntegrityAdminObject {
     public static final String IPT_LBL_PREFIX = "IPT_LABEL_";
     public static final String IPT_TAB_PREFIX = "IPT_TAB_";
     private Integrity i;
-    private Hashtable<String, Field> iType;
+    private LinkedHashMap<String, Field> iType;
     private String mandatoryFields;
     private String wordTemplates = "";
-    private String visibleFields;
     private String stateTransitions;
     private String fieldRelationships;
     private String typeProperties;
-    private Hashtable<String, List<String>> relationshipFields;
-    private Hashtable<String, IntegrityField> fieldsHash;
+    private Boolean isSolutionType = false;
+    private File mainImage = null;
+    private LinkedHashMap<String, List<String>> relationshipFields;
+    private LinkedHashMap<String, IntegrityField> visibleFieldsHash;
     private LinkedHashMap<String, IntegrityField> allFieldsHash;
-    private Hashtable<String, IntegrityState> statesHash;
+    private LinkedHashMap<String, IntegrityState> statesHash;
 
     public static final String getXMLGenericPolicy(String genericPolicy) {
         String xmlParamPolicy = genericPolicy;
@@ -101,16 +105,16 @@ public class IntegrityType extends IntegrityAdminObject {
         return xmlParamPolicy;
     }
 
-    public IntegrityType(Integrity i, Hashtable<String, Field> typeDetails, boolean doXML) throws APIException {
+    public IntegrityType(Integrity i, LinkedHashMap<String, Field> typeDetails, boolean doXML) throws APIException {
         this.i = i;
         // modelType = IMModelTypeName.TYPE;
         iType = typeDetails;
         name = Integrity.getStringFieldValue(iType.get("name"));
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        relationshipFields = new Hashtable<>();
+        relationshipFields = new LinkedHashMap<>();
         allFieldsHash = new LinkedHashMap<>();
-        fieldsHash = new Hashtable<>();
-        statesHash = new Hashtable<>();
+        visibleFieldsHash = new LinkedHashMap<>();
+        statesHash = new LinkedHashMap<>();
 
         try {
             // Parsing for Mandatory Fields
@@ -123,7 +127,7 @@ public class IntegrityType extends IntegrityAdminObject {
             log("\tParsing... visibleFields... ");
             VisibleFields vf = new VisibleFields(getName(), i, iType.get("visibleFields"), iType.get("visibleFieldsForMe"));
             visibleFields = (doXML ? vf.getStringVisibleFields() : vf.getFormattedReport());
-            fieldsHash = vf.getList();
+            visibleFieldsHash = vf.getList();
             log("\tParsing... visibleFields... done.");
 
             // Generate Relationship diagrams
@@ -142,14 +146,15 @@ public class IntegrityType extends IntegrityAdminObject {
                 WorkflowModel wm = new WorkflowModel();
                 wm.display(this, iType.get("stateTransitions"));
             }
+
             StateTransitions st = new StateTransitions(getName(), i, iType.get("stateTransitions"));
             stateTransitions = (doXML ? st.getStringTransitions() : st.getFormattedReport());
             statesHash = (doXML ? st.getList() : statesHash);
             log("\tParsing... stateTransitions... done.");
 
-            // Parsing for Field Relationships
+            // Parsing for Field Trace
             print("\tParsing... fieldRelationships... ");
-            FieldRelationships fr = new FieldRelationships(fieldsHash, iType.get("fieldRelationships"));
+            FieldRelationships fr = new FieldRelationships(visibleFieldsHash, iType.get("fieldRelationships"));
             fieldRelationships = (doXML ? fr.getStringFieldRelationships() : fr.getFormattedReport());
             log("done.");
 
@@ -163,7 +168,7 @@ public class IntegrityType extends IntegrityAdminObject {
             String wordPath = REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs" + fs + "Types" + fs + pos;
             setCurrentDirectory(wordPath);
 
-            Response response = i.getWordTemplates(name);
+            i.getWordTemplates(name);
 
             File path = new File(wordPath);
 
@@ -173,14 +178,45 @@ public class IntegrityType extends IntegrityAdminObject {
                     // <a href=\"file:///" + path + "\\File" + fileId + ".htm" + "\">Preview</a>
 
                     String fname = pos + fs + file.getName();
-                    wordTemplates += (wordTemplates.isEmpty() ? "" : "<br>") + "<a href=\"" + fname + "\">" + file.getName() + "</a>";
+                    wordTemplates += (wordTemplates.isEmpty() ? "" : "<br/>") + "<a href=\"" + fname + "\">" + file.getName() + "</a>";
                 }
             }
-            // wordTemplates ", new Field(wordTemplates));
 
+            // Export the presentation templates
+            List<String> presentations = getUniquePresentations();
+            for (Iterator<String> pit = presentations.iterator(); pit.hasNext();) {
+                try {
+                    exportPresentation(pit.next(), CONTENT_XML_DIR, i.sysFieldsHash);
+                } catch (APIException | ParserConfigurationException | SAXException | IOException ex) {
+                    Logger.exception(Level.WARNING, 1, ex);
+                }
+            }
+
+            Field propsField = iType.get("properties");
+            ItemList itemList = (ItemList) propsField.getList();
+            // String name;
+            // String value;
+            // String desc;
+            for (Iterator i$ = itemList.iterator(); i$.hasNext();) {
+                Object obj = i$.next();
+                Item item = (Item) obj;
+                String propName = item.getField("name").getString();
+                // value = item.getField("value").getString();
+                // desc = item.getField("description").getString();
+                if (propName.equals("MKS.isRQ")) {
+                    isSolutionType = true;
+                    log("INFO: Found Solution Type '" + name + "'.");
+                    IntegrityDocs.solutionTypeName = name;
+                    break;
+                }
+
+//                if (filter == null || name.startsWith(filter)) {
+//                    IntegrityTypeProperty prop = new IntegrityTypeProperty(name, value, desc);
+//                    this.put(prop.getName(), prop);
+//                }
+            }
         } catch (ItemNotFoundException e) {
-            log(e.getMessage());
-            e.printStackTrace();
+            exception(Level.WARNING, 1, e);
         }
         objectType = Types.Type;
     }
@@ -197,6 +233,26 @@ public class IntegrityType extends IntegrityAdminObject {
         return result;
     }
 
+    private void setMainImage(File imageFile) {
+        if (mainImage == null) {
+            mainImage = imageFile;
+        }
+    }
+
+    public Boolean isSolutionType() {
+        return isSolutionType;
+    }
+
+    public String getSmallImagePath() {
+        String imagePath = iType.get("smallImage").getString();
+        File file = new File(imagePath);
+        return "Types" + fs + file.getName();
+    }
+
+    public String getMainImagePath() {
+        return (mainImage == null ? "" : "images" + fs + mainImage.getName());
+    }
+
     public String getWordTemplates() {
         return wordTemplates;
     }
@@ -205,14 +261,13 @@ public class IntegrityType extends IntegrityAdminObject {
     public String getDetails() {
         StringObj sb = new StringObj();
         // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        sb.append(appendNewLine("      <tr><td colspan='2'><hr style='color: #d7d7d7; background-color: #d7d7d7; float: aligncenter;' align='center'/></td></tr>"));
-
+        sb.append(appendNewLine("<table class='display'>"));
         sb.addFieldValue("Created By", getCreatedBy() + " on " + getCreatedDate(sdf));
         sb.addFieldValue("Modified By", getModifiedBy() + " on " + getModifiedDate(sdf));
         sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
         sb.addFieldValue("Administrators", getPermittedAdministrators());
         sb.addFieldValue("Permitted Groups", getPermittedGroups());
+        sb.addFieldValue("Is Active", String.valueOf(iType.get("permittedGroups").getList().size() > 0));
         sb.addFieldValue("Notification Fields", getNotificationFields());
         sb.addFieldValue("Change Packages Allowed?", getAllowChangePackages()
                 + (getAllowChangePackages() ? "&nbsp;&nbsp;<b>Policy:</b> " + getCreateCPPolicy() : ""));
@@ -231,7 +286,6 @@ public class IntegrityType extends IntegrityAdminObject {
         sb.addFieldValue("Item Editability Rule", getIssueEditability());
         sb.addFieldValue("Word Templates", getWordTemplates());
 
-        // The output for relationship fields is broken in 2007
         // Only supporting 2009 and newer releases for relationship diagrams		    
         sb.addFieldValue("Relationships", "<img src=\"" + getPosition() + "_Relationships.jpeg\"/>");
         sb.addFieldValue("Visible Fields", getVisibleFields());
@@ -247,24 +301,32 @@ public class IntegrityType extends IntegrityAdminObject {
         return sb.toString();
     }
 
+    public LinkedHashMap<String, IntegrityField> getVisibleFieldList() {
+        return visibleFieldsHash;
+    }
+
     @SuppressWarnings("unchecked")
     private String getItemListValues(String fieldName, String delimiter, boolean fullNames) {
         StringBuilder values = new StringBuilder();
-        Field itemListField = iType.get(fieldName);
-        if (null != itemListField && null != itemListField.getDataType() && itemListField.getDataType().equals(Field.ITEM_LIST_TYPE)) {
-            List<Item> fieldsList = itemListField.getList();
-            for (Iterator<Item> it = fieldsList.iterator(); it.hasNext();) {
-                Item valueItem = it.next();
-                if (fullNames && valueItem.getModelType().equals(IMModelTypeName.USER)) {
-                    values.append(Integrity.getUserFullName(valueItem));
-                } else {
-                    values.append(valueItem.getId());
-                }
-                // Append the delimiter, if there are more values
-                values.append(it.hasNext() ? delimiter : "");
-            }
-        }
+        try {
+            Field itemListField = iType.get(fieldName);
 
+            if (null != itemListField && null != itemListField.getDataType() && itemListField.getDataType().equals(Field.ITEM_LIST_TYPE)) {
+                List<Item> fieldsList = itemListField.getList();
+                for (Iterator<Item> it = fieldsList.iterator(); it.hasNext();) {
+                    Item valueItem = it.next();
+                    if (fullNames && valueItem.getModelType().equals(IMModelTypeName.USER)) {
+                        values.append(Integrity.getUserFullName(valueItem));
+                    } else {
+                        values.append(valueItem.getId());
+                    }
+                    // Append the delimiter, if there are more values
+                    values.append(it.hasNext() ? delimiter : "");
+                }
+            }
+        } catch (NoSuchElementException e) {
+            // simple skip over this
+        }
         return values.toString();
     }
 
@@ -558,7 +620,7 @@ public class IntegrityType extends IntegrityAdminObject {
     }
 
     // Converts the field id to field name for exporting presentation templates
-    private void normalizeElement(Node node) throws MalformedURLException {
+    private void normalizeElementAndDownloadImages(Node node) throws MalformedURLException, IOException {
         NodeList nodeList = node.getChildNodes();
         for (int j = 0; j < nodeList.getLength(); j++) {
             Node currentNode = nodeList.item(j);
@@ -608,15 +670,25 @@ public class IntegrityType extends IntegrityAdminObject {
 
                 if (e.hasAttribute("href")) {
                     URL url = new URL(e.getAttribute("href"));
-                    if (url.getHost().equalsIgnoreCase(i.getHostName())) {
+                    if (url.getHost().equalsIgnoreCase(i.getHostName()) || url.getHost().toLowerCase().startsWith(i.getHostName().toLowerCase())) {
+
+                        // store any image within the presentation template
+                        File image = FileUtils.inputStreamToFile(CONTENT_IMAGES_DIR.getAbsolutePath(), e.getAttribute("href"));
+                        if (!image.exists()) {
+                            log("  Exporting " + image.getAbsolutePath() + " ...");
+                        }
+                        setMainImage(image);
+
                         String urlRef = e.getAttribute("href").replaceFirst(url.getHost(), "TEMPLATE_BUILDER_HOSTNAME");
                         urlRef = urlRef.replaceFirst(String.valueOf(url.getPort()), "TEMPLATE_BUILDER_PORT");
                         e.setAttribute("href", urlRef);
+                    } else {
+                        log("Skipping -external- file '" + e.getAttribute("href") + "'.");
                     }
                 }
 
                 // Recursively process all the children
-                normalizeElement(currentNode);
+                normalizeElementAndDownloadImages(currentNode);
             }
         }
     }
@@ -636,9 +708,9 @@ public class IntegrityType extends IntegrityAdminObject {
         // Parse the presentation template xml file
         Document xmlDoc = xmlBuilder.parse(presTemplateFile);
         // Get the root element
-        normalizeElement(xmlDoc.getDocumentElement());
+        normalizeElementAndDownloadImages(xmlDoc.getDocumentElement());
         // Write out the fixed up presentation template
-        XMLPrettyPrinter.serialize(new File(IntegrityDocs.XML_CONTENT_DIR.getAbsolutePath(), "templates" + IntegrityDocs.fs + presTemplateFile.getName()), xmlDoc, false);
+        XMLPrettyPrinter.serialize(new File(CONTENT_XML_DIR.getAbsolutePath(), "templates" + fs + presTemplateFile.getName()), xmlDoc, false);
         // Clean up the working copy
         presTemplateFile.delete();
     }
@@ -660,6 +732,7 @@ public class IntegrityType extends IntegrityAdminObject {
         return Integrity.getUserFullName(iType.get("modifiedBy").getItem());
     }
 
+    @Override
     public String getPosition() {
         return iType.get("position").getInteger().toString();
     }
@@ -701,12 +774,12 @@ public class IntegrityType extends IntegrityAdminObject {
         return visibleFields;
     }
 
-    public Hashtable<String, List<String>> getRelationshipFields() {
+    public LinkedHashMap<String, List<String>> getRelationshipFields() {
         return relationshipFields;
     }
 
-    public Hashtable<String, IntegrityField> getFields() {
-        return fieldsHash;
+    public LinkedHashMap<String, IntegrityField> getFields() {
+        return visibleFieldsHash;
     }
 
     // stateTransitions
@@ -714,7 +787,7 @@ public class IntegrityType extends IntegrityAdminObject {
         return stateTransitions;
     }
 
-    public Hashtable<String, IntegrityState> getStates() {
+    public LinkedHashMap<String, IntegrityState> getStates() {
         return statesHash;
     }
 
@@ -725,17 +798,17 @@ public class IntegrityType extends IntegrityAdminObject {
 
     // notificationFields
     public String getNotificationFields() {
-        return getItemListValues("notificationFields", "<br/>" + IntegrityDocs.nl, false);
+        return getItemListValues("notificationFields", "<br/>" + nl, false);
     }
 
     // permittedGroups
     public String getPermittedGroups() {
-        return getItemListValues("permittedGroups", "<br>" + IntegrityDocs.nl, false);
+        return getItemListValues("permittedGroups", "<br/>" + nl, false);
     }
 
     // permittedAdministrators
     public String getPermittedAdministrators() {
-        return Integrity.summarizePermissionsList(iType.get("permittedAdministrators"), "<br/>" + IntegrityDocs.nl);
+        return Integrity.summarizePermissionsList(iType.get("permittedAdministrators"), "<br/>" + nl);
     }
 
     public String getPermittedAdministrators(String delimiter) {
@@ -758,7 +831,7 @@ public class IntegrityType extends IntegrityAdminObject {
     }
 
     public List<String> getUniquePresentations() {
-        List<String> uniquePresentationsList = new ArrayList<String>();
+        List<String> uniquePresentationsList = new ArrayList<>();
         if (!uniquePresentationsList.contains(getViewPresentation())) {
             uniquePresentationsList.add(getViewPresentation());
         }
@@ -857,6 +930,7 @@ public class IntegrityType extends IntegrityAdminObject {
     }
 
     // typeClassGroup
+    @Override
     public String getTypeClassGroup() {
         return null == iType.get("typeClass").getValueAsString() ? "Item" : (iType.get("typeClass").getValueAsString().equals("none") ? "Item" : "Document");
     }
@@ -868,7 +942,7 @@ public class IntegrityType extends IntegrityAdminObject {
 
     // significantEdit
     public String getSignificantEdit() {
-        return getItemListValues("significantEdit", "<br>" + IntegrityDocs.nl, false);
+        return getItemListValues("significantEdit", "<br/>" + nl, false);
     }
 
     public String getSignificantEdit(String delimiter) {
@@ -887,12 +961,12 @@ public class IntegrityType extends IntegrityAdminObject {
 
     // copyFields
     public String getCopyFields() {
-        return getItemListValues("copyFields", "<br>" + IntegrityDocs.nl, false);
+        return getItemListValues("copyFields", "<br/>" + nl, false);
     }
 
     // testCaseResultFields
     public String getTestCaseResultFields() {
-        return getItemListValues("testCaseResultFields", "<br>" + IntegrityDocs.nl, false);
+        return getItemListValues("testCaseResultFields", "<br/>" + nl, false);
     }
 
     public String getTestCaseResultFields(String delimiter) {
@@ -942,5 +1016,34 @@ public class IntegrityType extends IntegrityAdminObject {
     // duplicateDetectionSearchField
     public String getDuplicateDetectionSearchField() {
         return Integrity.getStringFieldValue(iType.get("duplicateDetectionSearchField"));
+    }
+
+    @Override
+    public String getFieldValue(String fieldName) {
+        if (fieldName.equals("allowChangePackages")) {
+            return String.valueOf(getAllowChangePackages());
+        }
+        if (fieldName.equals("permittedGroups")) {
+            return getPermittedGroups();
+        }
+        if (fieldName.equals("timeTrackingEnabled")) {
+            return String.valueOf(getTimeTrackingEnabled());
+        }
+        if (fieldName.equals("showWorkflow")) {
+            return String.valueOf(getShowWorkflow());
+        }
+        if (fieldName.equals("copyTreeEnabled")) {
+            return String.valueOf(getCopyTreeEnabled());
+        }
+        if (fieldName.equals("smallImagePath")) {
+            return String.valueOf(getSmallImagePath());
+        }
+        if (fieldName.equals("mainImagePath")) {
+            return String.valueOf(getMainImagePath());
+        }
+        if (fieldName.equals("visibleFields")) {
+            return iType.get("visibleFields").getValueAsString();
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

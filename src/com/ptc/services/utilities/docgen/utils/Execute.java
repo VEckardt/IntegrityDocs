@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen.utils;
 
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.InputStreamReader;
@@ -75,13 +76,13 @@ public class Execute {
                 while (!interrupted()) {
                     line = stream.readLine();
                     if (line != null) {
-                        szResult += line + IntegrityDocs.nl;
+                        szResult += line + nl;
                     }
                 }
                 // Read any left over output
                 line = stream.readLine();
                 while (null != (line = stream.readLine())) {
-                    szResult += line + IntegrityDocs.nl;
+                    szResult += line + nl;
                 }
             } catch (Exception ex) {
                 log("ReadThread: " + ex.getMessage());

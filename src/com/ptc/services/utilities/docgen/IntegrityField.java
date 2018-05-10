@@ -8,10 +8,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
+import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.field.AllowedTypes;
 import com.ptc.services.utilities.docgen.field.PickField;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import com.ptc.services.utilities.docgen.utils.StringObj;
@@ -81,8 +84,6 @@ public class IntegrityField extends IntegrityAdminObject {
     public static final int CREATED_DATE = -1;
 
     private WorkItem wi;
-    private String id;
-    private String type;
     private String displayName;
     private String globalDescription;
     private String pairedField;
@@ -100,6 +101,11 @@ public class IntegrityField extends IntegrityAdminObject {
     @Override
     protected String getPosition() {
         return id;
+    }
+
+    @Override
+    protected String getFieldValue(String fieldName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public enum FieldType {
@@ -240,11 +246,60 @@ public class IntegrityField extends IntegrityAdminObject {
         COMPUTED_FIELDS.add(FieldType.SHORTTEXT);
     }
 
-    IntegrityField(String typeName, WorkItem wi) {
+    IntegrityField(WorkItem wi) {
+        this.wi = wi;
+        // modelType = IMModelTypeName.FIELD;
+        fieldDetailsHash = new LinkedHashMap<>();
+        iTypeName = "";
+        id = wi.getField("id").getValueAsString();
+        isPlatformField = Integer.parseInt(id) < 0;
+        type = wi.getField("type").getValueAsString();
+        name = wi.getField("name").getValueAsString();
+        xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
+        xmlTypeName = XMLWriter.padXMLParamName(IntegrityType.XML_PREFIX + XMLWriter.getXMLParamName(iTypeName));
+        displayName = wi.getField("displayName").getValueAsString();
+        globalDescription = wi.getField("description").getValueAsString();
+        
+        visibleGroups = new ArrayList<>();
+        try {
+            allowedTypes = parseAllowedTypes(wi.getField("allowedTypes"));
+        } catch (NoSuchElementException ex) {
+            allowedTypes = new ArrayList<>();
+        }
+        try {
+            pairedField = wi.getField("pairedField").getString();
+        } catch (NoSuchElementException ex) {
+            pairedField = "";
+        }
+        try {
+            isMultiValued = wi.getField("isMultiValued").getBoolean();
+        } catch (NoSuchElementException ex) {
+            isMultiValued = false;
+        }
+        try {
+            isForward = wi.getField("isForward").getBoolean();
+        } catch (NoSuchElementException ex) {
+            isForward = false;
+        }
+
+        // Initialize the fieldDetailsHash with the information from the Work Item
+        for (Iterator<Field> fit = wi.getFields(); fit.hasNext();) {
+            Field field = fit.next();
+            fieldDetailsHash.put(field.getName(), field);
+        }
+        objectType = Types.Field;
+    }
+
+    IntegrityField(String typeName, WorkItem wi) throws APIException {
         this.wi = wi;
         // modelType = IMModelTypeName.FIELD;
         fieldDetailsHash = new LinkedHashMap<>();
         iTypeName = (null == typeName ? "" : typeName);
+
+        if (typeName == null || typeName.isEmpty()) {
+            throw new APIException("Bad.");
+        }
+
         id = wi.getField("id").getValueAsString();
         isPlatformField = Integer.parseInt(id) < 0;
         type = wi.getField("type").getValueAsString();
@@ -281,13 +336,14 @@ public class IntegrityField extends IntegrityAdminObject {
     }
 
     // typeClass
+    @Override
     public String getTypeClassGroup() {
         return (type.substring(0, 1).toUpperCase() + type.substring(1)).replaceAll("([A-Z])", " $1");
     }
 
-    public Field getField(String fieldName) {
-        return wi.getField(fieldName);
-    }
+//    public Field getField(String fieldName) {
+//        return wi.getField(fieldName);
+//    }
 
     @Override
     public String getDetails() {
@@ -300,7 +356,10 @@ public class IntegrityField extends IntegrityAdminObject {
             if (field.getValue() != null) {
 
                 // if (field. != null && field.getModelType().endsWith("List")) {
-                if (field.getName().equals("picks")) {
+                if (field.getName().equals("allowedTypes")) {
+                    AllowedTypes pf = new AllowedTypes(field);
+                    sb.addFieldValue(fieldName, pf.getFormattedReport());
+                } else if (field.getName().equals("picks")) {
                     // log ("ITEM LIST found: " + field.getList());
 
                     PickField pf = new PickField(field);
@@ -311,16 +370,6 @@ public class IntegrityField extends IntegrityAdminObject {
 
             }
         }
-
-//        sb.addFieldValue("Name", getName());
-//        sb.addFieldValue("Display Name", getDisplayName());
-//        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-//        sb.addFieldValue("Type", getType());
-//        sb.addFieldValue("Default Value", getDefaultValue());
-//        sb.addFieldValue("Editability Rule", getEditabilityRule());
-//        sb.addFieldValue("Relevance Rule", getRelevanceRule());
-        // addFieldValue(sb, "Query", object.getQuery());
-        // Close out the triggers details table
         sb.append("     </table>");
 
         return sb.toString();
@@ -336,7 +385,7 @@ public class IntegrityField extends IntegrityAdminObject {
             for (Item relation : relTypesList) {
                 String fromType = relation.getField("from").getValueAsString();
                 // We're only interested in the relationships from this type
-                if (iTypeName.equals(fromType)) {
+                if (iTypeName.isEmpty() || iTypeName.equals(fromType)) {
                     @SuppressWarnings("unchecked")
                     List<Item> toTypesList = relation.getField("to").getList();
                     for (Item toType : toTypesList) {
@@ -379,6 +428,10 @@ public class IntegrityField extends IntegrityAdminObject {
     public void setVisibleGroups(List<String> groupsList) {
         visibleGroups = groupsList;
     }
+    
+    public Field getIField(String fieldName) {
+        return wi.getField(id);
+    }    
 
     public String getPairedField() {
         return this.pairedField;
@@ -397,7 +450,7 @@ public class IntegrityField extends IntegrityAdminObject {
 
         if (FieldType.PICK.equals(type)) {
             List<String> picks = parsePickValues(getAttribute("picks"));
-            return "<b>Pick List Values:</b><br>" + Integrity.convertListToString(picks, "<br/>" + IntegrityDocs.nl);
+            return "<b>Pick List Values:</b><br/>" + Integrity.convertListToString(picks, "<br/>" + nl);
         } else if (null != computation && computation.length() > 0) {
             String computationSummary;
             String staticComputation = getAttributeAsString("staticComputation");
@@ -405,17 +458,17 @@ public class IntegrityField extends IntegrityAdminObject {
 
             if (staticComputation.equals("true")) {
                 computationSummary = "<b>Static Computation Definition ("
-                        + storeToHistoryFrequency + "):</b><br>" + IntegrityDocs.nl;
-                computationSummary += computation + IntegrityDocs.nl;
+                        + storeToHistoryFrequency + "):</b><br/>" + nl;
+                computationSummary += computation + nl;
             } else {
                 computationSummary = "<b>Dynamic Computation Definition ("
-                        + storeToHistoryFrequency + "):</b><br>" + IntegrityDocs.nl;
-                computationSummary += computation + IntegrityDocs.nl;
+                        + storeToHistoryFrequency + "):</b><br/>" + nl;
+                computationSummary += computation + nl;
 
             }
             return computationSummary;
         } else if (FieldType.RELATIONSHIP.equals(type) && getDefaultColumns().size() > 0) {
-            return "<b>Columns:</b><br>" + IntegrityDocs.nl + Integrity.convertListToString(getDefaultColumns(), "<br/>" + IntegrityDocs.nl);
+            return "<b>Columns:</b><br/>" + nl + Integrity.convertListToString(getDefaultColumns(), "<br/>" + nl);
         } else {
             return "&nbsp;";
         }
@@ -537,7 +590,7 @@ public class IntegrityField extends IntegrityAdminObject {
                     for (Item phase : phaseList) {
                         // Ignore the 'Out of Phase' phase
                         if (!phase.getId().equalsIgnoreCase("Out of Phase")) {
-                            sb.append(phaseCount > 0 ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                            sb.append(phaseCount > 0 ? ";" + nl + "\t\t\t" : "");
                             sb.append(phase.getField("label").getValueAsString() + ":");
                             sb.append(Integrity.getXMLParamFieldValue(phase.getField("states").getList(), IntegrityState.XML_PREFIX, ","));
                             phaseCount++;
@@ -552,7 +605,7 @@ public class IntegrityField extends IntegrityAdminObject {
                         sb.append(phase.getField("label").getValueAsString());
                         sb.append(":" + phase.getField("lowerValue").getValueAsString());
                         sb.append(";" + phase.getField("upperValue").getValueAsString());
-                        sb.append(it.hasNext() ? "," + IntegrityDocs.nl + "\t\t\t" : "");
+                        sb.append(it.hasNext() ? "," + nl + "\t\t\t" : "");
                     }
                     command.appendChild(XMLWriter.getOption(job, strAttribute, sb.toString()));
                 } else if (strAttribute.equalsIgnoreCase("isTestResult") && getAttributeAsString(strAttribute).equals("true")) {
@@ -594,7 +647,7 @@ public class IntegrityField extends IntegrityAdminObject {
                                 String pickValue = Integrity.getStringFieldValue(curPickItem.getField("value"));
                                 sb.append(pickLabel + ":");
                                 sb.append(pickValue);
-                                sb.append(it.hasNext() ? "," + IntegrityDocs.nl + "\t\t\t" : "");
+                                sb.append(it.hasNext() ? "," + nl + "\t\t\t" : "");
                             }
                         }
                         command.appendChild(XMLWriter.getOption(job, strAttribute, sb.toString()));

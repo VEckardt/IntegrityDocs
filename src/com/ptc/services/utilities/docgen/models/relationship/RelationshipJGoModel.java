@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Enumeration;
 import com.nwoods.jgo.JGoObject;
 import com.nwoods.jgo.JGoDocument;
@@ -13,6 +12,8 @@ import com.nwoods.jgo.JGoPort;
 import com.nwoods.jgo.JGoListPosition;
 import com.nwoods.jgo.layout.JGoLayeredDigraphAutoLayout;
 import com.ptc.services.utilities.docgen.IntegrityType;
+import java.util.LinkedHashMap;
+import java.util.Set;
 
 /**
  * The model (document) for WorkflowJGoView. The model contains nodes, links,
@@ -22,12 +23,12 @@ public class RelationshipJGoModel extends JGoDocument {
 
     private static final long serialVersionUID = 92342456L;
     private String type;
-    private Hashtable<String, List<String>> relationshipFields;
+    private LinkedHashMap<String, List<String>> relationshipFields;
 
     /**
      * Constructor.
      */
-    public RelationshipJGoModel(IntegrityType type, Hashtable<String, List<String>> relFields) {
+    public RelationshipJGoModel(IntegrityType type, LinkedHashMap<String, List<String>> relFields) {
         super();
         this.type = type.getName();
         relationshipFields = relFields;
@@ -54,10 +55,10 @@ public class RelationshipJGoModel extends JGoDocument {
         addNode(nodeFrom);
 
         // Now enumerate thru the rest of the related types and add them to the model
-        Enumeration<String> relFields = relationshipFields.keys();
-        while (relFields.hasMoreElements()) {
-            // Save the current relationship field name
-            String fieldName = relFields.nextElement();
+        Set<String> relFields = relationshipFields.keySet();
+
+        // Save the current relationship field name
+        for (String fieldName : relFields) {
             // Get the list of related Types using this relationship field
             List<String> typesList = relationshipFields.get(fieldName);
             // Iterate thru the list of target types

@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mks.api.response.Field;
+import static com.ptc.services.utilities.docgen.Constants.REPORT_DIR;
+import static com.ptc.services.utilities.docgen.Constants.fs;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityType;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
@@ -29,13 +31,13 @@ public class WorkflowModel extends Frame {
         relModel.open();
         relView.performLayout();
         try {
-            File imagesDir = new File(IntegrityDocs.REPORT_DIR.getAbsolutePath() + IntegrityDocs.fs + "WorkflowDocs" + IntegrityDocs.fs + "Types");
+            File imagesDir = new File(REPORT_DIR.getAbsolutePath() + fs + "WorkflowDocs" + fs + "Types");
             // Create a directory if the images directory does not exist
             if (!imagesDir.isDirectory()) {
                 imagesDir.mkdirs();
             }
             // Create a jpeg file to save the workflow image
-            FileOutputStream fos = new FileOutputStream(imagesDir.getAbsolutePath() + IntegrityDocs.fs + type.getPosition() + "_Workflow.jpeg");
+            FileOutputStream fos = new FileOutputStream(imagesDir.getAbsolutePath() + fs + type.getPosition() + "_Workflow.jpeg");
             relView.produceImage(fos, "jpeg");
             fos.flush();
             fos.close();

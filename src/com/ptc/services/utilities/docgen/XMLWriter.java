@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -20,14 +19,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import com.mks.api.im.IMModelTypeName;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.XMLPrettyPrinter;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_XML_DIR;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class XMLWriter {
 
-    public static Hashtable<String, String> paramsHash = new Hashtable<String, String>();
+    public static LinkedHashMap<String, String> paramsHash = new LinkedHashMap<String, String>();
     private List<IntegrityType> iTypes;
     private List<?>[] iAdminObjects;
 
@@ -59,10 +59,10 @@ public class XMLWriter {
         iAdminObjects = adminObjects;
     }
 
-    private Element getInstruction(Document job, Element instruction, Enumeration<?> list, boolean overrides) {
+    private Element getInstruction(Document job, Element instruction, Set<?> list, boolean overrides) {
         String instructionID = instruction.getAttribute("id").substring(1);
         int i = 1; // command counter
-        while (list.hasMoreElements()) {
+        // VE: while (list.hasMoreElements()) {
             Element command = job.createElement("Command");
             command.setAttribute("id", "c" + instructionID + "." + i);
             command.setAttribute("user", "${username}");
@@ -70,7 +70,38 @@ public class XMLWriter {
             command.setAttribute("port", "${port}");
             command.setAttribute("pwd", "${pwd}");
 
-            IntegrityAdminObject o = (IntegrityAdminObject) list.nextElement();
+            // VE: IntegrityAdminObject o = (IntegrityAdminObject) list.nextElement();
+            if (overrides) {
+//                if (o.getModelType().equals(IMModelTypeName.FIELD)) {
+//                    command = ((IntegrityField) o).getOverridesXML(job, command);
+//                }
+//                if (o.getModelType().equals(IMModelTypeName.STATE)) {
+//                    command = ((IntegrityState) o).getOverridesXML(job, command);
+//                }
+            } else {
+                // VE: command = o.getXML(job, command);
+            }
+
+            // Add the command to the instruction
+            instruction.appendChild(command);
+            // Increment the command counter
+            i++;
+        // VE: }
+        return instruction;
+    }
+
+    private Element getInstruction(Document job, Element instruction, LinkedHashMap<String, IntegrityField> list, boolean overrides) {
+        String instructionID = instruction.getAttribute("id").substring(1);
+        int i = 1; // command counter
+        for (IntegrityField field : list.values()) {
+            Element command = job.createElement("Command");
+            command.setAttribute("id", "c" + instructionID + "." + i);
+            command.setAttribute("user", "${username}");
+            command.setAttribute("host", "${hostname}");
+            command.setAttribute("port", "${port}");
+            command.setAttribute("pwd", "${pwd}");
+
+            IntegrityAdminObject o = (IntegrityAdminObject) field;
             if (overrides) {
 //                if (o.getModelType().equals(IMModelTypeName.FIELD)) {
 //                    command = ((IntegrityField) o).getOverridesXML(job, command);
@@ -138,28 +169,28 @@ public class XMLWriter {
             Element createStates = xmlJob.createElement("Instruction");
             createStates.setAttribute("id", "i1");
             // Add this instruction to the job
-            job.appendChild(getInstruction(xmlJob, createStates, t.getStates().elements(), false));
+            // VE: job.appendChild(getInstruction(xmlJob, createStates, t.getStates(), false));
 
             // Next, we'll setup the instruction to edit states...
             job.appendChild(xmlJob.createComment(" States - edit pass - overrides for the type "));
             Element editStates = xmlJob.createElement("Instruction");
             editStates.setAttribute("id", "i2");
             // Add this instruction to the job
-            job.appendChild(getInstruction(xmlJob, editStates, t.getStates().elements(), true));
+            // VE: job.appendChild(getInstruction(xmlJob, editStates, t.getStates(), true));
 
             // Next, we'll setup the instruction to create fields...
             job.appendChild(xmlJob.createComment(" Fields - create pass or edit platform fields "));
             Element createFields = xmlJob.createElement("Instruction");
             createFields.setAttribute("id", "i3");
             // Add this instruction to the job
-            job.appendChild(getInstruction(xmlJob, createFields, t.getFields().elements(), false));
+            job.appendChild(getInstruction(xmlJob, createFields, t.getFields(), false));
 
             // Next, we'll setup the instruction to edit fields...
             job.appendChild(xmlJob.createComment(" Fields - edit pass - overrides for the type "));
             Element editFields = xmlJob.createElement("Instruction");
             editFields.setAttribute("id", "i4");
             // Add this instruction to the job
-            job.appendChild(getInstruction(xmlJob, editFields, t.getFields().elements(), true));
+            job.appendChild(getInstruction(xmlJob, editFields, t.getFields(), true));
 
             // Finally, we'll setup the instruction to create the type...
             job.appendChild(xmlJob.createComment(" Type - create pass "));
@@ -172,12 +203,12 @@ public class XMLWriter {
             xmlJob.appendChild(job);
 
             // Write out the job xml file
-            XMLPrettyPrinter.serialize(new File(IntegrityDocs.XML_CONTENT_DIR.getAbsolutePath(), t.getPosition() + "-" + t.getName() + ".xml"), xmlJob, true);
+            XMLPrettyPrinter.serialize(new File(CONTENT_XML_DIR.getAbsolutePath(), t.getPosition() + "-" + t.getName() + ".xml"), xmlJob, true);
 
             // Export the presentation templates
             List<String> presentations = t.getUniquePresentations();
             for (Iterator<String> pit = presentations.iterator(); pit.hasNext();) {
-                t.exportPresentation(pit.next(), IntegrityDocs.XML_CONTENT_DIR, sysFieldsHash);
+                t.exportPresentation(pit.next(), CONTENT_XML_DIR, sysFieldsHash);
             }
         }
 
@@ -202,7 +233,7 @@ public class XMLWriter {
             }
         };
         globalRes.putAll(paramsHash);
-        File resPropsFile = new File(IntegrityDocs.XML_CONTENT_DIR.getAbsolutePath(), "resources.properties");
+        File resPropsFile = new File(CONTENT_XML_DIR.getAbsolutePath(), "resources.properties");
         BufferedWriter wtr = null;
         try {
             wtr = new BufferedWriter(new FileWriter(resPropsFile));
@@ -266,7 +297,7 @@ public class XMLWriter {
             xmlJob.appendChild(job);
 
             // Write out the admin object as a single job xml file
-            XMLPrettyPrinter.serialize(new File(IntegrityDocs.XML_CONTENT_DIR.getAbsolutePath(), adminType + ".xml"), xmlJob, true);
+            XMLPrettyPrinter.serialize(new File(CONTENT_XML_DIR.getAbsolutePath(), adminType + ".xml"), xmlJob, true);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.ptc.services.utilities.docgen.type;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Iterator;
 
@@ -9,25 +8,27 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityState;
 import com.ptc.services.utilities.docgen.XMLWriter;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import java.util.LinkedHashMap;
+import java.util.NoSuchElementException;
 
 public class StateTransitions {
 
     private Field transitions;
     private List<String> statesList;
     private String strTransitions;
-    private Hashtable<String, IntegrityState> statesHash;
+    private LinkedHashMap<String, IntegrityState> statesHash;
 
     public StateTransitions(String typeName, Integrity i, Field stateTransitions) {
         transitions = stateTransitions;
         statesList = new ArrayList<>();
         strTransitions = new String();
-        statesHash = new Hashtable<>();
+        statesHash = new LinkedHashMap<>();
         setUniqueStatesAndTransitions();
 
         try {
@@ -86,14 +87,17 @@ public class StateTransitions {
                     sb.append(XMLWriter.padXMLParamName(xmlToState)).append(":");
 
                     // Add the permitted groups for this state transition
-                    sb.append(Integrity.getXMLParamFieldValue(targetState.getField("permittedGroups"), Integrity.GROUP_XML_PREFIX, ","));
-
+                    try {
+                        sb.append(Integrity.getXMLParamFieldValue(targetState.getField("permittedGroups"), Integrity.GROUP_XML_PREFIX, ","));
+                    } catch (NoSuchElementException e) {
+                        sb.append("");
+                    }
                     // Add the delimiter for the next state transition in the list
-                    sb.append(tlit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                    sb.append(tlit.hasNext() ? ";" + nl + "\t\t\t" : "");
                 }
 
                 // Add the delimiter for the next set of state transitions in the list
-                sb.append(lit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                sb.append(lit.hasNext() ? ";" + nl + "\t\t\t" : "");
             }
 
             // Set the strTransitions variable
@@ -101,7 +105,7 @@ public class StateTransitions {
         }
     }
 
-    public Hashtable<String, IntegrityState> getList() {
+    public LinkedHashMap<String, IntegrityState> getList() {
         return statesHash;
     }
 
@@ -113,12 +117,12 @@ public class StateTransitions {
     public String getFormattedReport() throws ItemNotFoundException {
         StringBuilder report = new StringBuilder();
         // Construct the open table and heading line
-        report.append("<table class='list'>").append(IntegrityDocs.nl);
-        report.append("  <tr>").append(IntegrityDocs.nl);
-        report.append("    <th>From State</th>").append(IntegrityDocs.nl);
-        report.append("    <th>To State</th>").append(IntegrityDocs.nl);
-        report.append("    <th>Permitted Groups</th>").append(IntegrityDocs.nl);
-        report.append("  </tr>").append(IntegrityDocs.nl);
+        report.append("<table class='list'>").append(nl);
+        report.append("  <tr>").append(nl);
+        report.append("    <th>From State</th>").append(nl);
+        report.append("    <th>To State</th>").append(nl);
+        report.append("    <th>Permitted Groups</th>").append(nl);
+        report.append("  </tr>").append(nl);
         // Ensure we're dealing with some valid data
         if (null != transitions && null != transitions.getList()) {
             List<Item> stateTransitionsList = transitions.getList();
@@ -129,22 +133,22 @@ public class StateTransitions {
                 List<Item> targetStatesList = targetStates.getList();
                 for (Iterator<Item> tlit = targetStatesList.iterator(); tlit.hasNext();) {
                     // Write out the new table row
-                    report.append("  <tr>" + IntegrityDocs.nl);
+                    report.append("  <tr>" + nl);
                     // Get the value for "To State"
                     Item targetState = tlit.next();
                     // Write out the "From State" value
-                    report.append("    <td>" + stateTransition.getId() + "</td>" + IntegrityDocs.nl);
+                    report.append("    <td>" + stateTransition.getId() + "</td>" + nl);
                     // Write out the "To State" value
-                    report.append("    <td>" + targetState.getId() + "</td>" + IntegrityDocs.nl);
+                    report.append("    <td>" + targetState.getId() + "</td>" + nl);
                     // Finally write out the "Permitted Groups" value
-                    report.append("    <td>" + Integrity.getFieldValue(targetState.getField("permittedGroups"), "<br/>") + "</td>" + IntegrityDocs.nl);
+                    report.append("    <td>" + Integrity.getFieldValue(targetState.getField("permittedGroups"), "<br/>") + "</td>" + nl);
                     // Close out the table row
-                    report.append("  </tr>" + IntegrityDocs.nl);
+                    report.append("  </tr>" + nl);
                 }
             }
         }
         // Close the table tag
-        report.append("</table>" + IntegrityDocs.nl);
+        report.append("</table>" + nl);
         return report.toString();
     }
 }

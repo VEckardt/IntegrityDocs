@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -24,6 +23,7 @@ import com.mks.api.Command;
 import com.ptc.services.utilities.IterableNodeList;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.XMLUtils;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_XML_VIEWSETS_DIR;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
@@ -102,9 +102,9 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     public void setViewsetLayout(LinkedHashMap<String, IntegrityField> fieldsHash,
-            Hashtable<String, String> typeIDs,
-            Hashtable<String, String> queryIDs,
-            Hashtable<String, String> chartIDs, Document vsDoc) throws XPathExpressionException {
+            LinkedHashMap<String, String> typeIDs,
+            LinkedHashMap<String, String> queryIDs,
+            LinkedHashMap<String, String> chartIDs, Document vsDoc) throws XPathExpressionException {
         // Lets clean up the raw viewset definition and sanitize it for a clean import
         XPath xp = XPathFactory.newInstance().newXPath();
         // Remove <MRUEntries>
@@ -147,9 +147,9 @@ public class Viewset extends IntegrityAdminObject {
 
     // Provides the parameterized name string for the supplied admin object ID reference
     private String getParamNameForID(LinkedHashMap<String, IntegrityField> fieldsHash,
-            Hashtable<String, String> typeIDs,
-            Hashtable<String, String> queryIDs,
-            Hashtable<String, String> chartIDs,
+            LinkedHashMap<String, String> typeIDs,
+            LinkedHashMap<String, String> queryIDs,
+            LinkedHashMap<String, String> chartIDs,
             String adminID,
             String adminClass) {
         String xmlParamName = adminID;
@@ -191,9 +191,9 @@ public class Viewset extends IntegrityAdminObject {
 
     // Substitutes the name equivalent for the admin object ID
     private void substituteIDForName(LinkedHashMap<String, IntegrityField> fieldsHash,
-            Hashtable<String, String> typeIDs,
-            Hashtable<String, String> queryIDs,
-            Hashtable<String, String> chartIDs, Node node) {
+            LinkedHashMap<String, String> typeIDs,
+            LinkedHashMap<String, String> queryIDs,
+            LinkedHashMap<String, String> chartIDs, Node node) {
         // Search and replace instances of
         //	CIQuery:<ID>
         //	CIChart:<ID>
@@ -326,9 +326,9 @@ public class Viewset extends IntegrityAdminObject {
 
     // Converts the field id to field name for exporting viewset xml layout files
     private void normalizeElement(LinkedHashMap<String, IntegrityField> fieldsHash,
-            Hashtable<String, String> typeIDs,
-            Hashtable<String, String> queryIDs,
-            Hashtable<String, String> chartIDs, Node node) {
+            LinkedHashMap<String, String> typeIDs,
+            LinkedHashMap<String, String> queryIDs,
+            LinkedHashMap<String, String> chartIDs, Node node) {
         NodeList nodeList = node.getChildNodes();
         for (int j = 0; j < nodeList.getLength(); j++) {
             Node currentNode = nodeList.item(j);
@@ -436,7 +436,7 @@ public class Viewset extends IntegrityAdminObject {
 
         // Add the selection for the viewset file name
         String xmlViewsetFileParam = XML_PREFIX + XMLWriter.getXMLParamName(name + "_file");
-        File exportFile = new File(IntegrityDocs.XML_VIEWSETS_DIR, name + ".vs");
+        File exportFile = new File(CONTENT_XML_VIEWSETS_DIR, name + ".vs");
         XMLWriter.paramsHash.put(xmlViewsetFileParam, exportFile.getAbsolutePath());
 
         Element selection = job.createElement("selection");
@@ -500,5 +500,10 @@ public class Viewset extends IntegrityAdminObject {
         sb.append("</table>");
 
         return sb.toString();
+    }
+
+    @Override
+    protected String getFieldValue(String fieldName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -1,28 +1,27 @@
 package com.ptc.services.utilities.docgen.type;
 
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityField;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import java.util.LinkedHashMap;
 
 public class VisibleFields {
 
-    private Hashtable<String, IntegrityField> fieldsHash;
+    private LinkedHashMap<String, IntegrityField> fieldsHash;
     private String strVisibleFields;
 
     public VisibleFields(String typeName, Integrity i, Field visibleFields, Field visibleFieldsForMe) {
-        fieldsHash = new Hashtable<String, IntegrityField>();
+        fieldsHash = new LinkedHashMap<String, IntegrityField>();
         strVisibleFields = new String();
         try {
             // Generate the visible fields hash
@@ -38,7 +37,7 @@ public class VisibleFields {
                     String fieldName = fieldItem.getId();
                     sb.append(fieldsHash.get(fieldName).getXMLName() + ":");
                     sb.append(Integrity.getXMLParamFieldValue(fieldsHash.get(fieldName).getVisibleGroups(), Integrity.GROUP_XML_PREFIX, ","));
-                    sb.append(it.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                    sb.append(it.hasNext() ? ";" + nl + "\t\t\t" : "");
                 }
             }
             strVisibleFields = sb.toString();
@@ -50,7 +49,7 @@ public class VisibleFields {
         }
     }
 
-    public Hashtable<String, IntegrityField> getList() {
+    public LinkedHashMap<String, IntegrityField> getList() {
         return fieldsHash;
     }
 
@@ -60,11 +59,10 @@ public class VisibleFields {
 
     // Returns a hash table containing IBPL and Relationship fields including the associated types
     // NOTE:  QBRs cannot be evaluated to a specific type, hence are not supported this this view.
-    public Hashtable<String, List<String>> getRelationshipFields() {
-        Hashtable<String, List<String>> relationshipFields = new Hashtable<String, List<String>>();
-        Enumeration<IntegrityField> iFields = fieldsHash.elements();
-        while (iFields.hasMoreElements()) {
-            IntegrityField field = iFields.nextElement();
+    public LinkedHashMap<String, List<String>> getRelationshipFields() {
+        LinkedHashMap<String, List<String>> relationshipFields = new LinkedHashMap<String, List<String>>();
+        // Enumeration<IntegrityField> iFields = fieldsHash.elements();
+        for (IntegrityField field : fieldsHash.values()) {
             if (field.getType().equalsIgnoreCase("relationship")) {
                 relationshipFields.put(field.getName(), field.getAllowedTypes());
             } else if (field.getType().equalsIgnoreCase("ibpl")) {
@@ -79,39 +77,40 @@ public class VisibleFields {
     public String getFormattedReport() throws ItemNotFoundException {
         StringBuffer report = new StringBuffer();
         // Construct the open table and heading line
-        report.append("<table class='list'>" + IntegrityDocs.nl);
-        report.append("  <tr>" + IntegrityDocs.nl);
-        report.append("    <th>ID</th>" + IntegrityDocs.nl);
-        report.append("    <th>Type</th>" + IntegrityDocs.nl);
-        report.append("    <th>Name</th>" + IntegrityDocs.nl);
-        report.append("    <th>Display Name</th>" + IntegrityDocs.nl);
-        report.append("    <th>Visible To</th>" + IntegrityDocs.nl);
-        report.append("    <th>Relevance</th>" + IntegrityDocs.nl);
-        report.append("    <th>Editability</th>" + IntegrityDocs.nl);
-        report.append("    <th>Default Value</th>" + IntegrityDocs.nl);
-        report.append("    <th>Details</th>" + IntegrityDocs.nl);
-        report.append("    <th>Description</th>" + IntegrityDocs.nl);
-        report.append("  </tr>" + IntegrityDocs.nl);
+        report.append("<table class='list'>" + nl);
+        report.append("  <tr>" + nl);
+        report.append("    <th>ID</th>" + nl);
+        report.append("    <th>Type</th>" + nl);
+        report.append("    <th>Name</th>" + nl);
+        report.append("    <th>Display Name</th>" + nl);
+        report.append("    <th>Visible To</th>" + nl);
+        report.append("    <th>Relevance</th>" + nl);
+        report.append("    <th>Editability</th>" + nl);
+        report.append("    <th>Default Value</th>" + nl);
+        report.append("    <th>Details</th>" + nl);
+        report.append("    <th>Description</th>" + nl);
+        report.append("  </tr>" + nl);
 
-        Enumeration<IntegrityField> iFields = fieldsHash.elements();
-        while (iFields.hasMoreElements()) {
-            IntegrityField field = iFields.nextElement();
+        // Enumeration<IntegrityField> iFields = fieldsHash.elements();
+        // while (iFields.hasMoreElements()) {
+        //    IntegrityField field = iFields.nextElement();
+        for (IntegrityField field : fieldsHash.values()) {
             // Write out the new table row and write all information about the field
-            report.append("  <tr>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getId() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getType() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getName() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getDisplayName() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + Integrity.convertListToString(field.getVisibleGroups(), "<br/>") + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getRelevanceRule() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getEditabilityRule() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getDefaultValue() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + field.getFieldSummary() + "</td>" + IntegrityDocs.nl);
-            report.append("    <td>" + HyperLinkFactory.convertHyperLinks(field.getDescription()) + "</td>" + IntegrityDocs.nl);
-            report.append("  </tr>" + IntegrityDocs.nl);
+            report.append("  <tr>" + nl);
+            report.append("    <td>" + field.getId() + "</td>" + nl);
+            report.append("    <td>" + field.getType() + "</td>" + nl);
+            report.append("    <td>" + field.getName() + "</td>" + nl);
+            report.append("    <td>" + field.getDisplayName() + "</td>" + nl);
+            report.append("    <td>" + Integrity.convertListToString(field.getVisibleGroups(), "<br/>") + "</td>" + nl);
+            report.append("    <td>" + field.getRelevanceRule() + "</td>" + nl);
+            report.append("    <td>" + field.getEditabilityRule() + "</td>" + nl);
+            report.append("    <td>" + field.getDefaultValue() + "</td>" + nl);
+            report.append("    <td>" + field.getFieldSummary() + "</td>" + nl);
+            report.append("    <td>" + HyperLinkFactory.convertHyperLinks(field.getDescription()) + "</td>" + nl);
+            report.append("  </tr>" + nl);
         }
         // Close the table tag
-        report.append("</table>" + IntegrityDocs.nl);
+        report.append("</table>" + nl);
         return report.toString();
     }
 }

@@ -7,7 +7,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.mks.api.im.IMModelTypeName;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
@@ -70,6 +69,7 @@ public class TestResultField extends IntegrityAdminObject {
         this.description = description;
     }
 
+    @Override
     public void setType(String verdicyType) {
         this.type = verdicyType;
     }
@@ -200,5 +200,10 @@ public class TestResultField extends IntegrityAdminObject {
 //    }
     public String getDisplayName() {
         return displayName;
+    }
+
+    @Override
+    protected String getFieldValue(String fieldName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

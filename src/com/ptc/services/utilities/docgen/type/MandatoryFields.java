@@ -6,6 +6,7 @@ import java.util.Iterator;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.Integrity;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityField;
@@ -28,7 +29,7 @@ public class MandatoryFields {
                 String xmlParam = IntegrityState.XML_PREFIX + XMLWriter.getXMLParamName(state.getId());
                 sb.append(XMLWriter.padXMLParamName(XMLWriter.getXMLParamName(xmlParam)) + ":");
                 sb.append(Integrity.getXMLParamFieldValue(state.getField("fields"), IntegrityField.XML_PREFIX, ","));
-                sb.append(it.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                sb.append(it.hasNext() ? ";" + nl + "\t\t\t" : "");
             }
             strMandatoryFields = sb.toString();
         }
@@ -42,27 +43,27 @@ public class MandatoryFields {
     public String getFormattedReport() throws ItemNotFoundException {
         StringBuffer report = new StringBuffer();
         // Construct the open table and heading line
-        report.append("<table class='list'>" + IntegrityDocs.nl);
-        report.append("  <tr>" + IntegrityDocs.nl);
-        report.append("    <th>State</th>" + IntegrityDocs.nl);
-        report.append("    <th>Mandatory Fields</th>" + IntegrityDocs.nl);
-        report.append("  </tr>" + IntegrityDocs.nl);
+        report.append("<table class='list'>" + nl);
+        report.append("  <tr>" + nl);
+        report.append("    <th>State</th>" + nl);
+        report.append("    <th>Mandatory Fields</th>" + nl);
+        report.append("  </tr>" + nl);
         // Ensure we're dealing with the right data type
         if (null != fields && null != fields.getList()) {
             List<Item> stateList = fields.getList();
             // Loop thru all the state names
             for (Item state : stateList) {
                 // Write out the new table row
-                report.append("  <tr>" + IntegrityDocs.nl);
-                report.append("    <td>" + state.getId() + "</td>" + IntegrityDocs.nl);
+                report.append("  <tr>" + nl);
+                report.append("    <td>" + state.getId() + "</td>" + nl);
                 // Write out the "Mandatory Fields"
-                report.append("    <td>" + Integrity.getFieldValue(state.getField("fields"), "<br/>") + "</td>" + IntegrityDocs.nl);
+                report.append("    <td>" + Integrity.getFieldValue(state.getField("fields"), "<br/>") + "</td>" + nl);
                 // Close out the table row
-                report.append("  </tr>" + IntegrityDocs.nl);
+                report.append("  </tr>" + nl);
             }
         }
         // Close the table tag
-        report.append("</table>" + IntegrityDocs.nl);
+        report.append("</table>" + nl);
         return report.toString();
     }
 }

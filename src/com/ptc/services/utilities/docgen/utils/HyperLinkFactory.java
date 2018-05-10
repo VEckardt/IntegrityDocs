@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen.utils;
 
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import java.util.StringTokenizer;
 
@@ -11,7 +12,6 @@ public class HyperLinkFactory {
             return new String("");
         }
 
-        String nl = IntegrityDocs.nl;
         StringBuffer formattedString = new StringBuffer();
         StringTokenizer tokens = new StringTokenizer(text, nl);
         while (tokens.hasMoreTokens()) {
@@ -39,7 +39,7 @@ public class HyperLinkFactory {
                 formattedString.append(currentToken.substring(0, currentToken.length()));
             }
             // Insert an html line break, since we're splitting on regular line breaks
-            formattedString.append("<br>");
+            formattedString.append("<br/>");
             // Add a regular newline just so the output is readable
             formattedString.append(nl);
         }

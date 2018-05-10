@@ -9,6 +9,7 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
 
@@ -43,8 +44,8 @@ public class TriggerFactory {
         return sb.toString();
     }
 
-    public static List<Trigger> parseTriggers(LinkedHashMap<String, IntegrityField> fieldsHash, WorkItemIterator wii, boolean forXML) throws APIException {
-        List<Trigger> iTriggersList = new ArrayList<>();
+    public static List<IntegrityAdminObject> parseTriggers(LinkedHashMap<String, IntegrityField> fieldsHash, WorkItemIterator wii, boolean forXML) throws APIException {
+        List<IntegrityAdminObject> iTriggersList = new ArrayList<>();
         // Ensure we have a list of triggers to work with...
         if (null != wii && wii.hasNext()) {
             while (wii.hasNext()) {
@@ -59,11 +60,11 @@ public class TriggerFactory {
                 iTrigger.setScript(Integrity.getStringFieldValue(wi.getField("script")));
                 iTrigger.setScriptTiming(Integrity.getStringFieldValue(wi.getField("scriptTiming")));
                 if (forXML) {
-                    iTrigger.setScriptParams(summarizeItemList(fieldsHash, wi.getField("scriptParams"), ";" + IntegrityDocs.nl + "\t\t\t", forXML));
-                    iTrigger.setAssignments(summarizeItemList(fieldsHash, wi.getField("assign"), ";" + IntegrityDocs.nl + "\t\t\t", forXML));
+                    iTrigger.setScriptParams(summarizeItemList(fieldsHash, wi.getField("scriptParams"), ";" + nl + "\t\t\t", forXML));
+                    iTrigger.setAssignments(summarizeItemList(fieldsHash, wi.getField("assign"), ";" + nl + "\t\t\t", forXML));
                 } else {
-                    iTrigger.setScriptParams(summarizeItemList(fieldsHash, wi.getField("scriptParams"), "<br/>" + IntegrityDocs.nl, false));
-                    iTrigger.setAssignments(summarizeItemList(fieldsHash, wi.getField("assign"), "<br/>" + IntegrityDocs.nl, false));
+                    iTrigger.setScriptParams(summarizeItemList(fieldsHash, wi.getField("scriptParams"), "<br/>" + nl, false));
+                    iTrigger.setAssignments(summarizeItemList(fieldsHash, wi.getField("assign"), "<br/>" + nl, false));
                 }
 
                 // Depending on rule v/s scheduled, get additional information

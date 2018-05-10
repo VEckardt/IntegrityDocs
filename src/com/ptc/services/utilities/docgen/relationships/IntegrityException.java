@@ -2,7 +2,7 @@
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
 // Source File Name:   IntegrityException.java
-package com.ptc.services.utilities.docgen.excel;
+package com.ptc.services.utilities.docgen.relationships;
 
 import com.mks.api.response.Response;
 

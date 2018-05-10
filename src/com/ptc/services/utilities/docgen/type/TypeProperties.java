@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.Integrity;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 
@@ -35,7 +36,7 @@ public class TypeProperties {
                 sb.append(Integrity.fixPropertyValue(propertyName.getId()) + ":");
                 sb.append(propertyValue + ":");
                 sb.append(propertyDesc);
-                sb.append(it.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                sb.append(it.hasNext() ? ";" + nl + "\t\t\t" : "");
             }
         }
         strTypeProperties = sb.toString();
@@ -72,7 +73,7 @@ public class TypeProperties {
                     // Break out when the needed char is found
                     if (formattedStr.charAt(i) == ' ' || formattedStr.charAt(i) == '.'
                             || formattedStr.charAt(i) == ';' || formattedStr.charAt(i) == ',' || formattedStr.charAt(i) == ':') {
-                        spaced.append("<br>");
+                        spaced.append("<br/>");
                         break;
                     }
                 }
@@ -94,12 +95,12 @@ public class TypeProperties {
     public String getFormattedReport() throws ItemNotFoundException {
         StringBuffer report = new StringBuffer();
         // Construct the open table and heading line
-        report.append("<table class='list' width='100%'>" + IntegrityDocs.nl);
-        report.append("  <tr>" + IntegrityDocs.nl);
-        report.append("    <th>Property Name</th>" + IntegrityDocs.nl);
-        report.append("    <th>Property Value</th>" + IntegrityDocs.nl);
-        report.append("    <th>Description</th>" + IntegrityDocs.nl);
-        report.append("  </tr>" + IntegrityDocs.nl);
+        report.append("<table class='list' width='100%'>" + nl);
+        report.append("  <tr>" + nl);
+        report.append("    <th>Property Name</th>" + nl);
+        report.append("    <th>Property Value</th>" + nl);
+        report.append("    <th>Description</th>" + nl);
+        report.append("  </tr>" + nl);
         // Ensure we're dealing with the right data type
         if (null != typeProperties && null != typeProperties.getDataType()
                 && typeProperties.getDataType().equals(Field.ITEM_LIST_TYPE)
@@ -116,17 +117,17 @@ public class TypeProperties {
                 String propertyDesc = (null == propDescFld || null == propDescFld.getValueAsString() ? "" : propDescFld.getValueAsString());
                 // Write out the new table row
                 report.append("  <tr>");
-                report.append("    <td>" + format(propertyName.getId()) + "</td>" + IntegrityDocs.nl);
-                report.append("    <td>" + format(propertyValue) + "</td>" + IntegrityDocs.nl);
-                report.append("    <td>" + format(propertyDesc) + "</td>" + IntegrityDocs.nl);
+                report.append("    <td>" + format(propertyName.getId()) + "</td>" + nl);
+                report.append("    <td>" + format(propertyValue) + "</td>" + nl);
+                report.append("    <td>" + format(propertyDesc) + "</td>" + nl);
                 // Close out the table row
-                report.append("  </tr>" + IntegrityDocs.nl);
+                report.append("  </tr>" + nl);
             }
         } else {
             report.append("<tr><td>* none *</td></tr>");
         }
         // Close the table tag
-        report.append("</table>" + IntegrityDocs.nl);
+        report.append("</table>" + nl);
         return report.toString();
     }
 }

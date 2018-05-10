@@ -355,8 +355,8 @@ public class Stage {
                 // Get the Active Request State
                 report.append("    <td>" + deployTarget.getActiveRequestState() + "</td>" + DeployDocs.nl);
                 // Get the Details on this Target:  Description, Agent Version, Connection Error Message, Platform, Hostname, Port, User, and Patch Status Message
-                report.append("    <td><b>Description: </b>" + deployTarget.getDescription() + "<br>" + DeployDocs.nl);
-                report.append("    <b>Agent Version: </b>" + deployTarget.getAgentVersion() + "<br>" + DeployDocs.nl);
+                report.append("    <td><b>Description: </b>" + deployTarget.getDescription() + "<br/>" + DeployDocs.nl);
+                report.append("    <b>Agent Version: </b>" + deployTarget.getAgentVersion() + "<br/>" + DeployDocs.nl);
                 if (deployTarget.getConnectionStatus().equalsIgnoreCase("offline")) {
                     report.append("    <b>Connection Error Message: </b>" + deployTarget.getConnectionErrorMessage() + "<br>" + DeployDocs.nl);
                 }

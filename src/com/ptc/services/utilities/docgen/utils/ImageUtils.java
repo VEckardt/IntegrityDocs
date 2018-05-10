@@ -104,7 +104,7 @@ public class ImageUtils {
 
             BufferedImage newImg = decodeToImage(imageString);
             ImageIO.write(newImg, "png", new File(fileName));
-            log("File " + fileName + " written.");
+            log("  File " + fileName + " written.");
         }
     }
 

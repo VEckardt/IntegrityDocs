@@ -14,7 +14,6 @@ import com.mks.api.response.WorkItem;
 import com.ptc.services.utilities.docgen.utils.StringField;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,7 +50,8 @@ public class SimpleItem implements WorkItem {
 
     @Override
     public String getId() {
-        return fields.get("name").getValueAsString();
+        // return fields.get("name").getValueAsString();
+        return id; 
     }
 
     @Override

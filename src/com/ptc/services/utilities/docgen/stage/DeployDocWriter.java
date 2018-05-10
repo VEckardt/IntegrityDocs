@@ -1,5 +1,6 @@
 package com.ptc.services.utilities.docgen.stage;
 
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import static com.ptc.services.utilities.docgen.Copyright.copyright;
 import com.ptc.services.utilities.docgen.IntegrityDocs;
 import java.util.Iterator;
@@ -102,7 +103,7 @@ public class DeployDocWriter {
     }
 
     private void writeLine(String line) throws IOException {
-        doc.write(line + IntegrityDocs.nl);
+        doc.write(line + nl);
     }
 
     private void writeTypeSummary() throws IOException {

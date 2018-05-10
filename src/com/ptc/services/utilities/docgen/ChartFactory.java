@@ -2,20 +2,21 @@ package com.ptc.services.utilities.docgen;
 
 import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import static com.ptc.services.utilities.docgen.Integrity.chartAttributes2;
 import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class ChartFactory {
 
     public static IntegrityObject parseChart(WorkItem chart, String chartOutput) {
-        StringTokenizer chartTokens = new StringTokenizer(chartOutput, IntegrityDocs.nl);
+        StringTokenizer chartTokens = new StringTokenizer(chartOutput, nl);
         List<Field> fieldlist = new ArrayList<>();
         while (chartTokens.hasMoreTokens()) {
             String line = chartTokens.nextToken();
@@ -42,7 +43,7 @@ public class ChartFactory {
 
     public static List<Chart> parseCharts(String chartsOutput) {
         List<Chart> chartList = new ArrayList<>();
-        StringTokenizer chartTokens = new StringTokenizer(chartsOutput, IntegrityDocs.nl);
+        StringTokenizer chartTokens = new StringTokenizer(chartsOutput, nl);
         while (chartTokens.hasMoreTokens()) {
             String line = chartTokens.nextToken().trim();
             StringTokenizer attributes = new StringTokenizer(line, "|");
@@ -70,9 +71,9 @@ public class ChartFactory {
         return chartList;
     }
 
-    public static Hashtable<String, String> getChartAdminIDs(String chartsOutput) {
-        Hashtable<String, String> chartAdminIDs = new Hashtable<>();
-        StringTokenizer chartTokens = new StringTokenizer(chartsOutput, IntegrityDocs.nl);
+    public static LinkedHashMap<String, String> getChartAdminIDs(String chartsOutput) {
+        LinkedHashMap<String, String> chartAdminIDs = new LinkedHashMap<>();
+        StringTokenizer chartTokens = new StringTokenizer(chartsOutput, nl);
         while (chartTokens.hasMoreTokens()) {
             String line = chartTokens.nextToken().trim();
             StringTokenizer attributes = new StringTokenizer(line, "|");

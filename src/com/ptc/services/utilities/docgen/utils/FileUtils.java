@@ -5,7 +5,8 @@
  */
 package com.ptc.services.utilities.docgen.utils;
 
-import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
+import static com.ptc.services.utilities.docgen.Constants.fs;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,8 +21,9 @@ import java.nio.file.StandardCopyOption;
  */
 public class FileUtils {
 
-    public static void inputStreamToFile(String templateFile, String targetFolder)
+    public static File inputStreamToFile(String targetFolder, String templateFile)
             throws IOException {
+        templateFile = templateFile.trim();
         String fileName = templateFile.substring(templateFile.lastIndexOf('/') + 1);
 
         // FileInputStream inputDocStream = null;
@@ -35,25 +37,26 @@ public class FileUtils {
             inputStream = new FileInputStream(new File(templateFile));
         }
 
-        File targetFile = new File(targetFolder + fs + fileName);
-        targetFile.mkdirs();
-        java.nio.file.Files.copy(
-                inputStream,
-                targetFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
-
-        inputStream.close();
+        return resourceToFile(inputStream, targetFolder, fileName);
     }
 
-    public static void resourceToFile(InputStream inputStream, String targetFolder, String fileName)
+    public static File resourceToFile(InputStream inputStream, String targetFolder, String fileName)
             throws IOException {
 
         File targetFile = new File(targetFolder + fs + fileName);
-        targetFile.mkdirs();
-        java.nio.file.Files.copy(
-                inputStream,
-                targetFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
+        // Create the directory if not exists
+        File targetDir = new File(targetFolder + fs);
+        targetDir.mkdirs();
+
+        // targetFile.toPath().mkdirs();
+        // log (" Writing to " + targetFile.toPath());
+        if (!targetFile.exists()) {
+            java.nio.file.Files.copy(
+                    inputStream,
+                    targetFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
         inputStream.close();
+        return targetFile;
     }
 }

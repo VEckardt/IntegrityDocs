@@ -6,13 +6,13 @@
 package com.ptc.services.utilities.docgen.utils;
 
 import com.mks.api.util.MKSLogger;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
 import static java.lang.System.out;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  *
@@ -34,19 +34,28 @@ public class Logger {
         out.println(text);
         logger.message(text);
     }
+
     public final static void log(String text, int level) {
         out.println(text);
         logger.message(text);
     }
-    
+
     public final static void print(String text) {
         out.print(text);
         logger.message(text);
     }
-    public final static void log(String text, int level, Exception e) {
-        log(text);
+
+//    public final static void log(String text, int level, Exception e) {
+//        log(text);
+//        log(e.getMessage());
+//    }
+
+    public final static void exception(Level level, int priority, Exception e) {
+        e.printStackTrace();
         log(e.getMessage());
+        logger.exception(level.toString(), priority, e);
     }
+
     public final static String getDate() {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         df.setTimeZone(TimeZone.getTimeZone("CET"));
@@ -70,8 +79,8 @@ public class Logger {
 
         return loggerProps;
     }
-    
-    public static String getLogFile () {
+
+    public static String getLogFile() {
         return LOGFILE;
     }
 }

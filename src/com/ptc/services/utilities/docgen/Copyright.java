@@ -11,11 +11,12 @@ package com.ptc.services.utilities.docgen;
  */
 public class Copyright {
 
-    public static final String iDOCS_REV = "$Revision: 11.0.6 $";
+    public static final String iDOCS_REV = "$Revision: 11.0.6.3 $";
     public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
+    public static final String copyrightText = "Copyright (c) 2018 PTC Inc. All rights reserved.";
     public static String programName = "IntegrityDocs";
-    public static String author = "Author: Volker Eckardt";
-    public static String email = "email: veckardt@ptc.com";
-    
+    public static String author = "Authors: Cletus D'Souza, Volker Eckardt";
+    public static String email = "emails: cdsouza@ptc.com, veckardt@ptc.com";
+
     public static String version = iDOCS_REV.substring(iDOCS_REV.lastIndexOf(':'), iDOCS_REV.lastIndexOf('$'));
 }

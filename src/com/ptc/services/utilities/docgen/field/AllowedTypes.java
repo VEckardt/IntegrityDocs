@@ -15,11 +15,11 @@ import java.util.ListIterator;
  *
  * @author veckardt
  */
-public class PickField {
+public class AllowedTypes {
 
     Field field;
 
-    public PickField(Field field) {
+    public AllowedTypes(Field field) {
         this.field = field;
     }
 
@@ -29,9 +29,8 @@ public class PickField {
         if (field.getList() != null) {
             report.append("<table class='sortable'>" + nl);
             report.append("  <tr>" + nl);
-            report.append("    <th class='heading1'>Label</th>");
-            report.append("    <th class='heading1'>Value</th>");
-            report.append("    <th class='heading1'>Active</th>");
+            report.append("    <th class='heading1'>From Type</th>");
+            report.append("    <th class='heading1'>Allowed Types</th>");
             report.append("  </tr>" + nl);
 
             ListIterator list = field.getList().listIterator();
@@ -39,9 +38,9 @@ public class PickField {
                 Item item = (Item) list.next();
                 // Write out the new table row and write all information about the field
                 report.append("  <tr>");
-                report.append("    <td>" + item.getField("label").getValueAsString() + "</td>");
-                report.append("    <td>" + item.getField("value").getValueAsString() + "</td>");
-                report.append("    <td>" + item.getField("active").getValueAsString() + "</td>");
+                report.append("    <td>" + item.getId() + "</td>");
+                report.append("    <td>" + item.getField("to").getValueAsString() + "</td>");
+                // report.append("    <td>" + item.getField("active").getValueAsString() + "</td>");
                 report.append("  </tr>");
             }
 

@@ -1,44 +1,51 @@
 package com.ptc.services.utilities.docgen;
 
 // Java Imports
-import com.ptc.services.utilities.docgen.session.APISession;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-
-// MKS API (mksapi.jar) Imports
 import com.mks.api.Command;
 import com.mks.api.FileOption;
-import com.mks.api.Option;
 import com.mks.api.MultiValue;
+import com.mks.api.Option;
 import com.mks.api.im.IMModelTypeName;
+import com.mks.api.response.APIException;
+import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.Response;
-import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
-import com.mks.api.response.APIException;
 import com.mks.api.response.WorkItemIterator;
 import com.ptc.services.utilities.CmdException;
 import com.ptc.services.utilities.CmdExecutor;
 import static com.ptc.services.utilities.docgen.ChartFactory.parseChart;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_DIR;
+import static com.ptc.services.utilities.docgen.Constants.CONTENT_IMAGES_DIR;
+import static com.ptc.services.utilities.docgen.Constants.fs;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import static com.ptc.services.utilities.docgen.Copyright.copyright;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.CONTENT_DIR;
+import static com.ptc.services.utilities.docgen.GatewayTemplates.getGatewayTemplates;
+import static com.ptc.services.utilities.docgen.Images.getImages;
+import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.doExport;
-import static com.ptc.services.utilities.docgen.IntegrityDocs.fs;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.getTypeList;
 import static com.ptc.services.utilities.docgen.IntegrityDocs.iObjectList;
+import static com.ptc.services.utilities.docgen.Metrics.getMetrics;
+import com.ptc.services.utilities.docgen.relationships.IntegrityException;
+import com.ptc.services.utilities.docgen.session.APISession;
 import com.ptc.services.utilities.docgen.utils.FileUtils;
-import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import static com.ptc.services.utilities.docgen.utils.ImageUtils.extractImage;
+import static com.ptc.services.utilities.docgen.utils.Logger.exception;
+import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import static com.ptc.services.utilities.docgen.utils.Logger.print;
 import com.ptc.services.utilities.docgen.utils.OSCommandHandler;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -104,11 +111,15 @@ public class Integrity {
     public static final String USER_XML_PREFIX = "USER_";
     public static final String GROUP_XML_PREFIX = "GROUP_";
 
-    public static List<IntegrityType> iTypes = new ArrayList<>();
-    public static List<IntegrityField> iFields = new ArrayList<>();
+    // public static List<IntegrityType> iTypes = new ArrayList<>();
+    public static LinkedHashMap<String, IntegrityField> sysFieldsHash;
+    // public static List<IntegrityField> iFields = new ArrayList<>();
 
     public APISession getAPI() {
         return api;
+    }
+    public LinkedHashMap<String, IntegrityField> getSysFields () {
+        return sysFieldsHash;
     }
 
     /**
@@ -214,7 +225,7 @@ public class Integrity {
                 }
             }
 
-            if (delim.equals("<br/>" + IntegrityDocs.nl)) {
+            if (delim.equals("<br/>" + nl)) {
                 sb.append(usersList.size() > 0 ? "Users:&nbsp;&nbsp;" + convertListToString(usersList, ", ") : "");
                 sb.append(usersList.size() > 0 && groupsList.size() > 0 ? "<br/>" : "");
                 sb.append(groupsList.size() > 0 ? "Groups:&nbsp;&nbsp;" + convertListToString(groupsList, ", ") : "");
@@ -260,14 +271,22 @@ public class Integrity {
         return values.toString();
     }
 
-    public void retrieveObjects(IntegrityDocs.Types type) throws APIException {
+    public void retrieveObjects(IntegrityDocs.Types type, Boolean doXML) throws APIException, IntegrityException, CmdException {
         if (doExport[type.getID()]) {
-            List<IntegrityObject> iO = iObjectList.get(type.getID());
-            String name = type.name().toLowerCase();
-            WorkItemIterator objects = getObjects(name);
-            while (objects.hasNext()) {
-                WorkItem object = objects.next();
-                iO.add(new IntegrityObject(object, type));
+            List<IntegrityAdminObject> iO = iObjectList.get(type.getID());
+
+            if (type.equals(Types.Trigger) || type.equals(Types.Type) || type.equals(Types.Chart)) {
+                List<IntegrityAdminObject> list = getObjectList(type, doXML);
+                for (IntegrityAdminObject listEntry : list) {
+                    iO.add(listEntry);
+                }
+            } else {
+
+                WorkItemIterator objects = getObjects(type, doXML);
+                while (objects.hasNext()) {
+                    WorkItem object = objects.next();
+                    iO.add(new IntegrityObject(object, type));
+                }
             }
         }
     }
@@ -372,22 +391,12 @@ public class Integrity {
      */
     public Integrity() throws APIException {
         this.api = new APISession();
+        sysFieldsHash = this.getFields();
     }
 
-    public Integrity(List<IntegrityType> iTypes, List<IntegrityField> iFields) throws APIException {
-        this.api = new APISession();
-        this.iTypes = iTypes;
-        this.iFields = iFields;
-    }
-
-    public List<IntegrityType> getTypeList() {
-        return iTypes;
-    }
-//
-//    public List<IntegrityField> getFieldList() {
-//        return iFields;
+//    public List<IntegrityType> getTypeList() {
+//        return iTypes;
 //    }
-
     /**
      * Override connection to specific Integrity Application
      *
@@ -405,14 +414,20 @@ public class Integrity {
      * @return
      * @throws APIException
      */
-    public List<String> getAdminList(String obj) throws APIException {
+    public List<String> getAdminList(String obj, String ignoreList, String stopElement) throws APIException {
         List<String> adminList = new ArrayList<>();
         Command imAdminList = new Command(Command.IM, obj);
         Response res = api.runCommand(imAdminList);
         if (null != res && res.getWorkItemListSize() > 0) {
             WorkItemIterator wit = res.getWorkItems();
             while (wit.hasNext()) {
-                adminList.add(wit.next().getId());
+                WorkItem wi = wit.next();
+                if (!("," + ignoreList + ",").contains("," + wi.getId() + ",")) {
+                    adminList.add(wi.getId());
+                }
+                if (wi.getId().equals(stopElement)) {
+                    return adminList;
+                }
             }
         }
         return adminList;
@@ -425,8 +440,8 @@ public class Integrity {
      * @return
      * @throws APIException
      */
-    public Hashtable<String, String> getAdminIDList(String obj) throws APIException {
-        Hashtable<String, String> adminIDList = new Hashtable<>();
+    public LinkedHashMap<String, String> getAdminIDList(String obj) throws APIException {
+        LinkedHashMap<String, String> adminIDList = new LinkedHashMap<>();
         Command imAdminList = new Command(Command.IM, obj);
         imAdminList.addOption(new Option("fields", "id,name"));
         Response res = api.runCommand(imAdminList);
@@ -441,8 +456,8 @@ public class Integrity {
     }
 
     @SuppressWarnings("unchecked")
-    public Hashtable<String, Field> viewType(String typeName) throws APIException {
-        Hashtable<String, Field> typeDetails = new Hashtable<>();
+    public LinkedHashMap<String, Field> viewType(String typeName) throws APIException {
+        LinkedHashMap<String, Field> typeDetails = new LinkedHashMap<>();
         Command imTypes = new Command(Command.IM, "types");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
@@ -460,45 +475,53 @@ public class Integrity {
                 typeDetails.put(field.getName(), field);
                 log(" done.");
             }
-        }
 
-        // Run im view type to get the missing type attributes
-        Command imViewType = new Command(Command.IM, "viewtype");
-        imViewType.addSelection(typeName);
-        Response viewRes = api.runCommand(imViewType);
-        if (null != viewRes && null != viewRes.getWorkItem(typeName)) {
-            WorkItem wi = viewRes.getWorkItem(typeName);
-            // Only fetch the missing fields
-            //	... created
-            //	... createdBy
-            //	... lastModified
-            //	... modifiedBy
-            Field created = wi.getField("created");
-            print("\t... " + created.getName());
-            typeDetails.put(created.getName(), created);
-            log(" done.", 1);
+            // Run im view type to get the missing type attributes
+            Command imViewType = new Command(Command.IM, "viewtype");
+            imViewType.addSelection(typeName);
+            Response viewRes = api.runCommand(imViewType);
+            if (null != viewRes && null != viewRes.getWorkItem(typeName)) {
+                WorkItem wi2 = viewRes.getWorkItem(typeName);
+                // Only fetch the missing fields
+                //	... created
+                //	... createdBy
+                //	... lastModified
+                //	... modifiedBy
+                Field created = wi2.getField("created");
+                print("\t... " + created.getName());
+                typeDetails.put(created.getName(), created);
+                log(" done.", 1);
 
-            Field createdBy = wi.getField("createdBy");
-            print("\t... " + createdBy.getName());
-            typeDetails.put(createdBy.getName(), createdBy);
-            log(" done.", 1);
+                Field createdBy = wi2.getField("createdBy");
+                print("\t... " + createdBy.getName());
+                typeDetails.put(createdBy.getName(), createdBy);
+                log(" done.", 1);
 
-            Field lastModified = wi.getField("lastModified");
-            print("\t... " + lastModified.getName());
-            typeDetails.put(lastModified.getName(), lastModified);
-            log(" done.", 1);
+                Field lastModified = wi2.getField("lastModified");
+                print("\t... " + lastModified.getName());
+                typeDetails.put(lastModified.getName(), lastModified);
+                log(" done.", 1);
 
-            Field modifiedBy = wi.getField("modifiedBy");
-            print("\t... " + modifiedBy.getName());
-            typeDetails.put(modifiedBy.getName(), modifiedBy);
-            log(" done.", 1);
+                Field modifiedBy = wi2.getField("modifiedBy");
+                print("\t... " + modifiedBy.getName());
+                typeDetails.put(modifiedBy.getName(), modifiedBy);
+                log(" done.", 1);
 
-            Field image = wi.getField("image");
-            if (image.getItem().getId().contentEquals("custom")) {
-                File imageFile = new File(CONTENT_DIR + "/Types/" + wi.getId().replaceAll(" ", "_") + ".png");
-                extractImage(image, imageFile);
+                Field image = wi2.getField("image");
+                if (image.getItem().getId().contentEquals("custom")) {
+                    String fileName = CONTENT_DIR + "/Types/" + wi.getId().replaceAll(" ", "_") + ".png";
+                    File imageFile = new File(fileName);
+                    extractImage(image, imageFile);
+                    typeDetails.put("smallImage", new SimpleField("smallImage", fileName));
+                } else {
+                    try {
+                        typeDetails.put("smallImage", new SimpleField("smallImage", CONTENT_DIR + fs + wi.getField("type").getString()));
+                    } catch (NoSuchElementException ex) {
+                        typeDetails.put("smallImage", new SimpleField("smallImage", CONTENT_IMAGES_DIR + fs + "Type.png"));
+                    }
+                }
+
             }
-
         }
         return typeDetails;
     }
@@ -542,12 +565,14 @@ public class Integrity {
                 }
             }
         }
-
-        return api.runCommandWithInterim(cmd).getWorkItems();
+        if (cmd.getSelectionList().size() > 0) {
+            return api.runCommandWithInterim(cmd).getWorkItems();
+        }
+        return new EmptyList();
     }
 
-    public Hashtable<String, Field> viewField(String typeName, String fieldName) throws APIException {
-        Hashtable<String, Field> fieldDetails = new Hashtable<>();
+    public LinkedHashMap<String, Field> viewField(String typeName, String fieldName) throws APIException {
+        LinkedHashMap<String, Field> fieldDetails = new LinkedHashMap<>();
         Command imViewField = new Command(Command.IM, "viewfield");
         if (typeName != null) {
             imViewField.addOption(new Option("overrideForType", typeName));
@@ -564,13 +589,13 @@ public class Integrity {
         return fieldDetails;
     }
 
-    public Hashtable<String, IntegrityState> getStates(String typeName, List<String> statesList) throws APIException {
-        Hashtable<String, IntegrityState> stateDetails = new Hashtable<String, IntegrityState>();
+    public LinkedHashMap<String, IntegrityState> getStates(String typeName, List<String> statesList) throws APIException {
+        LinkedHashMap<String, IntegrityState> stateDetails = new LinkedHashMap<>();
         Command imStates = new Command(Command.IM, "states");
         // Construct the --fields=value,value,value option
         MultiValue mv = new MultiValue(",");
-        for (int i = 0; i < Integrity.stateAttributes.length; i++) {
-            mv.add(Integrity.stateAttributes[i]);
+        for (String stateAttribute : Integrity.stateAttributes) {
+            mv.add(stateAttribute);
         }
         imStates.addOption(new Option("fields", mv));
 
@@ -600,8 +625,7 @@ public class Integrity {
             imViewState.setSelectionList(imStates.getSelectionList());
             // Run the command and parse the response
             Response viewStateRes = api.runCommand(imViewState);
-            for (Iterator<String> lit = statesList.iterator(); lit.hasNext();) {
-                String stateName = lit.next();
+            for (String stateName : statesList) {
                 // Get the Work Item representing the current State				
                 WorkItem wi = viewStateRes.getWorkItem(stateName);
                 // Get the encapsulated IntegrityField object for this State
@@ -613,8 +637,7 @@ public class Integrity {
                     @SuppressWarnings("unchecked")
                     List<String> overrideFieldList = overrideForType.getField("overriddenFields").getList();
                     // For each overridden attribute update the state details hash
-                    for (Iterator<String> it = overrideFieldList.iterator(); it.hasNext();) {
-                        String orStateAttribute = it.next();
+                    for (String orStateAttribute : overrideFieldList) {
                         iState.setFieldAttribute(orStateAttribute, wi.getField(orStateAttribute));
                     }
                 }
@@ -630,35 +653,43 @@ public class Integrity {
         LinkedHashMap<String, IntegrityField> fieldDetails = new LinkedHashMap<>();
         // Setup the im fields command to get the global definition of the field
         Command imFields = new Command(Command.IM, "fields");
-        // Construct the --fields=value,value,value option
-        MultiValue mv = new MultiValue(",");
-        for (String fieldAttribute : Integrity.fieldAttributes) {
-            mv.add(fieldAttribute);
-        }
-        imFields.addOption(new Option("fields", mv));
-
         // Run the im fields command to get the global details on the field
         Response res = api.runCommandWithInterim(imFields);
         // Parse the response for the initial pass
         if (null != res && null != res.getWorkItems()) {
             WorkItemIterator wii = res.getWorkItems();
+            List<String> selectionList = new ArrayList<>();
             while (wii.hasNext()) {
                 WorkItem wi = wii.next();
-                fieldDetails.put(wi.getId(), new IntegrityField(null, wi));
+                selectionList.add(wi.getId());
+            }
+            Command imViewField = new Command(Command.IM, "viewfield");
+            for (String fld : selectionList) {
+                imViewField.addSelection(fld);
+            }
+            // imViewField.addSelection("Spawns");
+            Response viewFieldRes = api.runCommand(imViewField);
+            // ResponseUtil.printResponse(viewFieldRes, 1, System.out);
+            // System.exit(1);
+            WorkItemIterator wit = viewFieldRes.getWorkItems();
+            while (wit.hasNext()) {
+                WorkItem wi = wit.next();
+                fieldDetails.put(wi.getId(), new IntegrityField(wi));
             }
         }
+        log("Fields added: " + fieldDetails.size(), 1);
         return fieldDetails;
     }
 
-    public Hashtable<String, IntegrityField> getFields(String typeName, Field visibleFields, Field visibleFieldsForMe) throws APIException {
+    public LinkedHashMap<String, IntegrityField> getFields(String typeName, Field visibleFields, Field visibleFieldsForMe) throws APIException {
         // Initialize our return variable
-        Hashtable<String, IntegrityField> fieldDetails = new Hashtable<>();
+        LinkedHashMap<String, IntegrityField> fieldDetails = new LinkedHashMap<>();
 
         // Get a unique list of all fields that we need to interrogate later...
         List<String> selectionList = new ArrayList<>();
 
         // Populate the visible fields hash with just the 'Visible To' values for quick access		
-        Hashtable<String, Field> visibleFieldsHash = new Hashtable<>();
+        LinkedHashMap<String, Field> visibleFieldsHash = new LinkedHashMap<>();
         @SuppressWarnings("unchecked")
         List<Item> partialVisibleFieldsList = visibleFields.getList();
         if (null != partialVisibleFieldsList) {
@@ -759,36 +790,64 @@ public class Integrity {
         return fieldDetails;
     }
 
+    public List<IntegrityAdminObject> getObjectList(Types type, Boolean doXML) throws APIException, CmdException {
+        if (type.equals(Types.Trigger)) {
+            return TriggerFactory.parseTriggers(sysFieldsHash, this.viewTriggers(this.getAdminList("triggers", "", "")), doXML);
+        } else if (type.equals(Types.Chart)) {
+            return getCharts2();
+        } else if (type.equals(Types.Type)) {
+            List<IntegrityAdminObject> ao = new ArrayList<>();
+            for (String typeName : getTypeList()) {
+                log("Processing Type: " + typeName);
+                ao.add(new IntegrityType(this, this.viewType(typeName), doXML));
+            }
+            return ao;
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * Read the object list and if requested, also the individual objects
      *
-     * @param objectName
+     * @param type
+     * @param doXML
      * @return
      * @throws APIException
+     * @throws
+     * com.ptc.services.utilities.docgen.relationships.IntegrityException
      */
-    public WorkItemIterator getObjects(String objectName) throws APIException {
-        log("Reading " + objectName + "s ...", 1);
-        if (objectName.equals("improject")) {
+    public WorkItemIterator getObjects(Types type, Boolean doXML) throws APIException, IntegrityException {
+        log("Reading " + type.getPlural() + " ...", 1);
+        // if (type.equals(Types.Type)) {
+        if (type.equals(Types.IMProject)) {
             return getIMMainProjects();
         }
-        if (objectName.equals("gatewayexportconfig")) {
+        if (type.equals(Types.GatewayExportConfig)) {
             return getGatewayConfigs("export", "exporter", CONTENT_DIR + fs + "GatewayExportConfigs");
         }
-        if (objectName.equals("gatewayimportconfig")) {
+        if (type.equals(Types.GatewayImportConfig)) {
             return getGatewayConfigs("parser", "parser", CONTENT_DIR + fs + "GatewayImportConfigs");
         }
-        if (objectName.equals("gatewaymapping")) {
+        if (type.equals(Types.GatewayMapping)) {
             return getGatewayMappings(CONTENT_DIR + fs + "GatewayMappings");
         }
-
-        String cmd = objectName.equals("verdict") ? Command.TM : (objectName.equals("resultfield") ? Command.TM : Command.IM);
-        if (objectName.equals("viewset")) {
-            cmd = Command.INTEGRITY;
+        if (type.equals(Types.Image)) {
+            return getImages(CONTENT_IMAGES_DIR.getAbsolutePath());
         }
-        Command command = new Command(cmd, objectName.equals("query") ? "queries" : objectName + "s");
+        if (type.equals(Types.Metric)) {
+            return getMetrics(this, Types.Metric, CONTENT_DIR);
+        }
+        if (type.equals(Types.GatewayTemplate)) {
+            return getGatewayTemplates(CONTENT_DIR + fs + "GatewayExportConfigs", CONTENT_DIR + fs + "GatewayImportConfigs");
+        }
+        if (type.equals(Types.TraceDefault) && !IntegrityDocs.solutionTypeName.isEmpty()) {
+            RelationshipAnalyser ra = new RelationshipAnalyser(this, IntegrityDocs.solutionTypeName);
+            return ra.analyseTraces(IntegrityDocs.getList(Types.Field));
+        }
 
-        if (objectName.equals("siproject")) {
-            command.setApp(Command.SI);
+        Command command = new Command(type.getCmd(), type.getPlural().toLowerCase());
+
+        if (type.equals(Types.SIProject)) {
             command.addOption(new Option("nodisplaySubs"));
             command.setCommandName("projects");
         }
@@ -797,17 +856,17 @@ public class Integrity {
         WorkItemIterator wit = api.runCommandWithInterim(command).getWorkItems();
 
         // stop here for ViewSet and SI Projects
-        if (objectName.equals("viewset") || objectName.equals("siproject")) {
+        if (type.equals(Types.Viewset) || type.equals(Types.SIProject)) {
             return wit;
         }
 
-        // in this case we read the standard field definition
-        if (objectName.equals("resultfield")) {
-            cmd = Command.IM;
-            objectName = "field";
+        if (type.equals(Types.ResultField)) {
+            // in this case we read the standard field definition
+            command = new Command(Command.IM, "viewfield");
+        } else {
+            // otherwise we continue in standard
+            command = new Command(type.getCmd(), "view" + type.name().toLowerCase());
         }
-
-        command = new Command(cmd, "view" + objectName);
         while (wit.hasNext()) {
             WorkItem wi = wit.next();
             // out.println("wi.getId(): " + wi.getDisplayId());
@@ -817,25 +876,24 @@ public class Integrity {
         return api.runCommandWithInterim(command).getWorkItems();
     }
 
-    public Response getWordTemplates(String typeName) throws APIException {
+    public WorkItemIterator getWordTemplates(String typeName) throws APIException {
         Command cmd = new Command(Command.IM, "extractwordtemplates");
         cmd.addOption(new Option("overwriteExisting"));
 
         cmd.addOption(new Option("type", typeName));
-        return api.runCommand(cmd);
+        return api.runCommand(cmd).getWorkItems();
     }
 
-    public GatewayConfigs getGatewayConfigs(String type, String elem, String path) throws APIException {
+    public GatewayConfigs getGatewayConfigs(String gcType, String elem, String path) throws APIException {
         GatewayConfigs lgc = new GatewayConfigs();
 
         // this runs on server
         Response response = api.runCommand(new Command("im", "gatewaywizardconfigurations"));
         // ResponseUtil.printResponse(response, 1, System.out);
-        int cnt = 0;
+
         for (WorkItemIterator wii = response.getWorkItems(); wii.hasNext();) {
             WorkItem wi = wii.next();
             try {
-                cnt++;
                 String encoding = null;
                 try {
                     encoding = wi.getField("Encoding").getString();
@@ -853,7 +911,7 @@ public class Integrity {
                 Document doc = docBuilder.parse(xmlReader);
                 doc.getDocumentElement().normalize();
                 // log("Root element :" + doc.getDocumentElement().getNodeName());
-                NodeList nList = doc.getElementsByTagName(type + "-config");
+                NodeList nList = doc.getElementsByTagName(gcType + "-config");
 
                 for (int temp = 0; temp < nList.getLength(); temp++) {
                     Node nNode = nList.item(temp);
@@ -875,11 +933,18 @@ public class Integrity {
                         } catch (NullPointerException skip) {
 
                         }
+                        String id = "";
+                        try {
+                            id = eElement.getElementsByTagName(elem).item(0).getAttributes().getNamedItem("id").getTextContent();
+                        } catch (NullPointerException skip) {
+
+                        }
 
                         gc.addField("type", exporterClass.length() > 10 ? "custom" : "standard");
                         gc.addField("isActive", "true");
                         gc.addField("gateway-configuration-name", eElement.getElementsByTagName("gateway-configuration-name").item(0).getTextContent());
                         gc.addField(elem + " class", exporterClass);
+                        gc.addField(elem + " id", id);
 
                         NodeList pList = eElement.getElementsByTagName(elem).item(0).getChildNodes();
                         for (int propId = 0; propId < pList.getLength(); propId++) {
@@ -887,8 +952,8 @@ public class Integrity {
                             if (pNode.getNodeType() == Node.ELEMENT_NODE) {
                                 Element pElement = (Element) pNode;
 
-                                if (pElement.getAttribute("name").equals("template")) {
-                                    FileUtils.inputStreamToFile(pElement.getTextContent(), path);
+                                if (pElement.getAttribute("name").equals("template") || pElement.getAttribute("name").equals("xslt")) {
+                                    FileUtils.inputStreamToFile(path, pElement.getTextContent());
                                     String fileName = pElement.getTextContent().substring(pElement.getTextContent().lastIndexOf('/') + 1);
                                     gc.addField(elem + " property '" + pElement.getAttribute("name") + "'", "<a href=\"" + fileName + "\">" + pElement.getTextContent() + "</a>");
                                 } else {
@@ -901,7 +966,7 @@ public class Integrity {
                 }
             } catch (ParserConfigurationException | SAXException | IOException e) {
                 log("ERROR: " + (new StringBuilder()).append("Skipping remote configuration due to error: ").append(e.getMessage()).toString(), 10);
-                log("DEBUG", 10, e);
+                exception(Level.WARNING, 10, e);
             }
         }
         return lgc;
@@ -938,7 +1003,7 @@ public class Integrity {
                 NodeList nList = doc.getElementsByTagName("mapping");
 
                 Node nNode = nList.item(0);
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                if (nNode != null && nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
 
                     GatewayMapping gc = new GatewayMapping();
@@ -961,7 +1026,7 @@ public class Integrity {
 
             } catch (APIException | ParserConfigurationException | SAXException | IOException e) {
                 log("ERROR: " + (new StringBuilder()).append("Skipping remote configuration due to error: ").append(e.getMessage()).toString(), 10);
-                log("DEBUG", 10, e);
+                exception(Level.WARNING, 10, e);
             }
         }
         return lgc;
@@ -985,8 +1050,8 @@ public class Integrity {
         return shell.getCommandOutput();
     }
 
-    public List<IntegrityObject> getCharts2() throws CmdException, APIException {
-        List<IntegrityObject> result = new ArrayList<>();
+    public List<IntegrityAdminObject> getCharts2() throws CmdException, APIException {
+        List<IntegrityAdminObject> result = new ArrayList<>();
         log("Reading " + "charts ...", 1);
         Command cmd = new Command(Command.IM, "charts");
         // Add each query selection to the view query command
@@ -1173,8 +1238,8 @@ public class Integrity {
     public String getAbout(String sectionName) {
 
         String result = "<hr><div style=\"font-size:x-small;white-space: nowrap;text-align:center;\">"
-                + sectionName + "<br>" + copyright
-                + "<br>" + "Current User: " + getUserName() + "<br>";
+                + sectionName + "<br/>" + copyright
+                + "<br/>" + "Current User: " + getUserName() + "<br/>";
         Command cmd = new Command("im", "about");
         try {
             Response response = api.runCommand(cmd);
@@ -1182,7 +1247,7 @@ public class Integrity {
             // get the details
             result = result + wi.getField("title").getValueAsString();
             result = result + ", Version: " + wi.getField("version").getValueAsString();
-            result = result + "<br>HotFixes: " + wi.getField("hotfixes").getValueAsString().replaceAll(",", ", ") + "</br>";
+            result = result + "<br/>HotFixes: " + wi.getField("hotfixes").getValueAsString().replaceAll(",", ", ") + "</br>";
             result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
 
             return result + "</div>";

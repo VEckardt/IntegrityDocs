@@ -244,4 +244,14 @@ public class Trigger extends IntegrityAdminObject {
     public String getScriptTiming() {
         return scriptTiming;
     }
+
+    @Override
+    public String getFieldValue(String fieldName) {
+        if (fieldName.equals("script")) {
+            return getScript();
+        } else if (fieldName.equals("scriptTiming")) {
+            return getScriptTiming();
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

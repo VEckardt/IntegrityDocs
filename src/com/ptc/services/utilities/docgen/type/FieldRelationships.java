@@ -1,26 +1,26 @@
 package com.ptc.services.utilities.docgen.type;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import com.ptc.services.utilities.docgen.IntegrityField;
 import com.ptc.services.utilities.docgen.IntegrityState;
 import com.ptc.services.utilities.docgen.IntegrityType;
 import com.ptc.services.utilities.docgen.XMLWriter;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
+import java.util.LinkedHashMap;
 
 public class FieldRelationships {
 
     private Field fieldRelationships;
     private String strFieldRelationships;
 
-    public FieldRelationships(Hashtable<String, IntegrityField> fieldsHash, Field fldRelationships) {
+    public FieldRelationships(LinkedHashMap<String, IntegrityField> fieldsHash, Field fldRelationships) {
         // log("1");
         fieldRelationships = fldRelationships;
         // log("2");
@@ -47,7 +47,7 @@ public class FieldRelationships {
     }
 
     @SuppressWarnings("unchecked")
-    private void initStringFieldRelationships(Hashtable<String, IntegrityField> fieldsHash) {
+    private void initStringFieldRelationships(LinkedHashMap<String, IntegrityField> fieldsHash) {
         // log("4");
         StringBuilder sb = new StringBuilder();
         if (null != fieldRelationships && null != fieldRelationships.getList()) {
@@ -128,12 +128,12 @@ public class FieldRelationships {
                                 sb.append(Integrity.getFieldValue(targetValues, ","));
                             }
 
-                            sb.append(tlit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                            sb.append(tlit.hasNext() ? ";" + nl + "\t\t\t" : "");
                         }
                         // log("11b");
                     }
 
-                    sb.append(lit.hasNext() ? ";" + IntegrityDocs.nl + "\t\t\t" : "");
+                    sb.append(lit.hasNext() ? ";" + nl + "\t\t\t" : "");
                 } catch (NoSuchElementException nsee) {
                     log("Failed to parse Field Relationship: " + sourceField.getId());
                 }
@@ -147,13 +147,13 @@ public class FieldRelationships {
     public String getFormattedReport() throws ItemNotFoundException {
         StringBuffer report = new StringBuffer();
         // Construct the open table and heading line
-        report.append("<table class='list'>" + IntegrityDocs.nl);
-        report.append("  <tr>" + IntegrityDocs.nl);
-        report.append("    <th>Source Field</th>" + IntegrityDocs.nl);
-        report.append("    <th>Source Values</th>" + IntegrityDocs.nl);
-        report.append("    <th>Target Field</th>" + IntegrityDocs.nl);
-        report.append("    <th>Target Values</th>" + IntegrityDocs.nl);
-        report.append("  </tr>" + IntegrityDocs.nl);
+        report.append("<table class='list'>" + nl);
+        report.append("  <tr>" + nl);
+        report.append("    <th>Source Field</th>" + nl);
+        report.append("    <th>Source Values</th>" + nl);
+        report.append("    <th>Target Field</th>" + nl);
+        report.append("    <th>Target Values</th>" + nl);
+        report.append("  </tr>" + nl);
         // Ensure we're dealing with the right data type
         if (null != fieldRelationships && null != fieldRelationships.getList()) {
             List<Item> fieldRelList = fieldRelationships.getList();
@@ -167,26 +167,26 @@ public class FieldRelationships {
                         // Get the targetField name for this rule based field relationship
                         Field targetField = sourceField.getField("targetField");
                         // Write out the new table row
-                        report.append("  <tr>" + IntegrityDocs.nl);
+                        report.append("  <tr>" + nl);
                         // Write out the value for the "Source Field" name
-                        report.append("    <td>" + sourceField.getId() + "</td>" + IntegrityDocs.nl);
+                        report.append("    <td>" + sourceField.getId() + "</td>" + nl);
                         // Leave the Source Field Value blank for rule based field relationships
-                        report.append("    <td>&nbsp;</td>" + IntegrityDocs.nl);
+                        report.append("    <td>&nbsp;</td>" + nl);
                         // Get the value for "Target Field" name
-                        report.append("    <td>" + Integrity.getFieldValue(targetField, "<br>") + "</td>" + IntegrityDocs.nl);
+                        report.append("    <td>" + Integrity.getFieldValue(targetField, "<br/>") + "</td>" + nl);
                         // For the "Target Values", enter the rule information
-                        report.append("    <td>" + rule + "</td>" + IntegrityDocs.nl);
+                        report.append("    <td>" + rule + "</td>" + nl);
                         // Close out the table row
-                        report.append("  </tr>" + IntegrityDocs.nl);
+                        report.append("  </tr>" + nl);
                     } else {
                         // Get the "Target Fields"
                         Field targetFields = sourceField.getField("targetFields");
                         List<Item> targetFieldList = targetFields.getList();
                         for (Iterator<Item> tlit = targetFieldList.iterator(); tlit.hasNext();) {
                             // Write out the new table row
-                            report.append("  <tr>" + IntegrityDocs.nl);
+                            report.append("  <tr>" + nl);
                             // Write out the value for the "Source Field" name
-                            report.append("    <td>" + sourceField.getId() + "</td>" + IntegrityDocs.nl);
+                            report.append("    <td>" + sourceField.getId() + "</td>" + nl);
                             // Get the value for "Target Field" name
                             Item targetField = tlit.next();
                             // Get the values for "Source Values" and "Target Values"
@@ -194,15 +194,15 @@ public class FieldRelationships {
                             Field targetValues = targetField.getField("targetValues");
                             Field targetValueType = targetField.getField("targetValueType");
                             // Finally, write out the "Source Values", "Target Field", and "Target Values"
-                            report.append("    <td>" + Integrity.getFieldValue(sourceValues, "<br/>") + "</td>" + IntegrityDocs.nl);
-                            report.append("    <td>" + targetField.getId() + "</td>" + IntegrityDocs.nl);
+                            report.append("    <td>" + Integrity.getFieldValue(sourceValues, "<br/>") + "</td>" + nl);
+                            report.append("    <td>" + targetField.getId() + "</td>" + nl);
                             if (Integrity.getFieldValue(targetValueType, "").equals("memberOf") || Integrity.getFieldValue(targetValueType, "").equals("valueOf")) {
-                                report.append("    <td>memberOf(" + Integrity.getFieldValue(targetValues, "<br/>") + ")</td>" + IntegrityDocs.nl);
+                                report.append("    <td>memberOf(" + Integrity.getFieldValue(targetValues, "<br/>") + ")</td>" + nl);
                             } else {
-                                report.append("    <td>" + Integrity.getFieldValue(targetValues, "<br/>") + "</td>" + IntegrityDocs.nl);
+                                report.append("    <td>" + Integrity.getFieldValue(targetValues, "<br/>") + "</td>" + nl);
                             }
                             // Close out the table row
-                            report.append("  </tr>" + IntegrityDocs.nl);
+                            report.append("  </tr>" + nl);
                         }
                     }
                 } catch (NoSuchElementException nsee) {
@@ -212,7 +212,7 @@ public class FieldRelationships {
             }
         }
         // Close the table tag
-        report.append("</table>" + IntegrityDocs.nl);
+        report.append("</table>" + nl);
         return report.toString();
     }
 }
