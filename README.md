@@ -26,9 +26,9 @@ In IntegrityClient folder
 ```
 SET IC_HOME=C:\Integrity\ILMClient11
 ```
-- In case of any performance issue based on too many data in Integrity, you can also disable certain object types from being scanned, such as   
+- In the case of a performance problem that is usually based on too much configuration data in Integrity, you can also disable certain types of objects, such as:   
 ```
-Usage:
+Parameter:
              --noViewsets:   disable Viewsets scan and output
            --noSIProjects:   disable SIProjects scan and output
            --noIMProjects:   disable IMProjects scan and output
@@ -54,12 +54,12 @@ Usage:
                --noImages:   disable Images scan and output
              --stopAtType:   Let IntegrityDocs stop after the mentioned type is processed
               --skipTypes:   Let IntegrityDocs skip over listed types (comma delimited list), e.g. list all shared types
-     --removeUnusedFields:   Let IntegrityDocs remove from the reports unused fields
+     --removeUnusedFields:   Let IntegrityDocs remove from the reports unused Integrity fields
 
 ```
 - You can add these parameters to the bat command itself or put them directly into IntegrityDocs.bat, 
 ```
-... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs --noFields --noGroups
+... ityDocs.jar" com.ptc.services.utilities.docgen.IntegrityDocs --noFields --noGroups --removeUnusedFields
 ```
 - It's also possible to generate the output just for one or multiple specific types, then the command will look like this
 ```
