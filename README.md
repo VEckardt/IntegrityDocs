@@ -70,19 +70,18 @@ Parameter:
 - execute the IntegrityDocs.bat in your IntegrityClient folder
 - connect to the Integrity environment you like to scan
 - the scan will run between 1 and 3 minutes, depending on the amount of Integrity LM configurations (types, fields, charts, reports etc.)
-- then review the outcome in <Your Desktop>/IntegrityDocs
+- then review the outcome in [Your Desktop Folder]/IntegrityDocs
 
 ## Version Info
 - 11.0.0: Added 12 additional object types to the existing Types and Triggers, complete code review
 - 11.0.1: You can sort the Overview tables by clicking at the light green headings 
-- 11.0.2: Added Main Project for W&D
-- 11.0.2: Reports now previewable and downloadable
-- 11.0.3: Edit-In-Word Templates download now possible (links provided in the Type form)
-- 11.0.3: Added Main Project for CM
-- 11.0.4: Added Gateway details
-- 11.0.5: Images added
-- 11.0.6: Traces, Metrics added
-- 11.0.6.3: Word Export added (under review, Images missing) 
+- 11.0.2: Added Main Project scan for W&D, Reports now previewable and downloadable
+- 11.0.3: Edit-In-Word Templates view now possible (links provided in the Type form)
+- 11.0.3: Added Main Project scan for CM
+- 11.0.4: Added 4 Gateway details
+- 11.0.5: Added Images
+- 11.0.6: Added Traces (Solution Type Def), Metrics (im command)
+- 11.0.6.3: Added Word Export button (under review, Images missing) 
 
 ##  Development Environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
