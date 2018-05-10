@@ -26,7 +26,7 @@ In IntegrityClient folder
 ```
 SET IC_HOME=C:\Integrity\ILMClient11
 ```
-- In the case of a performance problem that is usually based on too much configuration data in Integrity, you can also disable certain types of objects, such as:   
+- In the case of a performance problem that is usually based on too much configuration data in Integrity, you can also disable the scan of certain types of objects, such as:   
 ```
 Parameter:
              --noViewsets:   disable Viewsets scan and output
