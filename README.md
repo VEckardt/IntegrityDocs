@@ -82,6 +82,8 @@ Parameter:
 - 11.0.5: Added Images
 - 11.0.6: Added Traces (Solution Type Def), Metrics (im command)
 - 11.0.6.3: Added Word Export button (under review, Images missing) 
+::
+- 11.0.6.7: the current in-development version, contact me if you want to branch from this latest version (not uploaded yet) 
 
 ##  Development Environment
 - PTC Integrity LM 11.0 (also 10.9 is fine)
