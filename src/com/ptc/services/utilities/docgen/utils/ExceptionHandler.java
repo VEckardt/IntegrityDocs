@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen.utils;
 
 import com.mks.api.response.APIException;

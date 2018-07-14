@@ -5,10 +5,11 @@
  */
 package com.ptc.services.utilities.docgen.relationships;
 
+import com.mks.api.Command;
 import com.ptc.services.utilities.docgen.RelationshipAnalyser;
 import com.mks.api.response.APIException;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.SimpleItem;
+import com.ptc.services.utilities.docgen.SimpleWorkItem;
 import com.ptc.services.utilities.docgen.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,9 @@ public class TestRA {
     public static void main(String[] args) throws APIException, IntegrityException {
 
         Logger.init();
-        Integrity i = new Integrity();
+        Integrity i = new Integrity(Command.IM);
 
-        List<SimpleItem> items = new ArrayList<>();
+        List<SimpleWorkItem> items = new ArrayList<>();
         RelationshipAnalyser ra = new RelationshipAnalyser(i, "MKS Solution");
         
         

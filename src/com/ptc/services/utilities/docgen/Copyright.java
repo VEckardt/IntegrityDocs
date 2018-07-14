@@ -1,7 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen;
 
@@ -11,7 +15,7 @@ package com.ptc.services.utilities.docgen;
  */
 public class Copyright {
 
-    public static final String iDOCS_REV = "$Revision: 11.0.6.3 $";
+    public static final String iDOCS_REV = "$Revision: 11.0.6.8 $";
     public static final String copyright = "Copyright &copy; 2018 PTC Inc. All rights reserved.";
     public static final String copyrightText = "Copyright (c) 2018 PTC Inc. All rights reserved.";
     public static String programName = "IntegrityDocs";

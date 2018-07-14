@@ -11,6 +11,7 @@ import com.mks.api.response.Item;
 import com.mks.api.response.ItemList;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
+import com.ptc.services.utilities.docgen.Integrity;
 import com.ptc.services.utilities.docgen.session.APISession;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,18 +23,18 @@ import java.util.Map;
  */
 public class IntegrityTypePropertyList extends HashMap<String, IntegrityTypeProperty> {
 
-    public IntegrityTypePropertyList(APISession api, String type) throws IntegrityException {
+    public IntegrityTypePropertyList(Integrity api, String type) throws IntegrityException {
         this(api, type, null);
     }
 
-    public IntegrityTypePropertyList(APISession api, String type, String filter)
+    public IntegrityTypePropertyList(Integrity api, String type, String filter)
             throws IntegrityException {
         try {
             this.clear();
             com.mks.api.Command cmd = new com.mks.api.Command("im", "types");
             cmd.addOption(new Option("fields", "properties"));
             cmd.addSelection(type);
-            Response res = api.runCommand(cmd);
+            Response res = api.execute(cmd);
             WorkItem wkProps = res.getWorkItem(type);
             Field propsField = wkProps.getField("properties");
             ItemList itemList = (ItemList) propsField.getList();

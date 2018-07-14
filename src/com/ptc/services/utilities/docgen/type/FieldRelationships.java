@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen.type;
 
 import java.util.List;
@@ -6,11 +15,15 @@ import java.util.NoSuchElementException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.GROUP_XML_PREFIX;
+import static com.ptc.services.utilities.docgen.Constants.USER_XML_PREFIX;
 import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.Integrity;
+import static com.ptc.services.utilities.docgen.Integrity.getXMLParamFieldValue;
 import com.ptc.services.utilities.docgen.IntegrityField;
 import com.ptc.services.utilities.docgen.IntegrityState;
 import com.ptc.services.utilities.docgen.IntegrityType;
+import static com.ptc.services.utilities.docgen.IntegrityUtils.getFieldValue;
 import com.ptc.services.utilities.docgen.XMLWriter;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
@@ -66,7 +79,7 @@ public class FieldRelationships {
                         // Append the rule based relationship to the list of field relationships
                         // log("9a");
                         sb.append("rule=" + rule);
-                        sb.append(Integrity.getFieldValue(sourceField.getField("targetField"), ""));
+                        sb.append(getFieldValue(sourceField.getField("targetField"), ""));
                         // log("9b");
                     } else {
                         // Get the "Target Fields"
@@ -97,35 +110,35 @@ public class FieldRelationships {
                             }
                             switch (iField.getFieldType()) {
                                 case TYPE:
-                                    sb.append(Integrity.getXMLParamFieldValue(sourceValues, IntegrityType.XML_PREFIX, ",") + ":");
+                                    sb.append(getXMLParamFieldValue(sourceValues, IntegrityType.XML_PREFIX, ",") + ":");
                                     break;
 
                                 case STATE:
-                                    sb.append(Integrity.getXMLParamFieldValue(sourceValues, IntegrityState.XML_PREFIX, ",") + ":");
+                                    sb.append(getXMLParamFieldValue(sourceValues, IntegrityState.XML_PREFIX, ",") + ":");
                                     break;
 
                                 case USER:
-                                    sb.append(Integrity.getXMLParamFieldValue(sourceValues, Integrity.USER_XML_PREFIX, ",") + ":");
+                                    sb.append(getXMLParamFieldValue(sourceValues, USER_XML_PREFIX, ",") + ":");
                                     break;
 
                                 case GROUP:
-                                    sb.append(Integrity.getXMLParamFieldValue(sourceValues, Integrity.GROUP_XML_PREFIX, ",") + ":");
+                                    sb.append(getXMLParamFieldValue(sourceValues, GROUP_XML_PREFIX, ",") + ":");
                                     break;
 
                                 default:
-                                    sb.append(Integrity.getFieldValue(sourceValues, ",") + ":");
+                                    sb.append(getFieldValue(sourceValues, ",") + ":");
                             }
 
                             // Append the value for the target field and target values
                             sb.append(targetField.getId() + "=");
                             // This is the case where you have a member of group
-                            if (Integrity.getFieldValue(targetValueType, "").equals("memberOf")) {
-                                sb.append("memberOf(" + Integrity.getXMLParamFieldValue(targetValues, Integrity.GROUP_XML_PREFIX, ",") + ")");
+                            if (getFieldValue(targetValueType, "").equals("memberOf")) {
+                                sb.append("memberOf(" + getXMLParamFieldValue(targetValues, GROUP_XML_PREFIX, ",") + ")");
                             } // This is the case where you have members of a group that is derived from the value of a group field
-                            else if (Integrity.getFieldValue(targetValueType, "").equals("valueOf")) {
-                                sb.append("valueOf(" + Integrity.getXMLParamFieldValue(targetValues, IntegrityField.XML_PREFIX, "") + ")");
+                            else if (getFieldValue(targetValueType, "").equals("valueOf")) {
+                                sb.append("valueOf(" + getXMLParamFieldValue(targetValues, IntegrityField.XML_PREFIX, "") + ")");
                             } else {
-                                sb.append(Integrity.getFieldValue(targetValues, ","));
+                                sb.append(getFieldValue(targetValues, ","));
                             }
 
                             sb.append(tlit.hasNext() ? ";" + nl + "\t\t\t" : "");
@@ -173,7 +186,7 @@ public class FieldRelationships {
                         // Leave the Source Field Value blank for rule based field relationships
                         report.append("    <td>&nbsp;</td>" + nl);
                         // Get the value for "Target Field" name
-                        report.append("    <td>" + Integrity.getFieldValue(targetField, "<br/>") + "</td>" + nl);
+                        report.append("    <td>" + getFieldValue(targetField, "<br/>") + "</td>" + nl);
                         // For the "Target Values", enter the rule information
                         report.append("    <td>" + rule + "</td>" + nl);
                         // Close out the table row
@@ -194,12 +207,12 @@ public class FieldRelationships {
                             Field targetValues = targetField.getField("targetValues");
                             Field targetValueType = targetField.getField("targetValueType");
                             // Finally, write out the "Source Values", "Target Field", and "Target Values"
-                            report.append("    <td>" + Integrity.getFieldValue(sourceValues, "<br/>") + "</td>" + nl);
+                            report.append("    <td>" + getFieldValue(sourceValues, "<br/>") + "</td>" + nl);
                             report.append("    <td>" + targetField.getId() + "</td>" + nl);
-                            if (Integrity.getFieldValue(targetValueType, "").equals("memberOf") || Integrity.getFieldValue(targetValueType, "").equals("valueOf")) {
-                                report.append("    <td>memberOf(" + Integrity.getFieldValue(targetValues, "<br/>") + ")</td>" + nl);
+                            if (getFieldValue(targetValueType, "").equals("memberOf") || getFieldValue(targetValueType, "").equals("valueOf")) {
+                                report.append("    <td>memberOf(" + getFieldValue(targetValues, "<br/>") + ")</td>" + nl);
                             } else {
-                                report.append("    <td>" + Integrity.getFieldValue(targetValues, "<br/>") + "</td>" + nl);
+                                report.append("    <td>" + getFieldValue(targetValues, "<br/>") + "</td>" + nl);
                             }
                             // Close out the table row
                             report.append("  </tr>" + nl);

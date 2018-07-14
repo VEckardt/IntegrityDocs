@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen;
 
 import java.io.File;
@@ -20,24 +29,28 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mks.api.Command;
+import com.mks.api.response.WorkItem;
 import com.ptc.services.utilities.IterableNodeList;
 import com.ptc.services.utilities.XMLPrettyPrinter;
 import com.ptc.services.utilities.XMLUtils;
+import static com.ptc.services.utilities.docgen.Constants.CHART_XML_PREFIX;
 import static com.ptc.services.utilities.docgen.Constants.CONTENT_XML_VIEWSETS_DIR;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.IntegrityDocsConfig.Types;
+import static com.ptc.services.utilities.docgen.IntegrityUtils.getDateString;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 
 import java.util.LinkedHashMap;
 
 /**
- * The Query class contains the following information about an Integrity Query:
- * publishedState name creator modifiedDate description mandatory customizable
+ * The IntegrityQuery class contains the following information about an
+ * Integrity IntegrityQuery: publishedState name creator modifiedDate
+ * description mandatory customizable
  *
  * Note: We're only interested in the published server viewsets either for
  * reporting purposes or xml export!
  */
-public class Viewset extends IntegrityAdminObject {
+public class Viewset extends IntegrityObject {
 
     // Viewset's members
     public static final String XML_PREFIX = "VIEWSET_";
@@ -57,7 +70,8 @@ public class Viewset extends IntegrityAdminObject {
         adminRefs.add("CIType:");
     }
 
-    public Viewset(String id) throws ParserConfigurationException {
+    public Viewset(WorkItem wi, String id) throws ParserConfigurationException {
+        super(wi, Types.Viewset);
         this.id = id;
         publishedState = "Published (Server)";
         creator = "";
@@ -65,10 +79,9 @@ public class Viewset extends IntegrityAdminObject {
         description = "";
         mandatory = false;
         customizable = true;
-        name = "";
+        name = wi.getField("name").getString();
         vsDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        objectType = Types.Viewset;
     }
 
     // All setter functions
@@ -158,14 +171,14 @@ public class Viewset extends IntegrityAdminObject {
             if (adminClass.equalsIgnoreCase("CIQuery:")) {
                 String name = queryIDs.get(adminID);
                 if (null != name && name.length() > 0) {
-                    xmlParamName = Query.XML_PREFIX + XMLWriter.getXMLParamName(name);
+                    xmlParamName = IntegrityQuery.XML_PREFIX + XMLWriter.getXMLParamName(name);
                     XMLWriter.paramsHash.put(xmlParamName, name);
                     xmlParamName = XMLWriter.padXMLParamName(xmlParamName);
                 }
             } else if (adminClass.equalsIgnoreCase("CIChart:")) {
                 String name = chartIDs.get(adminID);
                 if (null != name && name.length() > 0) {
-                    xmlParamName = Chart.XML_PREFIX + XMLWriter.getXMLParamName(name);
+                    xmlParamName = CHART_XML_PREFIX + XMLWriter.getXMLParamName(name);
                     XMLWriter.paramsHash.put(xmlParamName, name);
                     xmlParamName = XMLWriter.padXMLParamName(xmlParamName);
                 }
@@ -347,7 +360,7 @@ public class Viewset extends IntegrityAdminObject {
 
                     // <Setting name="query">All Test Documents</Setting>
                     if (nameAttr.equalsIgnoreCase("query")) {
-                        substituteParamNameForName(currentNode, Query.XML_PREFIX, "");
+                        substituteParamNameForName(currentNode, IntegrityQuery.XML_PREFIX, "");
                     } // <Setting name="traverseFields">Plans,Organizes,Test Sessions,Tests</Setting>
                     else if (nameAttr.equalsIgnoreCase("traverseFields")) {
                         substituteParamNameForName(currentNode, IntegrityField.XML_PREFIX, ",");
@@ -459,7 +472,7 @@ public class Viewset extends IntegrityAdminObject {
     }
 
     public String getModifiedDate(SimpleDateFormat sdf) {
-        return Integrity.getDateString(sdf, modifiedDate);
+        return getDateString(sdf, modifiedDate);
     }
 
     public boolean isMandatory() {

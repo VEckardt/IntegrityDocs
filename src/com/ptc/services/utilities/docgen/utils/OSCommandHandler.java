@@ -1,10 +1,14 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen.utils;
 
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,7 +61,7 @@ public class OSCommandHandler {
      */
     public int executeCmd(String command, Boolean wait) {
 
-        int exitCode = 0;
+        int exitCode;
         try {
             ProcessBuilder pb = new ProcessBuilder("cmd", "/c", command);
             // pb.environment().put("MKSSI_ISSUE0", "617");
@@ -82,9 +86,7 @@ public class OSCommandHandler {
                 log("OS Process terminated with " + exitCode);
             }
             return exitCode;
-        } catch (IOException ex) {
-            Logger.getLogger(OSCommandHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (IOException | InterruptedException ex) {
             Logger.getLogger(OSCommandHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return -1;
@@ -109,7 +111,7 @@ public class OSCommandHandler {
             try {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
-                String line = null;
+                String line;
                 while ((line = br.readLine()) != null) {
                     if (!line.isEmpty()) {
                         // log(type + "> " + line);

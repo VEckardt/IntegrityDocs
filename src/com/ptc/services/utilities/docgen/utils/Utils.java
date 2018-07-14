@@ -1,12 +1,15 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen.utils;
 
 import static com.ptc.services.utilities.docgen.Constants.nl;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 
 /**
  *
@@ -24,13 +27,13 @@ public class Utils {
 //        }
 //        return className;
 //    }
-    public static String appendNewLine(String line) {
-        return line + nl;
-    }
+   public static String appendNewLine(String line) {
+      return line + nl;
+   }
 
-    public static String cap1stChar(String userIdea) {
-        char[] stringArray = userIdea.toCharArray();
-        stringArray[0] = Character.toUpperCase(stringArray[0]);
-        return new String(stringArray);
-    }
+   public static String cap1stChar(String userIdea) {
+      char[] stringArray = userIdea.toCharArray();
+      stringArray[0] = Character.toUpperCase(stringArray[0]);
+      return new String(stringArray);
+   }
 }

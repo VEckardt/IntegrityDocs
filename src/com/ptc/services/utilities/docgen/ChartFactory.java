@@ -1,10 +1,22 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen;
 
+import com.ptc.services.utilities.docgen.field.SimpleField;
+import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.WorkItem;
 import static com.ptc.services.utilities.docgen.Constants.nl;
 import static com.ptc.services.utilities.docgen.Integrity.chartAttributes2;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.IntegrityDocsConfig.Types;
+import static com.ptc.services.utilities.docgen.IntegrityDocs.skipChartPreview;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +27,7 @@ import java.util.StringTokenizer;
 
 public class ChartFactory {
 
-    public static IntegrityObject parseChart(WorkItem chart, String chartOutput) {
+    public static Chart parseChart(Integrity i, WorkItem chart, String chartOutput) throws APIException {
         StringTokenizer chartTokens = new StringTokenizer(chartOutput, nl);
         List<Field> fieldlist = new ArrayList<>();
         while (chartTokens.hasMoreTokens()) {
@@ -38,10 +50,15 @@ public class ChartFactory {
                 }
             }
         }
-        return new IntegrityObject(chart, Types.Chart, fieldlist);
+        if (!skipChartPreview) {
+            String previewFile = i.genChartPreviewFile(chart, chart.getField("graphStyle").getString());
+            fieldlist.add(new SimpleField("preview", previewFile));
+        }
+
+        return new Chart(chart, fieldlist);
     }
 
-    public static List<Chart> parseCharts(String chartsOutput) {
+    public static List<Chart> parseCharts(WorkItem wi, String chartsOutput) {
         List<Chart> chartList = new ArrayList<>();
         StringTokenizer chartTokens = new StringTokenizer(chartsOutput, nl);
         while (chartTokens.hasMoreTokens()) {
@@ -51,7 +68,7 @@ public class ChartFactory {
                 // Only process admin charts
                 boolean isAdmin = Boolean.parseBoolean(attributes.nextToken().trim());
                 if (isAdmin) {
-                    Chart c = new Chart();
+                    Chart c = new Chart(wi);
                     c.setSharedAdmin(isAdmin);
                     c.setID(attributes.nextToken().trim());
                     c.setName(attributes.nextToken().trim());

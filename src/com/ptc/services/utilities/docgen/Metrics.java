@@ -1,7 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen;
 
@@ -11,14 +15,10 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
-import com.mks.api.util.ResponseUtil;
-import static com.ptc.services.utilities.docgen.Constants.fs;
-import static com.ptc.services.utilities.docgen.Constants.nl;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.ptc.services.utilities.docgen.IntegrityDocsConfig.Types;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 /**
  *
@@ -30,7 +30,7 @@ public class Metrics extends ArrayList implements WorkItemIterator {
 
     @Override
     public WorkItem next() throws APIException {
-        return (SimpleItem) this.get(len++);
+        return (SimpleWorkItem) this.get(len++);
     }
 
     @Override
@@ -40,11 +40,11 @@ public class Metrics extends ArrayList implements WorkItemIterator {
 
     @Override
     public WorkItem getLast() {
-        return (SimpleItem) this.get(size() - 1);
+        return (SimpleWorkItem) this.get(size() - 1);
     }
 
     private static void addLine(Metrics metrics, int cnt, String line) {
-        SimpleItem item = new SimpleItem("Metrics", String.valueOf(++cnt));
+        SimpleWorkItem item = new SimpleWorkItem("Metrics", String.valueOf(++cnt));
         item.add("Line", String.valueOf(cnt));
         item.add("Output", "<font face=\"Lucida Console\">" + line.replaceAll(" ", "&nbsp;") + "</font>");
         metrics.add(item);
@@ -53,7 +53,7 @@ public class Metrics extends ArrayList implements WorkItemIterator {
     public static Metrics getMetrics(Integrity session, Types type, File path) throws APIException {
         Metrics metrics = new Metrics();
 
-        String outputPath = path + fs + type.getPlural();
+//        String outputPath = path + fs + type.getPlural();
 
         // im diag --diag=metrics --target=server
         log("Reading " + "metrics ...", 1);
@@ -61,7 +61,7 @@ public class Metrics extends ArrayList implements WorkItemIterator {
         // Add each query selection to the view query command
         cmd.addOption(new Option("diag", "metrics"));
         cmd.addOption(new Option("target", "server"));
-        Response response = session.getAPI().runCommand(cmd);
+        Response response = session.execute(cmd);
         // ResponseUtil.printResponse(response, 1, System.out);
         String output = response.getResult().getMessage();
 
@@ -69,22 +69,20 @@ public class Metrics extends ArrayList implements WorkItemIterator {
         // StringTokenizer tokens = new StringTokenizer(output, nl);
         ArrayList<String> lineArray = new ArrayList<>();
         String[] lines = output.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            // while (tokens.hasMoreTokens()) {
-            lineArray.add(lines[i]);
-            // }
+        for (String line : lines) {
+            lineArray.add(line);
         }
         Boolean tableMode = false;
-        SimpleItem si = null;
+        SimpleWorkItem si = null;
         for (int i = 0; i < lineArray.size() - 1; i++) {
             if (lineArray.get(i + 1).startsWith("------")) {
                 tableMode = true;
             } else if (lineArray.get(i).isEmpty()) {
                 tableMode = false;
             }
-            si = new SimpleItem("Metric", String.valueOf(i));
+            si = new SimpleWorkItem("Metric", String.valueOf(i));
             si.add("Line", String.valueOf(i));
-            si.add("Section", tableMode?"-":"");
+            si.add("Section", tableMode ? "-" : "");
             if (tableMode) // if (lineArray.get(i+1).substring(0,3).);
             {
                 si.add("Text", "<font face=\"Lucida Console\">" + lineArray.get(i).replaceAll(" ", "&nbsp;") + "</font>");
@@ -94,7 +92,7 @@ public class Metrics extends ArrayList implements WorkItemIterator {
                 metrics.add(si);
             }
         }
-        si.add("Text", lineArray.get(lineArray.size()-1).replaceAll(" ", "&nbsp;") );
+        si.add("Text", lineArray.get(lineArray.size() - 1).replaceAll(" ", "&nbsp;"));
 
 //                if (line.startsWith("Created by")) {
 //                    fieldlist.add(new SimpleField("Created by", line.replace("Created by", "")));

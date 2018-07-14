@@ -1,188 +1,105 @@
+/*
+ * Copyright:      Copyright 2017 (c) Parametric Technology GmbH
+ * Product:        PTC Integrity Lifecycle Manager
+ * Author:         Volker Eckardt, Principal Consultant ALM
+ * Purpose:        Custom Developed Code
+ * **************  File Version Details  **************
+ * Revision:       $Revision: 1.2 $
+ * Last changed:   $Date: 2017/05/12 00:20:03CEST $
+ */
 package com.ptc.services.utilities.docgen;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.mks.api.Command;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
-import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
-import com.ptc.services.utilities.docgen.utils.StringObj;
-import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
+import com.mks.api.response.Item;
+import com.mks.api.response.ItemList;
+import com.mks.api.response.WorkItem;
+import com.ptc.services.utilities.docgen.IntegrityDocsConfig.Types;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * The Query class contains the following information about an Integrity Query:
- * createdBy description fields id isAdmin lastModified name queryDefinition
- * shareWith sortDirection sortField
  *
- * Note: We're only interested in admin queries either for reporting purposes or
- * xml export!
+ * @author veckardt
  */
-public class DynamicGroup extends IntegrityAdminObject {
+public class DynamicGroup extends StaticGroup {
 
-    // Query's members
-    public static final String XML_PREFIX = "DYNGROUP_";
-    private Date lastModified;
-    private String createdBy;
+    public DynamicGroup(WorkItem wi) {
+        super(wi, Types.DynamicGroup);
+        try {
+            membership = (ItemList) wi.getField("membership").getList();
+        } catch (NoSuchElementException ex) {
 
-    public DynamicGroup() {
-        name = "";
-        createdBy = "";
-        lastModified = new Date();
-        description = "";
-        xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-        objectType = Types.DynamicGroup;
-    }
+        }
 
-    // All setter functions
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public void setLastModifiedDate(Date lastModified) {
-        this.lastModified = lastModified;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-        this.xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
-    }
-
-//    public void setQueryDefinition(String queryDefinition) {
-//        this.queryDefinition = queryDefinition;
-//    }
-//
-//    public void setShareWith(String shareWith) {
-//        this.shareWith = shareWith;
-//    }
-//
-//    public void setSortDirection(String sortDirection) {
-//        this.sortDirection = sortDirection;
-//    }
-//
-//    public void setSortField(String sortField) {
-//        this.sortField = sortField;
-//    }
-    // All getter/access functions...
-    @Override
-    public String getPosition() {
-        return this.getID().replaceAll(" ", "_");
-    }
-
-    public Element getXML(Document job, Element command) {
-        // Add this query to the global resources hash
-        XMLWriter.paramsHash.put(XML_PREFIX + XMLWriter.getXMLParamName(name), name);
-
-        // Setup the command to re-create the query via the Load Test Harness...
-        Element app = job.createElement("app");
-        app.appendChild(job.createTextNode(Command.IM));
-        command.appendChild(app);
-
-        Element cmdName = job.createElement("commandName");
-        cmdName.appendChild(job.createTextNode("createquery"));
-        command.appendChild(cmdName);
-
-//        // --fields=field,field,...  The fields of the query's default column set.
-//        if (fields.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "fields", Integrity.getXMLParamFieldValue(Integrity.convertStringToList(fields, ","), IntegrityField.XML_PREFIX, ",")));
-//        }
-//        // --queryDefinition=See documentation.  The string giving the complete query definition.
-//        // TODO: Need to parameterize query definition rule
-//        if (queryDefinition.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "queryDefinition", queryDefinition));
-//        }
-//        // --[no]sortAscending  The sort direction of the query's default column set.
-//        if (sortDirection.length() > 0 && sortDirection.equalsIgnoreCase("Descending")) {
-//            command.appendChild(XMLWriter.getOption(job, "nosortAscending", null));
-//        } else {
-//            command.appendChild(XMLWriter.getOption(job, "sortAscending", null));
-//        }
-//        // --sortField=field  The sort field of the query's default column set.
-//        if (sortField.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "sortField", XMLWriter.padXMLParamName(IntegrityField.XML_PREFIX + XMLWriter.getXMLParamName(sortField))));
-//        }
-//        // --sharedAdmin  Set this object to be a shared admin object
-//        if (isAdmin) {
-//            command.appendChild(XMLWriter.getOption(job, "sharedAdmin", null));
-//        }
-//        // --shareWith=u=user1[:modify],user2[:modify],.. ;g=group1[:modify],group2[:modify],..   
-//        //			Set the users and groups that can see and optionally modify this object.
-//        if (shareWith.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "shareWith", shareWith));
-//        }
-//        // --description=value  Short description
-//        if (description.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "description", description));
-//        }
-//        // --name=value  The name for this object		
-//        if (name.length() > 0) {
-//            command.appendChild(XMLWriter.getOption(job, "name", xmlParamName));
-//        }
-        return command;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public String getLastModifiedDate(SimpleDateFormat sdf) {
-        return Integrity.getDateString(sdf, lastModified);
     }
 
     @Override
-    public String getDescription() {
-        return description;
+    public String getMembership() {
+        return getMembership("", null, true);
     }
 
-//    public String getFields() {
-//        return fields;
-//    }
-    @Override
-    public String getName() {
-        return name;
+    public String getMembership(String userName, String staticGroups) {
+        return getMembership(userName, staticGroups, true);
     }
 
-    @Override
-    public String getXMLName() {
-        return xmlParamName;
-    }
-
-//    public String getQueryDefinition() {
-//        return queryDefinition;
-//    }
-//
-//    public String getShareWith() {
-//        return shareWith;
-//    }
-//
-//    public String getSortDirection() {
-//        return sortDirection;
-//    }
-//
-//    public String getSortField() {
-//        return sortField;
-//    }
-    @Override
-    public String getDetails() {
-        StringObj sb = new StringObj();
-        // Print out the detail about each item type
-        sb.append(appendNewLine("     <table class='display'>"));
-        sb.addFieldValue("Name", getName());
-        sb.addFieldValue("Description", HyperLinkFactory.convertHyperLinks(getDescription()));
-        // Close out the triggers details table
-        sb.append(appendNewLine("     </table>"));
-
-        return sb.toString();
+    public String getMembership(String userName, String staticGroups, Boolean showDetails) {
+        String data = "<table class='sortable'>";
+        data += "<tr><th class='heading8'>Project</th><th class='heading8'>Users</th><th class='heading8'>Groups</th></tr>";
+        String users = "";
+        String groups = "";
+        if (membership != null) {
+            Iterator it = membership.getItems();
+            while (it.hasNext()) {
+                Item item = (Item) it.next();
+                String project = item.getId();
+                if (item.getField("Users") != null) {
+                    users = item.getField("Users").getValueAsString().replaceAll(",", ", ");
+                }
+                if (item.getField("Groups") != null) {
+                    groups = item.getField("Groups").getValueAsString().replaceAll(",", ", ");
+                }
+                if (userName.isEmpty() || (containsOneOf(users, userName))
+                        || (containsOneOf(groups, staticGroups))) {
+                    if (showDetails) {
+                        data += "<tr><td>" + project + "</td><td>" + users + "</td><td>" + groups + "</td></tr>";
+                    } else {
+                        data += "\n" + getName() + ";" + project;
+                    }
+                }
+            }
+            data += "</table>";
+            return data;
+        }
+        return "";
     }
 
     @Override
-    public String getFieldValue(String fieldName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Boolean isMemberOfGroup(String userName, String groupNames) {
+        // String data = "";
+        String users = "";
+        String groups = "";
+        if (membership != null) {
+            Iterator it = membership.getItems();
+            while (it.hasNext()) {
+                Item item = (Item) it.next();
+                // String project = item.getId();
+
+                // out.println(" SUB: Checking project '" + project + "' ...");
+                if (item.getField("Users") != null) {
+                    users = item.getField("Users").getValueAsString();
+                }
+                if (item.getField("Groups") != null) {
+                    groups = item.getField("Groups").getValueAsString();
+                }
+
+                if (userName.isEmpty() || containsOneOf(users, userName) || containsOneOf(groups, groupNames)) {
+                    return true;
+                }
+                // out.println(" SUB: Checking group '" + groups + "' for project '" + project + "' ...");
+//                if (containsOneOf(groups, groupNames)) {
+//                    return true;
+//                }
+            }
+        }
+        return false;
     }
 }

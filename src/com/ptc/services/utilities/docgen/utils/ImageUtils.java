@@ -1,12 +1,16 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen.utils;
 
 import com.mks.api.response.Field;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.io.IOException;
 

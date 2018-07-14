@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ptc.services.utilities.docgen;
+package com.ptc.services.utilities.docgen.field;
 
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
@@ -16,24 +16,16 @@ import javax.swing.ImageIcon;
  *
  * @author veckardt
  */
-public class SimpleField implements Field {
-
-    String name;
-    String value;
-
-    SimpleField(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
+public class UserGroupField implements Field{
 
     @Override
     public String getName() {
-        return name;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Object getValue() {
-        return value;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -83,7 +75,7 @@ public class SimpleField implements Field {
 
     @Override
     public String getString() {
-        return value;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -108,7 +100,7 @@ public class SimpleField implements Field {
 
     @Override
     public String getValueAsString() {
-        return value;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -120,5 +112,5 @@ public class SimpleField implements Field {
     public boolean hasDisplayValue() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
 }

@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen.type;
 
 import java.util.List;
@@ -7,17 +16,23 @@ import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
 import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
+import com.ptc.services.utilities.docgen.field.SimpleField;
+import java.util.ArrayList;
 
 public class TypeProperties {
 
     private Field typeProperties;
     private String strTypeProperties;
+    private List<SimpleField> propList = new ArrayList<>();
 
     public TypeProperties(Field typeProps) {
         typeProperties = typeProps;
         strTypeProperties = new String();
         initSringTypeProperties();
+    }
+
+    public List<SimpleField> getPropList() {
+        return propList;
     }
 
     private void initSringTypeProperties() {
@@ -27,16 +42,17 @@ public class TypeProperties {
             Iterator<Item> it = typeProperties.getList().iterator();
             while (it.hasNext()) {
                 // Get the "Property Name" value
-                Item propertyName = it.next();
+                Item property = it.next();
                 // Get the details for the property
-                String propertyValue = propertyName.getField("value").getValueAsString();
+                String propertyValue = property.getField("value").getValueAsString();
                 propertyValue = (null == propertyValue ? "" : Integrity.fixPropertyValue(propertyValue));
-                String propertyDesc = propertyName.getField("description").getValueAsString();
+                String propertyDesc = property.getField("description").getValueAsString();
                 propertyDesc = (null == propertyDesc ? "" : Integrity.fixPropertyValue(propertyDesc));
-                sb.append(Integrity.fixPropertyValue(propertyName.getId()) + ":");
+                sb.append(Integrity.fixPropertyValue(property.getId()) + ":");
                 sb.append(propertyValue + ":");
                 sb.append(propertyDesc);
                 sb.append(it.hasNext() ? ";" + nl + "\t\t\t" : "");
+                propList.add(new SimpleField(property.getId(), propertyValue, propertyDesc));
             }
         }
         strTypeProperties = sb.toString();

@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen.type;
 
 import com.ptc.services.utilities.docgen.XMLWriter;
@@ -7,10 +16,10 @@ import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
 import static com.ptc.services.utilities.docgen.Constants.nl;
-import com.ptc.services.utilities.docgen.Integrity;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
+import static com.ptc.services.utilities.docgen.Integrity.getXMLParamFieldValue;
 import com.ptc.services.utilities.docgen.IntegrityField;
 import com.ptc.services.utilities.docgen.IntegrityState;
+import static com.ptc.services.utilities.docgen.IntegrityUtils.getFieldValue;
 
 public class MandatoryFields {
 
@@ -28,7 +37,7 @@ public class MandatoryFields {
                 Item state = it.next();
                 String xmlParam = IntegrityState.XML_PREFIX + XMLWriter.getXMLParamName(state.getId());
                 sb.append(XMLWriter.padXMLParamName(XMLWriter.getXMLParamName(xmlParam)) + ":");
-                sb.append(Integrity.getXMLParamFieldValue(state.getField("fields"), IntegrityField.XML_PREFIX, ","));
+                sb.append(getXMLParamFieldValue(state.getField("fields"), IntegrityField.XML_PREFIX, ","));
                 sb.append(it.hasNext() ? ";" + nl + "\t\t\t" : "");
             }
             strMandatoryFields = sb.toString();
@@ -57,7 +66,7 @@ public class MandatoryFields {
                 report.append("  <tr>" + nl);
                 report.append("    <td>" + state.getId() + "</td>" + nl);
                 // Write out the "Mandatory Fields"
-                report.append("    <td>" + Integrity.getFieldValue(state.getField("fields"), "<br/>") + "</td>" + nl);
+                report.append("    <td>" + getFieldValue(state.getField("fields"), "<br/>") + "</td>" + nl);
                 // Close out the table row
                 report.append("  </tr>" + nl);
             }

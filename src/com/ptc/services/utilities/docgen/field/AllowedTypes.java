@@ -8,7 +8,6 @@ package com.ptc.services.utilities.docgen.field;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import static com.ptc.services.utilities.docgen.Constants.nl;
-import com.ptc.services.utilities.docgen.IntegrityDocs;
 import java.util.ListIterator;
 
 /**

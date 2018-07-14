@@ -1,7 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
  */
 package com.ptc.services.utilities.docgen;
 
@@ -23,7 +27,7 @@ public class Images extends ArrayList implements WorkItemIterator {
 
     @Override
     public WorkItem next() throws APIException {
-        return (SimpleItem) this.get(len++);
+        return (SimpleWorkItem) this.get(len++);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class Images extends ArrayList implements WorkItemIterator {
 
     @Override
     public WorkItem getLast() {
-        return (SimpleItem) this.get(size() - 1);
+        return (SimpleWorkItem) this.get(size() - 1);
     }
 
     /**
@@ -50,7 +54,7 @@ public class Images extends ArrayList implements WorkItemIterator {
             for (File file : listOfFiles) {
                 if (file.isFile()) {
                     String fname = "images" + fs + file.getName();
-                    SimpleItem itm = new SimpleItem("Image", file.getName());
+                    SimpleWorkItem itm = new SimpleWorkItem("Image", file.getName());
                     itm.add("id", String.valueOf(++cnt));
                     itm.add("name", file.getName());
                     itm.add("image", fname);
@@ -58,7 +62,7 @@ public class Images extends ArrayList implements WorkItemIterator {
                 }
             }
         } else {
-            log ("No images!!!  :(");
+            log("No images!!!  :(");
         }
 
         return ims;

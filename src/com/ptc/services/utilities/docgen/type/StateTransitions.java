@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen.type;
 
 import java.util.ArrayList;
@@ -8,10 +17,13 @@ import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.Item;
 import com.mks.api.response.ItemNotFoundException;
+import static com.ptc.services.utilities.docgen.Constants.GROUP_XML_PREFIX;
 import static com.ptc.services.utilities.docgen.Constants.nl;
 import com.ptc.services.utilities.docgen.utils.ExceptionHandler;
 import com.ptc.services.utilities.docgen.Integrity;
+import static com.ptc.services.utilities.docgen.Integrity.getXMLParamFieldValue;
 import com.ptc.services.utilities.docgen.IntegrityState;
+import static com.ptc.services.utilities.docgen.IntegrityUtils.getFieldValue;
 import com.ptc.services.utilities.docgen.XMLWriter;
 import static com.ptc.services.utilities.docgen.utils.Logger.log;
 import java.util.LinkedHashMap;
@@ -24,7 +36,7 @@ public class StateTransitions {
     private String strTransitions;
     private LinkedHashMap<String, IntegrityState> statesHash;
 
-    public StateTransitions(String typeName, Integrity i, Field stateTransitions) {
+    public StateTransitions(String typeName, Field stateTransitions) {
         transitions = stateTransitions;
         statesList = new ArrayList<>();
         strTransitions = new String();
@@ -32,7 +44,7 @@ public class StateTransitions {
         setUniqueStatesAndTransitions();
 
         try {
-            statesHash = i.getStates(typeName, statesList);
+            statesHash = Integrity.getStates(typeName, statesList);
         } catch (APIException aex) {
             ExceptionHandler eh = new ExceptionHandler(aex);
             log(eh.getMessage());
@@ -88,7 +100,7 @@ public class StateTransitions {
 
                     // Add the permitted groups for this state transition
                     try {
-                        sb.append(Integrity.getXMLParamFieldValue(targetState.getField("permittedGroups"), Integrity.GROUP_XML_PREFIX, ","));
+                        sb.append(getXMLParamFieldValue(targetState.getField("permittedGroups"), GROUP_XML_PREFIX, ","));
                     } catch (NoSuchElementException e) {
                         sb.append("");
                     }
@@ -112,6 +124,10 @@ public class StateTransitions {
     public String getStringTransitions() {
         return strTransitions;
     }
+    
+    public List<String> getStateList() {
+        return statesList;
+    }    
 
     @SuppressWarnings("unchecked")
     public String getFormattedReport() throws ItemNotFoundException {
@@ -141,7 +157,7 @@ public class StateTransitions {
                     // Write out the "To State" value
                     report.append("    <td>" + targetState.getId() + "</td>" + nl);
                     // Finally write out the "Permitted Groups" value
-                    report.append("    <td>" + Integrity.getFieldValue(targetState.getField("permittedGroups"), "<br/>") + "</td>" + nl);
+                    report.append("    <td>" + getFieldValue(targetState.getField("permittedGroups"), "<br/>") + "</td>" + nl);
                     // Close out the table row
                     report.append("  </tr>" + nl);
                 }

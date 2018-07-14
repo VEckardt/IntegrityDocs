@@ -1,3 +1,12 @@
+/*
+ *  Copyright:      Copyright 2018 (c) Parametric Technology GmbH
+ *  Product:        PTC Integrity Lifecycle Manager
+ *  Author:         Volker Eckardt, Principal Consultant ALM
+ *  Purpose:        Custom Developed Code
+ *  **************  File Version Details  **************
+ *  Revision:       $Revision: 1.3 $
+ *  Last changed:   $Date: 2018/05/18 02:18:19CET $
+ */
 package com.ptc.services.utilities.docgen;
 
 import java.text.SimpleDateFormat;
@@ -7,7 +16,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mks.api.Command;
-import com.ptc.services.utilities.docgen.IntegrityDocs.Types;
+import com.mks.api.response.WorkItem;
+import com.ptc.services.utilities.docgen.IntegrityDocsConfig.Types;
+import static com.ptc.services.utilities.docgen.IntegrityUtils.getDateString;
 import com.ptc.services.utilities.docgen.utils.HyperLinkFactory;
 import com.ptc.services.utilities.docgen.utils.StringObj;
 import static com.ptc.services.utilities.docgen.utils.Utils.appendNewLine;
@@ -29,7 +40,8 @@ public class TestVerdict extends IntegrityAdminObject {
     private String displayName;
     private String verdicyType;
 
-    public TestVerdict() {
+    public TestVerdict(WorkItem wi) {
+        super(wi, Types.Verdict);
         // modelType = IMModelTypeName.TEST_VERDICT;
         name = "";
         createdBy = "";
@@ -38,7 +50,6 @@ public class TestVerdict extends IntegrityAdminObject {
         displayName = "";
         xmlParamName = XMLWriter.padXMLParamName(XML_PREFIX + XMLWriter.getXMLParamName(name));
         verdicyType = "";
-        objectType = Types.Verdict;
     }
 
     // All setter functions
@@ -146,7 +157,7 @@ public class TestVerdict extends IntegrityAdminObject {
     }
 
     public String getLastModifiedDate(SimpleDateFormat sdf) {
-        return Integrity.getDateString(sdf, lastModified);
+        return getDateString(sdf, lastModified);
     }
 
     @Override
