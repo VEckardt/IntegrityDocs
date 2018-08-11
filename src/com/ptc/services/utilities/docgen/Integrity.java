@@ -537,7 +537,7 @@ public class Integrity extends IntegrityUtils {
       Command cmd = new Command(Command.IM, "diag");
       cmd.addOption(new Option("diag", "runsql"));
       cmd.addOption(new Option("param", "select Name from Projects where ParentID is null"));
-      Response response = executeInterim(cmd);
+      Response response = execute(cmd);
       String message = response.getResult().getMessage();
       // ResponseUtil.printResponse(response, 1, System.out);
 
@@ -556,7 +556,7 @@ public class Integrity extends IntegrityUtils {
          }
       }
       if (cmd.getSelectionList().size() > 0) {
-         return executeInterim(cmd).getWorkItems();
+         return execute(cmd).getWorkItems();
       }
       return new SimpleWorkItemList();
    }
@@ -592,7 +592,7 @@ public class Integrity extends IntegrityUtils {
          }
 
          // Run the im states command to get the global details on the state
-         Response res = executeInterim(imStates);
+         Response res = execute(imStates);
          // Parse the response for the initial pass
          if (null != res && null != res.getWorkItems()) {
             WorkItemIterator wii = res.getWorkItems();
@@ -675,7 +675,7 @@ public class Integrity extends IntegrityUtils {
          }
 
          // Run the im fields command to get the global details on the field
-         Response res = executeInterim(imFields);
+         Response res = execute(imFields);
          // Parse the response for the initial pass
          if (null != res && null != res.getWorkItems()) {
             WorkItemIterator wii = res.getWorkItems();
@@ -869,7 +869,7 @@ public class Integrity extends IntegrityUtils {
       }
 
       // run first command
-      WorkItemIterator wit = executeInterim(command).getWorkItems();
+      WorkItemIterator wit = execute(command).getWorkItems();
 
       // stop here for ViewSet and SI Projects or Type
       if (type.equals(Types.Viewset) || type.equals(Types.SIProject) || type.equals(Types.Type)) {
@@ -889,7 +889,7 @@ public class Integrity extends IntegrityUtils {
          command.addSelection(wi.getId());
       }
       // run second command
-      return executeInterim(command).getWorkItems();
+      return execute(command).getWorkItems();
    }
 
    public static WorkItemIterator getWordTemplates(String typeName) throws APIException {
@@ -923,7 +923,7 @@ public class Integrity extends IntegrityUtils {
       Command cmd = new Command(Command.IM, "charts");
       // Add each query selection to the view query command
       addFieldList(cmd, chartAttributes);
-      WorkItemIterator wit = executeInterim(cmd).getWorkItems();
+      WorkItemIterator wit = execute(cmd).getWorkItems();
 
       while (wit.hasNext()) {
          WorkItem chart = wit.next();
@@ -975,7 +975,7 @@ public class Integrity extends IntegrityUtils {
     */
    public WorkItemIterator viewViewSets() throws APIException {
       Command intViewsets = new Command(Command.INTEGRITY, "viewsets");
-      return executeInterim(intViewsets).getWorkItems();
+      return execute(intViewsets).getWorkItems();
    }
 
    public File fetchViewset(String viewset, File exportDir) throws APIException {

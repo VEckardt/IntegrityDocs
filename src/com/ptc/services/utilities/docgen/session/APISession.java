@@ -132,56 +132,56 @@ public class APISession {
     * @return MKS API Response Object
     * @throws APIException
     */
-   public Response runCommandWithInterim(Command cmd) throws APIException {
-      // Terminate the previous command runner, if applicable
-      if (null != icr) {
-         icr.interrupt();
-         icr.release();
-      }
-      icr = session.createCmdRunner();
-      icr.setDefaultHostname(hostName);
-      icr.setDefaultPort(port);
-      icr.setDefaultUsername(userName);
-      long timestamp;
-      String cmdArgs[] = cmd.toStringArray();
-      StringBuilder cmdDebug1 = new StringBuilder();
-      cmdDebug1.append("Command [ ");
-      for (String cmdArg : cmdArgs) {
-         cmdDebug1.append(cmdArg).append(' ');
-      }
-      cmdDebug1.append("]");
-      StringBuilder cmdDebug2 = new StringBuilder();
-      timestamp = System.currentTimeMillis();
-
-      Response res;
-      try {
-         res = icr.executeWithInterim(cmd, false);
-         // ResponseUtil.printResponse(res, 1, System.out);
-      } catch (APIException ex) {
-         Response response = ex.getResponse();
-         if (response != null) {
-            WorkItemIterator wii = response.getWorkItems();
-            if (wii != null && response.getWorkItemListSize() == 1) {
-               try {
-                  wii.next();
-               } catch (APIException wex) {
-                  ex = wex;
-               }
-            }
-         }
-         log(cmdDebug1.toString(), 1);
-         cmdDebug2.append(ex.getMessage()).append(" (").append(ex.getExceptionId()).append(")");
-         timestamp = System.currentTimeMillis() - timestamp;
-         cmdDebug2.append("[").append(timestamp).append("ms]");
-         log(cmdDebug2.toString(), 1);
-         throw ex;
-      }
-      // in case it was positive
-      timestamp = System.currentTimeMillis() - timestamp;
-      cmdDebug1.append("[").append(timestamp).append("ms]");
-      log(cmdDebug1.toString(), 1);
-      return res;
-   }
+//   public Response runXCommandWithInterim(Command cmd) throws APIException {
+//      // Terminate the previous command runner, if applicable
+//      if (null != icr) {
+//         icr.interrupt();
+//         icr.release();
+//      }
+//      icr = session.createCmdRunner();
+//      icr.setDefaultHostname(hostName);
+//      icr.setDefaultPort(port);
+//      icr.setDefaultUsername(userName);
+//      long timestamp;
+//      String cmdArgs[] = cmd.toStringArray();
+//      StringBuilder cmdDebug1 = new StringBuilder();
+//      cmdDebug1.append("Command [ ");
+//      for (String cmdArg : cmdArgs) {
+//         cmdDebug1.append(cmdArg).append(' ');
+//      }
+//      cmdDebug1.append("]");
+//      StringBuilder cmdDebug2 = new StringBuilder();
+//      timestamp = System.currentTimeMillis();
+//
+//      Response res;
+//      try {
+//         res = icr.executeWithInterim(cmd, false);
+//         // ResponseUtil.printResponse(res, 1, System.out);
+//      } catch (APIException ex) {
+//         Response response = ex.getResponse();
+//         if (response != null) {
+//            WorkItemIterator wii = response.getWorkItems();
+//            if (wii != null && response.getWorkItemListSize() == 1) {
+//               try {
+//                  wii.next();
+//               } catch (APIException wex) {
+//                  ex = wex;
+//               }
+//            }
+//         }
+//         log(cmdDebug1.toString(), 1);
+//         cmdDebug2.append(ex.getMessage()).append(" (").append(ex.getExceptionId()).append(")");
+//         timestamp = System.currentTimeMillis() - timestamp;
+//         cmdDebug2.append("[").append(timestamp).append("ms]");
+//         log(cmdDebug2.toString(), 1);
+//         throw ex;
+//      }
+//      // in case it was positive
+//      timestamp = System.currentTimeMillis() - timestamp;
+//      cmdDebug1.append("[").append(timestamp).append("ms]");
+//      log(cmdDebug1.toString(), 1);
+//      return res;
+//   }
 
    /**
     * This function executes a generic API/CLI Command impersonating another

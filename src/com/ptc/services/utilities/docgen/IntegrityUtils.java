@@ -67,10 +67,9 @@ public class IntegrityUtils {
       return api.runCommand(cmd);
    }
 
-   public static Response executeInterim(Command cmd) throws APIException {
-      return api.runCommandWithInterim(cmd);
-   }
-
+//   public static Response executeInterim(Command cmd) throws APIException {
+//      return api.runCommandWithInterim(cmd);
+//   }
    public static String getConnectionString() {
       return api.getConnectionString();
    }
@@ -115,7 +114,7 @@ public class IntegrityUtils {
       // Setup the im fields command to get the global definition of the field
       Command imFields = new Command(Command.IM, "fields");
       // Run the im fields command to get the global details on the field
-      Response res = executeInterim(imFields);
+      Response res = execute(imFields);
       // Parse the response for the initial pass
       if (null != res && null != res.getWorkItems()) {
          WorkItemIterator wii = res.getWorkItems();
