@@ -33,7 +33,8 @@ public class ImageUtils {
 
     public static void extractImage(Field fld, File imageFile) {
         try {
-            ImageUtils.writeToFile(fld.getItem().getField("data").getBytes(), imageFile.getAbsolutePath());
+            String validFilename = imageFile.getAbsolutePath().replaceAll("\\*", "");
+            ImageUtils.writeToFile(fld.getItem().getField("data").getBytes(), validFilename);
         } catch (IOException ex) {
             Logger.getLogger(Integrity.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -107,7 +108,7 @@ public class ImageUtils {
             // log("Status = " + result);
 
             BufferedImage newImg = decodeToImage(imageString);
-            ImageIO.write(newImg, "png", new File(fileName));
+            ImageIO.write(newImg, "png", file);
             log("  File " + fileName + " written.");
         }
     }

@@ -819,14 +819,14 @@ public class IntegrityType extends IntegrityObject {
       }
 
       // --majorRevisionRule=See documentation
-      if (getMajorRevision().length() > 0) {
-         command.appendChild(XMLWriter.getOption(job, "majorRevisionRule", getMajorRevision()));
-      }
+      // if (getMajorRevision().length() > 0) {
+      //    command.appendChild(XMLWriter.getOption(job, "majorRevisionRule", getMajorRevision()));
+      // }
 
       // --minorRevisionRule=See documentation
-      if (getMinorRevision().length() > 0) {
-         command.appendChild(XMLWriter.getOption(job, "minorRevisionRule", getMinorRevision()));
-      }
+      // if (getMinorRevision().length() > 0) {
+      //    command.appendChild(XMLWriter.getOption(job, "minorRevisionRule", getMinorRevision()));
+      // }
 
       // --[no]duplicateDetectionMandatory  Make it mandatory for users to view potential duplicates before they create a new item.
       if (getDuplicateDetectionMandatory()) {
@@ -1256,14 +1256,14 @@ public class IntegrityType extends IntegrityObject {
    }
 
    // majorRevision
-   public String getMajorRevision() {
-      return getStringFieldValue(typeFields.get("majorRevision"));
-   }
+   // public String getMajorRevision() {
+   //    return getStringFieldValue(typeFields.get("majorRevision"));
+   // }
 
    // minorRevision
-   public String getMinorRevision() {
-      return getStringFieldValue(typeFields.get("minorRevision"));
-   }
+   // public String getMinorRevision() {
+   //    return getStringFieldValue(typeFields.get("minorRevision"));
+   // }
 
    // duplicateDetectionMandatory
    public boolean getDuplicateDetectionMandatory() {
