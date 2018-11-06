@@ -65,9 +65,9 @@ public class Integrity extends IntegrityUtils {
         "description", "documentClass", "duplicateDetectionMandatory", "duplicateDetectionSearchField",
         "editPresentation", "fieldRelationships", "groupDocument", "id", "image", "isTestResult",
         "issueEditability", "labelEnabled",
-        // R12: "majorRevision", 
+        "majorRevisionRule", 
         "mandatoryFields",
-        // R12: "minorRevision",
+        "minorRevisionRule",
         "modifyTestResultPolicy", "name", "notificationFields", "permittedAdministrators", "permittedGroups",
         "phaseField", "position", "printPresentation", "properties", /*"references",*/ "revisionEnabled",
         "showWorkflow", "significantEdit", "stateTransitions", "testCaseResultFields", "testRole",
@@ -882,7 +882,7 @@ public class Integrity extends IntegrityUtils {
 
         if (type.equals(Types.ResultField)) {
             // in this case we read the standard field definition
-            command = new Command(Command.IM, "viewfield");
+            command = new Command(Command.TM, "resultfields");
         } else {
             // otherwise we continue in standard
             command = new Command(type.getCmd(), "view" + type.name().toLowerCase());
@@ -1035,7 +1035,7 @@ public class Integrity extends IntegrityUtils {
             result = result + wi.getField("title").getValueAsString();
             result = result + ", Version: " + wi.getField("version").getValueAsString();
             try {  // there might not be a hotfix installed
-                result = result + "<br/>HotFixes: " + wi.getField("hotfixes").getValueAsString().replaceAll(",", ", ") + "</br>";
+                result = result + "<br/>Patch-Level: " + wi.getField("patch-level").getValueAsString().replaceAll(",", ", ") + "</br>";
             } catch  (NoSuchElementException ex) {}
             result = result + "API Version: " + wi.getField("apiversion").getValueAsString();
 
